@@ -21,8 +21,5 @@ RUN npm run build
 EXPOSE 4000
 
 # Copy start script
-COPY start.sh .
-RUN chmod +x start.sh
-
-# Start command
-CMD ["./start.sh"]
+# Start command without external script to avoid line-ending issues
+CMD ["sh", "-c", "npx prisma db push --accept-data-loss && npm start"]
