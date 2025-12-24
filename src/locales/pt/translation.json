@@ -146,6 +146,18 @@
             "cancelled": "Canceladas",
             "not_done": "Não realizadas"
         },
+        "schedule_return": "Agendar Retorno",
+        "new_button": "Nova Consulta",
+        "create": {
+            "title": "Nova Consulta",
+            "subtitle": "Agende um novo atendimento.",
+            "patient_name": "Nome do Paciente",
+            "patient_placeholder": "Digite o nome...",
+            "date": "Data",
+            "time": "Hora",
+            "type": "Tipo",
+            "submit": "Agendar"
+        },
         "filters": {
             "search_placeholder": "Buscar por paciente...",
             "all_status": "Todos os status",

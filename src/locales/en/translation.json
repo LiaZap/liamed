@@ -146,6 +146,18 @@
             "cancelled": "Cancelled",
             "not_done": "Not done"
         },
+        "schedule_return": "Schedule Return",
+        "new_button": "New Consultation",
+        "create": {
+            "title": "New Consultation",
+            "subtitle": "Schedule a new appointment.",
+            "patient_name": "Patient Name",
+            "patient_placeholder": "Enter name...",
+            "date": "Date",
+            "time": "Time",
+            "type": "Type",
+            "submit": "Schedule"
+        },
         "filters": {
             "search_placeholder": "Search by patient...",
             "all_status": "All status",
