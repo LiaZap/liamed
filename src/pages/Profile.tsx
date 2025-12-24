@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -37,7 +37,8 @@ interface ProfileProps {
 }
 
 export default function Profile({ onNavigate }: ProfileProps) {
-    const { user: authUser, logout, refreshUser } = useAuth() // Assuming refreshUser exists or we fetch manually
+    const { t } = useTranslation()
+    const { user: authUser, logout } = useAuth()
     const [user, setUser] = useState<any>(null)
     const [loading, setLoading] = useState(true)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
