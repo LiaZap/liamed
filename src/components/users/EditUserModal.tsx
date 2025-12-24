@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { toast } from "sonner"
 import {
     Dialog,
     DialogContent,
@@ -41,6 +42,7 @@ export function EditUserModal({ isOpen, onClose, user, onSave }: EditUserModalPr
                 setRole(user.role || "MEDICO")
                 setIsActive(user.status === "ATIVO")
                 setPromptText(user.customPrompt || "")
+                setPassword("") // Limpar senha ao editar para evitar envio acidental de dados antigos
             } else {
                 // New User defaults
                 setName("")
@@ -59,6 +61,11 @@ export function EditUserModal({ isOpen, onClose, user, onSave }: EditUserModalPr
     }
 
     const handleSave = () => {
+        if (!user && !password) {
+            toast.error("A senha é obrigatória para novos usuários.")
+            return
+        }
+
         if (onSave) {
             // @ts-ignore
             onSave({
@@ -93,12 +100,16 @@ export function EditUserModal({ isOpen, onClose, user, onSave }: EditUserModalPr
                             <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@medipro.com" />
                         </div>
 
-                        {!user && (
-                            <div className="space-y-2">
-                                <Label>Senha</Label>
-                                <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Senha inicial" />
-                            </div>
-                        )}
+                        {/* Password - Agora visível sempre, mas opcional para edição */}
+                        <div className="space-y-2">
+                            <Label>Senha {user && <span className="text-xs font-normal text-muted-foreground">(Deixe em branco para manter a atual)</span>}</Label>
+                            <Input
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                placeholder={user ? "Nova senha (opcional)" : "Senha inicial obrigatória"}
+                            />
+                        </div>
 
                         {/* User Type */}
                         <div className="space-y-2">

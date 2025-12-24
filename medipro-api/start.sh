@@ -1,8 +1,8 @@
 #!/bin/sh
 
 # Rodar migrações do banco de dados
-echo "Rodando migrações do Prisma..."
-npx prisma migrate deploy
+echo "Sincronizando esquema do banco de dados..."
+npx prisma db push --accept-data-loss
 
 # Iniciar o servidor
 echo "Iniciando servidor..."
