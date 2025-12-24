@@ -1,7 +1,12 @@
 import axios from 'axios';
 
+const getBaseUrl = () => {
+    const url = import.meta.env.VITE_API_URL || 'https://liamed-api.leyiy3.easypanel.host';
+    return url.endsWith('/api') ? url : `${url}/api`;
+};
+
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'https://liamed-api.leyiy3.easypanel.host',
+    baseURL: getBaseUrl(),
     headers: {
         'Content-Type': 'application/json',
     },
