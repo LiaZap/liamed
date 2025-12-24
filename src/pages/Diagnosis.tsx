@@ -460,6 +460,7 @@ export default function Diagnosis() {
                             {responseState === 'content' && (
                                 <div className="flex gap-1">
                                     <TooltipProvider>
+                                        <Tooltip><TooltipTrigger asChild><Button variant="outline" size="sm" className="h-8 gap-2 mr-2 border-primary/20 text-primary hover:bg-primary/5 dark:border-primary/50 dark:text-primary-foreground" onClick={() => setIsCreateConsultOpen(true)}><CalendarPlus className="h-4 w-4" /> {t('consultations.schedule_return')}</Button></TooltipTrigger><TooltipContent>{t('consultations.schedule_return')}</TooltipContent></Tooltip>
                                         <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={handleCopy}><Copy className="h-4 w-4" /></Button></TooltipTrigger><TooltipContent>{t('diagnosis.tooltips.copy')}</TooltipContent></Tooltip>
                                         <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-slate-100 dark:hover:bg-slate-800"><Maximize2 className="h-4 w-4" /></Button></TooltipTrigger><TooltipContent>{t('diagnosis.tooltips.expand')}</TooltipContent></Tooltip>
                                         <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-slate-100 dark:hover:bg-slate-800"><Share2 className="h-4 w-4" /></Button></TooltipTrigger><TooltipContent>{t('diagnosis.tooltips.share')}</TooltipContent></Tooltip>
@@ -511,6 +512,14 @@ export default function Diagnosis() {
                     </div>
                 </div>
             </div>
+
+            {/* Create Consultation Modal */}
+            <CreateConsultationModal
+                isOpen={isCreateConsultOpen}
+                onClose={() => setIsCreateConsultOpen(false)}
+                onSuccess={() => { }} // No refresh needed here as it's just creation
+                initialPatientName={patientName}
+            />
 
             {/* Complementary Data Modal */}
             <Dialog open={isComplementaryModalOpen} onOpenChange={setIsComplementaryModalOpen}>

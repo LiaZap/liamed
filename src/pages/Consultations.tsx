@@ -48,9 +48,14 @@ import {
 import { exportToCSV, exportToPDF } from "@/utils/exportUtils"
 import api from "@/services/api"
 
+import { CreateConsultationModal } from "@/components/consultations/CreateConsultationModal"
+import { Plus } from "lucide-react"
+
+// ... imports ...
+
 export default function Consultations() {
     const { t } = useTranslation();
-    const [consultations, setConsultations] = useState<any[]>([]) // Using any for simplicity for now as interface is implied
+    const [consultations, setConsultations] = useState<any[]>([])
     const [stats, setStats] = useState({ total: 0, scheduled: 0, completed: 0, cancelled: 0 })
     const [loading, setLoading] = useState(true)
     const [searchTerm, setSearchTerm] = useState('')
@@ -63,30 +68,33 @@ export default function Consultations() {
     const [isDetailsOpen, setIsDetailsOpen] = useState(false)
     const [detailsLoading, setDetailsLoading] = useState(false)
 
+    // Create Modal State
+    const [isCreateOpen, setIsCreateOpen] = useState(false)
+
     // Fetch Consults
-    useEffect(() => {
-        async function fetchConsultations() {
-            setLoading(true)
-            try {
-                // Fetch stats separately to keep them global even when filtering table
-                const statsResponse = await api.get('/consults/stats');
-                setStats(statsResponse.data);
+    async function fetchConsultations() {
+        setLoading(true)
+        try {
+            // Fetch stats separately to keep them global even when filtering table
+            const statsResponse = await api.get('/consults/stats');
+            setStats(statsResponse.data);
 
-                const params = new URLSearchParams();
-                if (searchTerm) params.append('search', searchTerm);
-                if (statusFilter !== 'all') params.append('status', statusFilter === 'scheduled' ? 'AGENDADA' : statusFilter === 'completed' ? 'CONCLUIDA' : statusFilter === 'cancelled' ? 'CANCELADA' : statusFilter);
-                if (typeFilter !== 'all') params.append('type', typeFilter === 'consultation' ? 'CONSULTA' : typeFilter === 'return' ? 'RETORNO' : typeFilter === 'emergency' ? 'EMERGENCIA' : typeFilter);
+            const params = new URLSearchParams();
+            if (searchTerm) params.append('search', searchTerm);
+            if (statusFilter !== 'all') params.append('status', statusFilter === 'scheduled' ? 'AGENDADA' : statusFilter === 'completed' ? 'CONCLUIDA' : statusFilter === 'cancelled' ? 'CANCELADA' : statusFilter);
+            if (typeFilter !== 'all') params.append('type', typeFilter === 'consultation' ? 'CONSULTA' : typeFilter === 'return' ? 'RETORNO' : typeFilter === 'emergency' ? 'EMERGENCIA' : typeFilter);
 
-                const response = await api.get(`/consults?${params.toString()}`)
-                setConsultations(response.data)
-            } catch (error) {
-                console.error("Failed to fetch consults", error)
-                toast.error(t('consultations.toasts.load_error'))
-            } finally {
-                setLoading(false)
-            }
+            const response = await api.get(`/consults?${params.toString()}`)
+            setConsultations(response.data)
+        } catch (error) {
+            console.error("Failed to fetch consults", error)
+            toast.error(t('consultations.toasts.load_error'))
+        } finally {
+            setLoading(false)
         }
+    }
 
+    useEffect(() => {
         // Add small debounce if searching
         const timeout = setTimeout(() => {
             fetchConsultations()
@@ -96,6 +104,7 @@ export default function Consultations() {
     }, [searchTerm, statusFilter, typeFilter])
 
     const handleExport = (type: 'csv' | 'pdf') => {
+        // ... handled existing ...
         if (consultations.length === 0) {
             toast.error(t('consultations.toasts.no_data_export'))
             return;
@@ -162,7 +171,8 @@ export default function Consultations() {
             // Update list state locally to avoid refetch
             setConsultations(prev => prev.map(c => c.id === selectedConsult.id ? { ...c, status: newStatus } : c))
 
-            // Refresh stats if needed (optional, simplistic approach here)
+            // Refresh stats if needed
+            fetchConsultations() // Just refresh everything to be safe and update stats
         } catch (error) {
             console.error("Failed to update status", error)
             toast.error(t('consultations.toasts.status_error'))
@@ -170,30 +180,38 @@ export default function Consultations() {
     }
 
     return (<>
-        <div className="space-y-6">
+        <div className="space-y-6 animate-in fade-in duration-500">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    {loading ? <Skeleton className="h-8 w-48 mb-2" /> : <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-50">{t('consultations.title')}</h1>}
+                    {loading ? <Skeleton className="h-8 w-48 mb-2" /> : <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50">{t('consultations.title')}</h1>}
                     {loading ? <Skeleton className="h-4 w-64" /> : <p className="text-muted-foreground">{t('consultations.subtitle')}</p>}
                 </div>
-                {loading ? <Skeleton className="h-9 w-32" /> : (
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline" className="gap-2 bg-white dark:bg-slate-800 dark:border-slate-700">
-                                <Download className="h-4 w-4" /> {t('consultations.report_button')}
+                <div className="flex gap-2">
+                    {loading ? <Skeleton className="h-9 w-32" /> : (
+                        <>
+                            <Button onClick={() => setIsCreateOpen(true)} className="gap-2 bg-[#0066CC] hover:bg-[#0055AA] text-white dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-200">
+                                <Plus className="h-4 w-4" /> {t('consultations.new_button')}
                             </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
-                            <DropdownMenuItem onClick={() => handleExport('csv')} className="cursor-pointer">
-                                {t('common.export_csv')}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleExport('pdf')} className="cursor-pointer">
-                                {t('common.export_pdf')}
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                )}
+
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="outline" className="gap-2 bg-white dark:bg-slate-800 dark:border-slate-700">
+                                        <Download className="h-4 w-4" /> {t('consultations.report_button')}
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-48 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+                                    <DropdownMenuItem onClick={() => handleExport('csv')} className="cursor-pointer">
+                                        {t('common.export_csv')}
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleExport('pdf')} className="cursor-pointer">
+                                        {t('common.export_pdf')}
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </>
+                    )}
+                </div>
             </div>
 
             {/* Section 1 - Summary Cards */}
@@ -446,6 +464,14 @@ export default function Consultations() {
                 </div>
             </div>
         </div>
+
+
+        {/* Create Modal */}
+        <CreateConsultationModal
+            isOpen={isCreateOpen}
+            onClose={() => setIsCreateOpen(false)}
+            onSuccess={fetchConsultations}
+        />
 
         {/* Details Dialog */}
         <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
