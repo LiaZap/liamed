@@ -13,9 +13,10 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import {
     Search, RefreshCw, ChevronLeft, ChevronRight,
     Mic, FileText, Plus, Send,
-    Bot, Copy, Maximize2, Share2, Printer, Loader2, X
+    Bot, Copy, Maximize2, Share2, Printer, Loader2, X, CalendarPlus
 } from "lucide-react"
 import { ConsultationDetailsModal } from "@/components/diagnosis/ConsultationDetailsModal"
+import { CreateConsultationModal } from "@/components/consultations/CreateConsultationModal"
 import { toast } from "sonner"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useNotifications } from "@/contexts/NotificationContext"
@@ -26,6 +27,7 @@ export default function Diagnosis() {
     const { t } = useTranslation();
     const [responseState, setResponseState] = useState<'empty' | 'loading' | 'content'>('empty')
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const [isCreateConsultOpen, setIsCreateConsultOpen] = useState(false)
 
     const [patientName, setPatientName] = useState('')
 
