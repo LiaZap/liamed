@@ -11,7 +11,7 @@ import { logAction } from '../services/audit.service';
 
 export const createUser = async (req: AuthRequest, res: Response) => {
     try {
-        const { name, email, password, role, status } = req.body;
+        const { name, email, password, role, status, endpointId } = req.body;
 
         const userExists = await prisma.user.findUnique({ where: { email } });
         if (userExists) {
@@ -26,7 +26,8 @@ export const createUser = async (req: AuthRequest, res: Response) => {
                 email,
                 password: hashedPassword,
                 role: role || 'MEDICO',
-                status: status || 'ATIVO'
+                status: status || 'ATIVO',
+                endpointId: endpointId || null
             }
         });
 
@@ -50,7 +51,7 @@ export const createUser = async (req: AuthRequest, res: Response) => {
 export const updateUser = async (req: AuthRequest, res: Response) => {
     try {
         const { id } = req.params;
-        const { name, email, password, role, status, biography, phone, address } = req.body;
+        const { name, email, password, role, status, biography, phone, address, endpointId } = req.body;
         const requestingUserId = req.user.id;
         const requestingUserRole = req.user.role;
 
@@ -64,7 +65,7 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
             return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem alterar funções ou status.' });
         }
 
-        const data: any = { name, email, role, status, biography, phone, address };
+        const data: any = { name, email, role, status, biography, phone, address, endpointId };
 
         if (password) {
             data.password = await bcrypt.hash(password, 10);
@@ -193,6 +194,7 @@ export const listUsers = async (req: AuthRequest, res: Response) => {
                 email: true,
                 role: true,
                 status: true,
+                endpointId: true,
                 lastLogin: true
             },
             orderBy: { name: 'asc' }

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import api from "@/services/api"
 import { toast } from "sonner"
 import {
     Dialog,
@@ -33,6 +34,20 @@ export function EditUserModal({ isOpen, onClose, user, onSave }: EditUserModalPr
     const [password, setPassword] = useState("")
     const [role, setRole] = useState("MEDICO")
     const [isActive, setIsActive] = useState(true)
+    const [endpointId, setEndpointId] = useState("none")
+    const [endpoints, setEndpoints] = useState<any[]>([])
+
+    useEffect(() => {
+        const fetchEndpoints = async () => {
+            try {
+                const response = await api.get('/endpoints')
+                setEndpoints(response.data)
+            } catch (error) {
+                console.error("Failed to fetch endpoints", error)
+            }
+        }
+        fetchEndpoints()
+    }, [])
 
     useEffect(() => {
         if (isOpen) {
@@ -42,6 +57,7 @@ export function EditUserModal({ isOpen, onClose, user, onSave }: EditUserModalPr
                 setRole(user.role || "MEDICO")
                 setIsActive(user.status === "ATIVO")
                 setPromptText(user.customPrompt || "")
+                setEndpointId(user.endpointId || "none")
                 setPassword("") // Limpar senha ao editar para evitar envio acidental de dados antigos
             } else {
                 // New User defaults
@@ -50,6 +66,7 @@ export function EditUserModal({ isOpen, onClose, user, onSave }: EditUserModalPr
                 setPassword("")
                 setRole("MEDICO")
                 setIsActive(true)
+                setEndpointId("none")
                 setPromptText(`# Prompt para Geração de Evolução Médica no Formato SOAP...`)
             }
         }
@@ -74,7 +91,8 @@ export function EditUserModal({ isOpen, onClose, user, onSave }: EditUserModalPr
                 password,
                 role,
                 status: isActive ? "ATIVO" : "INATIVO",
-                customPrompt: promptText
+                customPrompt: promptText,
+                endpointId: endpointId === "none" ? null : endpointId
             })
         }
     }
@@ -124,6 +142,25 @@ export function EditUserModal({ isOpen, onClose, user, onSave }: EditUserModalPr
                                     <SelectItem value="RECEPCIONISTA">Recepcionista</SelectItem>
                                 </SelectContent>
                             </Select>
+                        </div>
+
+                        {/* Endpoint Selection */}
+                        <div className="space-y-2">
+                            <Label>Endpoint de IA (Opcional)</Label>
+                            <Select value={endpointId} onValueChange={setEndpointId}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Selecione um endpoint..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="none">Padrão do Sistema (System Key)</SelectItem>
+                                    {endpoints.map((ep) => (
+                                        <SelectItem key={ep.id} value={ep.id}>
+                                            {ep.name} ({ep.model || 'OpenAI'})
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <p className="text-[10px] text-muted-foreground">Define qual API de IA este usuário utilizará.</p>
                         </div>
 
                         {/* Prompt AI */}

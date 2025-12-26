@@ -36,6 +36,7 @@ interface User {
     status: "ATIVO" | "INATIVO"
     email: string
     lastAccess: string
+    endpointId?: string
 }
 
 import api from "@/services/api"
