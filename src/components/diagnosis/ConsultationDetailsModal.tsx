@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Copy, Printer } from "lucide-react"
+import ReactMarkdown from 'react-markdown'
 
 interface ConsultationDetailsModalProps {
     isOpen: boolean
@@ -106,7 +107,7 @@ export function ConsultationDetailsModal({ isOpen, onClose, data }: Consultation
                             <div className="bg-white border rounded-lg p-6 shadow-sm dark:bg-slate-900 dark:border-slate-800">
                                 <div className="prose prose-sm max-w-none prose-blue dark:prose-invert">
                                     <div className="text-slate-600 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">
-                                        {data.aiResponse}
+                                        <ReactMarkdown>{data.aiResponse}</ReactMarkdown>
                                     </div>
                                 </div>
 

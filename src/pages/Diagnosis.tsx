@@ -15,6 +15,7 @@ import {
     Mic, FileText, Plus, Send,
     Bot, Copy, Maximize2, Share2, Printer, Loader2, X, CalendarPlus, Trash2
 } from "lucide-react"
+import ReactMarkdown from 'react-markdown'
 import { ConsultationDetailsModal } from "@/components/diagnosis/ConsultationDetailsModal"
 import { CreateConsultationModal } from "@/components/consultations/CreateConsultationModal"
 import { toast } from "sonner"
@@ -563,7 +564,7 @@ export default function Diagnosis() {
                                         </h4>
 
                                         <div className="text-slate-600 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">
-                                            {diagnosisResult?.aiResponse || "Sem resposta disponível."}
+                                            <ReactMarkdown>{diagnosisResult?.aiResponse || "Sem resposta disponível."}</ReactMarkdown>
                                         </div>
 
 
