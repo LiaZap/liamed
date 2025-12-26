@@ -47,6 +47,10 @@ export const createDiagnosis = async (req: Request, res: Response) => {
             include: { endpoint: true }
         });
 
+        console.log(`[Diagnosis] User ID: ${doctorId}`);
+        console.log(`[Diagnosis] Linked Endpoint:`, doctor?.endpoint ? doctor.endpoint.name : 'None');
+        console.log(`[Diagnosis] Endpoint Status:`, doctor?.endpoint?.status);
+
         if (!doctor) {
             return res.status(404).json({ error: 'Médico não encontrado.' });
         }
@@ -83,9 +87,12 @@ export const createDiagnosis = async (req: Request, res: Response) => {
         let modelUsed = "simulation";
 
         const endpoint = doctor.endpoint;
+        console.log(`[Diagnosis] Endpoint Object:`, endpoint);
 
         // --- AI CALL LOGIC ---
         if (endpoint && endpoint.status === 'ATIVO') {
+            console.log(`[Diagnosis] Mode: Custom Endpoint (${endpoint.url})`);
+            // 1. Use User's Custom Endpoint
             // 1. Use User's Custom Endpoint
             modelUsed = "custom-endpoint";
             try {
@@ -97,6 +104,7 @@ export const createDiagnosis = async (req: Request, res: Response) => {
             }
 
         } else if (process.env.OPENAI_API_KEY) {
+            console.log(`[Diagnosis] Mode: System OpenAI`);
             // 2. Use System Default OpenAI
             modelUsed = "system-openai";
             try {
@@ -112,6 +120,7 @@ export const createDiagnosis = async (req: Request, res: Response) => {
                 aiResponse = `Erro ao consultar OpenAI do sistema: ${err.message}`;
             }
         } else {
+            console.log(`[Diagnosis] Mode: Simulation Fallback`);
             // 3. Fallback to Simulation
             modelUsed = "simulation-fallback";
             aiResponse = `**[MODO SIMULAÇÃO]** (Nenhum endpoint ou chave API configurada)\n\n` +
