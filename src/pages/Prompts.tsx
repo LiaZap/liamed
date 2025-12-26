@@ -46,9 +46,9 @@ interface Prompt {
 
 const getCategoryColor = (category: string) => {
     switch (category) {
-        case "DIAGNÓSTICO": return "bg-blue-100 text-blue-700 hover:bg-blue-100 dark:bg-slate-800 dark:text-slate-300";
+        case "DIAGNOSTICO": return "bg-blue-100 text-blue-700 hover:bg-blue-100 dark:bg-slate-800 dark:text-slate-300";
         case "TRATAMENTO": return "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-300";
-        case "EVOLUÇÃO": return "bg-purple-100 text-purple-700 hover:bg-purple-100 dark:bg-purple-900/30 dark:text-purple-300";
+        case "EVOLUCAO": return "bg-purple-100 text-purple-700 hover:bg-purple-100 dark:bg-purple-900/30 dark:text-purple-300";
         default: return "bg-slate-100 text-slate-700 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300";
     }
 }
