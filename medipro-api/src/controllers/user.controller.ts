@@ -196,6 +196,7 @@ export const listUsers = async (req: AuthRequest, res: Response) => {
                 role: true,
                 status: true,
                 endpointId: true,
+                customPrompt: true,
                 lastLogin: true
             },
             orderBy: { name: 'asc' }
