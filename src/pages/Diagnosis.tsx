@@ -30,6 +30,7 @@ export default function Diagnosis() {
     const [isCreateConsultOpen, setIsCreateConsultOpen] = useState(false)
 
     const [patientName, setPatientName] = useState('')
+    const [diagnosisResult, setDiagnosisResult] = useState<any>(null)
 
     // New States
     const [symptoms, setSymptoms] = useState('')
@@ -218,11 +219,13 @@ export default function Diagnosis() {
             // Note: In a real scenario, we would use the response from the API.
             // For now, we are simulating the streaming response or just showing the static one defined in the backend/frontend.
             // The backend returns a Diagnosis object with aiResponse.
-            await api.post('/diagnosis', formData, {
+            const response = await api.post('/diagnosis', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
+
+            setDiagnosisResult(response.data);
 
             // Simulate delayed response for UX (or use real data if we parse it)
             setTimeout(() => {
@@ -492,17 +495,15 @@ export default function Diagnosis() {
 
                                 {responseState === 'content' && (
                                     <div className="prose prose-sm max-w-none prose-blue dark:prose-invert">
-                                        <h4 className="font-bold text-base text-slate-800 dark:text-slate-100 border-b dark:border-slate-700 pb-2 mb-4">{t('diagnosis.response.preliminary_analysis')}</h4>
-                                        <p className="text-slate-600 dark:text-slate-300" dangerouslySetInnerHTML={{ __html: t('diagnosis.mock.analysis') }}></p>
+                                        <h4 className="font-bold text-base text-slate-800 dark:text-slate-100 border-b dark:border-slate-700 pb-2 mb-4">
+                                            {t('diagnosis.response.preliminary_analysis')}
+                                        </h4>
 
-                                        <ul className="my-4 space-y-2 text-slate-600 dark:text-slate-300">
-                                            <li dangerouslySetInnerHTML={{ __html: t('diagnosis.mock.step_1') }}></li>
-                                            <li dangerouslySetInnerHTML={{ __html: t('diagnosis.mock.step_2') }}></li>
-                                            <li dangerouslySetInnerHTML={{ __html: t('diagnosis.mock.step_3') }}></li>
-                                        </ul>
+                                        <div className="text-slate-600 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">
+                                            {diagnosisResult?.aiResponse || "Sem resposta disponível."}
+                                        </div>
 
-                                        <h4 className="font-bold text-base text-slate-800 dark:text-slate-100 border-b dark:border-slate-700 pb-2 mb-4 mt-6">{t('diagnosis.response.conduct_suggestion')}</h4>
-                                        <p className="text-slate-600 dark:text-slate-300">{t('diagnosis.mock.suggestion')}</p>
+
 
                                         <div className="mt-6 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-900/50 rounded-md">
                                             <span className="text-yellow-800 dark:text-yellow-500 font-medium text-xs">{t('diagnosis.response.disclaimer')}</span>
