@@ -89,7 +89,7 @@ export const createDiagnosis = async (req: Request, res: Response) => {
             // 1. Use User's Custom Endpoint
             modelUsed = "custom-endpoint";
             try {
-                aiResponse = await callOpenAICompatible(endpoint.url, endpoint.credentials, systemInstruction, userMessage);
+                aiResponse = await callOpenAICompatible(endpoint.url, endpoint, systemInstruction, userMessage, { patientName, userPrompt, complementaryData });
             } catch (err: any) {
                 console.error("Custom Endpoint Error:", err);
                 aiResponse = `Erro ao consultar IA personalizada: ${err.message}. \n\nGerando resposta simulada de fallback...`;
@@ -102,9 +102,10 @@ export const createDiagnosis = async (req: Request, res: Response) => {
             try {
                 aiResponse = await callOpenAICompatible(
                     'https://api.openai.com/v1/chat/completions',
-                    { token: process.env.OPENAI_API_KEY },
+                    { authType: 'BEARER', credentials: { token: process.env.OPENAI_API_KEY } },
                     systemInstruction,
-                    userMessage
+                    userMessage,
+                    { patientName, userPrompt }
                 );
             } catch (err: any) {
                 console.error("System OpenAI Error:", err);
@@ -140,29 +141,61 @@ export const createDiagnosis = async (req: Request, res: Response) => {
 };
 
 // Helper for generic OpenAI-compatible API calls
-async function callOpenAICompatible(url: string, credentials: any, systemPrompt: string, userPrompt: string): Promise<string> {
-    const token = credentials?.token || credentials?.apiKey; // Adapt to how it's stored
-
-    // If URL is base (e.g. https://api.openai.com/v1), append chat/completions if missing? 
-    // Usually user inserts full endpoint URL like https://api.openai.com/v1/chat/completions
-    // But let's be robust: if it doesn't end in chat/completions and looks like a base URL, maybe warn? 
-    // For now assume full URL provided in Endpoint config.
-
-    const body = {
-        model: "gpt-4o-mini", // Default good model, or make configurable
-        messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: userPrompt }
-        ],
-        temperature: 0.7
-    };
+// Helper for generic OpenAI-compatible API calls OR Webhooks
+async function callOpenAICompatible(url: string, endpointConfig: any, systemPrompt: string, userPrompt: string, originalData: any): Promise<string> {
+    const { authType, credentials } = endpointConfig;
+    const token = credentials?.token?.trim();
 
     const headers: any = {
         'Content-Type': 'application/json'
     };
 
+    // Robust Auth Handling (Same as Test Connection)
     if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
+        switch (authType) {
+            case 'BEARER_TOKEN':
+            case 'BEARER':
+                headers['Authorization'] = `Bearer ${token}`;
+                break;
+            case 'BASIC_AUTH':
+                headers['Authorization'] = token.startsWith('Basic ') ? token : `Basic ${token}`;
+                break;
+            case 'API_KEY':
+                headers['x-api-key'] = token;
+                break;
+            case 'JWT':
+                headers['Authorization'] = `Bearer ${token}`;
+                break;
+            default:
+                if (authType && authType !== 'NONE') {
+                    headers['Authorization'] = token;
+                }
+                break;
+        }
+    }
+
+    let body: any;
+
+    // Smart Body Construction
+    // If it looks like a generic webhook (N8N, Make, Zapier), send flat data
+    if (url.includes('webhook') || url.includes('n8n') || url.includes('make.com') || url.includes('zapier')) {
+        body = {
+            patientName: originalData.patientName,
+            userPrompt: originalData.userPrompt,
+            complementaryData: originalData.complementaryData,
+            timestamp: new Date().toISOString(),
+            source: 'LiaMed-System'
+        };
+    } else {
+        // Default to OpenAI Chat Completion Format
+        body = {
+            model: "gpt-4o-mini",
+            messages: [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: userPrompt }
+            ],
+            temperature: 0.7
+        };
     }
 
     const response = await fetch(url, {
@@ -177,5 +210,20 @@ async function callOpenAICompatible(url: string, credentials: any, systemPrompt:
     }
 
     const data = await response.json();
-    return data.choices?.[0]?.message?.content || "Sem resposta da IA.";
+
+    // Smart Response Parsing
+    // If OpenAI format
+    if (data.choices?.[0]?.message?.content) {
+        return data.choices[0].message.content;
+    }
+
+    // If Webhook returned a simple string or "text" or "output" field
+    if (typeof data === 'string') return data;
+    if (data.output) return data.output;
+    if (data.text) return data.text;
+    if (data.response) return data.response;
+    if (data.message) return data.message;
+
+    // Fallback: Dump JSON
+    return JSON.stringify(data, null, 2);
 }
