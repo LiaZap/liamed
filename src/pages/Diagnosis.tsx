@@ -13,7 +13,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import {
     Search, RefreshCw, ChevronLeft, ChevronRight,
     Mic, FileText, Plus, Send,
-    Bot, Copy, Maximize2, Share2, Printer, Loader2, X, CalendarPlus
+    Bot, Copy, Maximize2, Share2, Printer, Loader2, X, CalendarPlus, Trash2
 } from "lucide-react"
 import { ConsultationDetailsModal } from "@/components/diagnosis/ConsultationDetailsModal"
 import { CreateConsultationModal } from "@/components/consultations/CreateConsultationModal"
@@ -27,6 +27,7 @@ export default function Diagnosis() {
     const { t } = useTranslation();
     const [responseState, setResponseState] = useState<'empty' | 'loading' | 'content'>('empty')
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const [selectedHistoryItem, setSelectedHistoryItem] = useState<any>(null)
     const [isCreateConsultOpen, setIsCreateConsultOpen] = useState(false)
 
     const [patientName, setPatientName] = useState('')
@@ -247,8 +248,23 @@ export default function Diagnosis() {
         }
     }
 
-    const handleHistoryClick = () => {
+    const handleHistoryClick = (item: any) => {
+        setSelectedHistoryItem(item)
         setIsModalOpen(true)
+    }
+
+    const handleDeleteHistory = async (e: React.MouseEvent, id: string) => {
+        e.stopPropagation() // Prevent opening modal
+        if (!confirm(t('diagnosis.history.confirm_delete'))) return
+
+        try {
+            await api.delete(`/diagnosis/${id}`)
+            toast.success(t('diagnosis.toasts.delete_success'))
+            fetchHistory()
+        } catch (error) {
+            console.error("Failed to delete", error)
+            toast.error(t('diagnosis.toasts.delete_error'))
+        }
     }
 
     const handleCopy = () => {
@@ -264,7 +280,11 @@ export default function Diagnosis() {
 
     return (
         <>
-            <ConsultationDetailsModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+            <ConsultationDetailsModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                data={selectedHistoryItem}
+            />
             <div className="flex flex-col lg:flex-row h-[calc(100vh-120px)] gap-6">
                 {/* ... (Left Column - History) ... */}
                 <div className="w-full lg:w-[30%] flex flex-col gap-4 h-full">
@@ -321,8 +341,8 @@ export default function Diagnosis() {
                                 history.map((item) => (
                                     <div
                                         key={item.id}
-                                        onClick={handleHistoryClick}
-                                        className="p-3 rounded-lg border cursor-pointer transition-all hover:bg-slate-50 dark:hover:bg-slate-800/50 bg-white dark:bg-[#222428] dark:border-slate-800"
+                                        onClick={() => handleHistoryClick(item)}
+                                        className="p-3 rounded-lg border cursor-pointer transition-all hover:bg-slate-50 dark:hover:bg-slate-800/50 bg-white dark:bg-[#222428] dark:border-slate-800 group relative"
                                     >
                                         <div className="flex items-start gap-3">
                                             <Avatar className="h-8 w-8 border dark:border-slate-700">
@@ -335,6 +355,13 @@ export default function Diagnosis() {
                                                     <span className="font-medium text-sm text-slate-900 dark:text-slate-100">
                                                         {item.patientName}
                                                     </span>
+                                                    <button
+                                                        onClick={(e) => handleDeleteHistory(e, item.id)}
+                                                        className="text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1"
+                                                        title="Excluir"
+                                                    >
+                                                        <Trash2 className="h-3 w-3" />
+                                                    </button>
                                                 </div>
                                                 <p className="text-[10px] text-muted-foreground mb-1">
                                                     📅 {new Date(item.createdAt).toLocaleDateString(t('language') === 'en' ? 'en-US' : 'pt-BR')}

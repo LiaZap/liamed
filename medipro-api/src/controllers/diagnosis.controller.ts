@@ -140,6 +140,36 @@ export const createDiagnosis = async (req: Request, res: Response) => {
     }
 };
 
+export const deleteDiagnosis = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const doctorId = (req as any).user.id;
+        const userRole = (req as any).user.role;
+
+        // Check ownership or admin
+        const diagnosis = await prisma.diagnosis.findUnique({
+            where: { id }
+        });
+
+        if (!diagnosis) {
+            return res.status(404).json({ error: 'Diagnóstico não encontrado.' });
+        }
+
+        if (userRole !== 'ADMIN' && diagnosis.doctorId !== doctorId) {
+            return res.status(403).json({ error: 'Acesso negado.' });
+        }
+
+        await prisma.diagnosis.delete({
+            where: { id }
+        });
+
+        res.json({ message: 'Diagnóstico removido com sucesso.' });
+    } catch (error) {
+        console.error('Error deleting diagnosis:', error);
+        res.status(500).json({ error: 'Failed to delete diagnosis' });
+    }
+};
+
 // Helper for generic OpenAI-compatible API calls
 // Helper for generic OpenAI-compatible API calls OR Webhooks
 async function callOpenAICompatible(url: string, endpointConfig: any, systemPrompt: string, userPrompt: string, originalData: any): Promise<string> {
