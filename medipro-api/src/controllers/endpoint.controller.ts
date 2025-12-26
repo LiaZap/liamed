@@ -133,7 +133,13 @@ export const testConnection = async (req: AuthRequest, res: Response) => {
                     max_tokens: 1
                 });
             } else {
-                fetchOptions.body = JSON.stringify({ test: 'connection_verify' });
+                // Send a realistic mock payload so strict workflows (N8N/Make) don't crash
+                fetchOptions.body = JSON.stringify({
+                    test: 'connection_verify',
+                    patientName: 'Paciente Teste',
+                    userPrompt: 'Isso é um teste de conexão do sistema LiaMed/BahFlash.',
+                    complementaryData: ''
+                });
             }
         }
 
