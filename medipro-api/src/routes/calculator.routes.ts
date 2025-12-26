@@ -16,4 +16,7 @@ router.post('/calculate', calculatorController.calculate);
 // History
 router.get('/history', calculatorController.getHistory);
 
+// Admin Seed (Should happen on deploy, but for safety in MVP)
+router.post('/seed', calculatorController.seedCalculators);
+
 export default router;
