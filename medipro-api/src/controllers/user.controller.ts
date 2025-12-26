@@ -27,7 +27,8 @@ export const createUser = async (req: AuthRequest, res: Response) => {
                 password: hashedPassword,
                 role: role || 'MEDICO',
                 status: status || 'ATIVO',
-                endpointId: endpointId || null
+                endpointId: endpointId || null,
+                customPrompt: req.body.customPrompt || null
             }
         });
 
@@ -51,7 +52,7 @@ export const createUser = async (req: AuthRequest, res: Response) => {
 export const updateUser = async (req: AuthRequest, res: Response) => {
     try {
         const { id } = req.params;
-        const { name, email, password, role, status, biography, phone, address, endpointId } = req.body;
+        const { name, email, password, role, status, biography, phone, address, endpointId, customPrompt } = req.body;
         const requestingUserId = req.user.id;
         const requestingUserRole = req.user.role;
 
@@ -65,7 +66,7 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
             return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem alterar funções ou status.' });
         }
 
-        const data: any = { name, email, role, status, biography, phone, address, endpointId };
+        const data: any = { name, email, role, status, biography, phone, address, endpointId, customPrompt };
 
         if (password) {
             data.password = await bcrypt.hash(password, 10);

@@ -66,7 +66,8 @@ export const createDiagnosis = async (req: Request, res: Response) => {
         })) : [];
 
         // Prepare context for AI
-        const systemInstruction = `Você é um assistente médico especialista (IA) do sistema BahFlash/LiaMed. 
+        // Prepare context for AI
+        const systemInstruction = doctor.customPrompt || `Você é um assistente médico especialista (IA) do sistema BahFlash/LiaMed. 
         Sua função é auxiliar médicos fornecendo hipóteses diagnósticas e recomendações baseadas nos dados fornecidos.
         IMPORTANTE: Você é um assistente, a decisão final é sempre do médico.
         Formato de resposta: Markdown estruturado (negrito, listas).`;
