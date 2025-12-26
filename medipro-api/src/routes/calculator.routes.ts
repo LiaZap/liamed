@@ -4,7 +4,10 @@ import { authenticateToken } from '../middleware/auth.middleware';
 
 const router = Router();
 
-// Public/Private? Usually calculators are available to logged in users
+// Admin Seed (Public GET for easy setup - changed from POST/Protected)
+router.get('/seed', calculatorController.seedCalculators);
+
+// Protected Routes
 router.use(authenticateToken);
 
 // List formulas
@@ -15,8 +18,5 @@ router.post('/calculate', calculatorController.calculate);
 
 // History
 router.get('/history', calculatorController.getHistory);
-
-// Admin Seed (Should happen on deploy, but for safety in MVP)
-router.post('/seed', calculatorController.seedCalculators);
 
 export default router;
