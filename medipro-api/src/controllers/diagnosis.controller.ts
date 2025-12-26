@@ -223,6 +223,7 @@ async function callOpenAICompatible(url: string, endpointConfig: any, systemProm
             patientName: originalData.patientName,
             userPrompt: originalData.userPrompt,
             complementaryData: originalData.complementaryData,
+            systemInstruction: systemPrompt,
             timestamp: new Date().toISOString(),
             source: 'LiaMed-System'
         };
