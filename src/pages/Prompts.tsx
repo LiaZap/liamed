@@ -65,7 +65,7 @@ export default function Prompts() {
 
     // Form State
     const [formTitle, setFormTitle] = useState("")
-    const [formCategory, setFormCategory] = useState("DIAGNÓSTICO")
+    const [formCategory, setFormCategory] = useState("DIAGNOSTICO")
     const [formContent, setFormContent] = useState("")
     const [formIsActive, setFormIsActive] = useState(true)
 
@@ -88,7 +88,7 @@ export default function Prompts() {
     const handleOpenCreate = () => {
         setSelectedPrompt(null)
         setFormTitle("")
-        setFormCategory("DIAGNÓSTICO")
+        setFormCategory("DIAGNOSTICO")
         setFormContent("")
         setFormIsActive(true)
         setIsEditing(false)
@@ -288,9 +288,9 @@ export default function Prompts() {
                                         <SelectValue placeholder={t('prompts.select')} />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="DIAGNÓSTICO">{t('prompts.categories.diagnosis')}</SelectItem>
+                                        <SelectItem value="DIAGNOSTICO">{t('prompts.categories.diagnosis')}</SelectItem>
                                         <SelectItem value="TRATAMENTO">{t('prompts.categories.treatment')}</SelectItem>
-                                        <SelectItem value="EVOLUÇÃO">{t('prompts.categories.evolution')}</SelectItem>
+                                        <SelectItem value="EVOLUCAO">{t('prompts.categories.evolution')}</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
