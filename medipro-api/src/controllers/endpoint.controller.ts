@@ -88,7 +88,7 @@ export const testConnection = async (req: AuthRequest, res: Response) => {
             'User-Agent': 'MediPro-System/1.0'
         };
 
-        const token = credentials?.token;
+        const token = credentials?.token?.trim();
 
         if (token) {
             switch (authType) {
@@ -123,9 +123,18 @@ export const testConnection = async (req: AuthRequest, res: Response) => {
             headers
         };
 
-        // For requests that can have body, send empty json
+        // For requests that can have body
         if (['POST', 'PUT', 'PATCH'].includes(method)) {
-            fetchOptions.body = JSON.stringify({ test: 'connection_verify' });
+            // Special handling for OpenAI to ensure 200 OK instead of 400 Bad Request
+            if (url.includes('api.openai.com') && url.includes('chat/completions')) {
+                fetchOptions.body = JSON.stringify({
+                    model: "gpt-3.5-turbo",
+                    messages: [{ role: "user", content: "Ping" }],
+                    max_tokens: 1
+                });
+            } else {
+                fetchOptions.body = JSON.stringify({ test: 'connection_verify' });
+            }
         }
 
         const response = await fetch(url, fetchOptions);
@@ -139,6 +148,9 @@ export const testConnection = async (req: AuthRequest, res: Response) => {
                 latency
             });
         } else {
+            // If OpenAI returns 401, it's definitely the key.
+            // If 404, URL wrong.
+            // If 400, Body wrong (fixed above).
             res.json({
                 success: false,
                 message: `Erro Remoto: ${response.status} ${response.statusText}`,
