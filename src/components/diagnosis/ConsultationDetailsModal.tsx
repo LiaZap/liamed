@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Copy, Share2, Printer } from "lucide-react"
+import { Copy, Printer } from "lucide-react"
 
 interface ConsultationDetailsModalProps {
     isOpen: boolean
