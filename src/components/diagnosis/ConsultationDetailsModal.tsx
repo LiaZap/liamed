@@ -23,7 +23,21 @@ interface ConsultationDetailsModalProps {
     } | null
 }
 
+import { toast } from "sonner"
+
 export function ConsultationDetailsModal({ isOpen, onClose, data }: ConsultationDetailsModalProps) {
+    const handleCopy = () => {
+        const textToCopy = data?.aiResponse || "";
+        if (textToCopy) {
+            navigator.clipboard.writeText(textToCopy);
+            toast.success("Copiado com sucesso!");
+        }
+    }
+
+    const handlePrint = () => {
+        window.print();
+    }
+
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <DialogContent className="max-w-[800px] w-full p-0 gap-0 overflow-hidden bg-white dark:bg-slate-900 dark:border-slate-800">
@@ -84,8 +98,8 @@ export function ConsultationDetailsModal({ isOpen, onClose, data }: Consultation
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-lg font-semibold dark:text-slate-50">Resposta da IA</h3>
                                 <div className="flex gap-2">
-                                    <Button variant="outline" size="sm" className="h-8 gap-2 bg-white dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300"><Copy className="h-3 w-3" /> Copiar</Button>
-                                    <Button variant="outline" size="sm" className="h-8 gap-2 bg-white dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300"><Printer className="h-3 w-3" /> Imprimir</Button>
+                                    <Button variant="outline" size="sm" className="h-8 gap-2 bg-white dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300" onClick={handleCopy}><Copy className="h-3 w-3" /> Copiar</Button>
+                                    <Button variant="outline" size="sm" className="h-8 gap-2 bg-white dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300" onClick={handlePrint}><Printer className="h-3 w-3" /> Imprimir</Button>
                                 </div>
                             </div>
 

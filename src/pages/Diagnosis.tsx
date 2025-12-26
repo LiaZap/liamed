@@ -268,9 +268,45 @@ export default function Diagnosis() {
     }
 
     const handleCopy = () => {
-        toast.success(t('diagnosis.toasts.copy_success'), {
-            description: t('diagnosis.toasts.copy_desc')
-        })
+        const textToCopy = diagnosisResult?.aiResponse || "";
+        if (textToCopy) {
+            navigator.clipboard.writeText(textToCopy);
+            toast.success(t('diagnosis.toasts.copy_success'), {
+                description: t('diagnosis.toasts.copy_desc')
+            });
+        }
+    }
+
+    const handlePrint = () => {
+        window.print();
+    }
+
+    const handleShare = async () => {
+        if (navigator.share && diagnosisResult) {
+            try {
+                await navigator.share({
+                    title: `Diagnóstico - ${patientName}`,
+                    text: diagnosisResult.aiResponse,
+                });
+            } catch (err) {
+                console.error("Share failed", err);
+            }
+        } else {
+            handleCopy();
+        }
+    }
+
+    const handleExpand = () => {
+        if (diagnosisResult) {
+            setSelectedHistoryItem({
+                ...diagnosisResult,
+                patientName: patientName,
+                userPrompt: symptoms,
+                complementaryData: complementaryData,
+                createdAt: new Date().toISOString() // Mock date for preview
+            });
+            setIsModalOpen(true);
+        }
     }
 
     const handleReloadHistory = () => {
@@ -494,9 +530,9 @@ export default function Diagnosis() {
                                     <TooltipProvider>
                                         <Tooltip><TooltipTrigger asChild><Button variant="outline" size="sm" className="h-8 gap-2 mr-2 border-primary/20 text-primary hover:bg-primary/5 dark:border-primary/50 dark:text-primary-foreground" onClick={() => setIsCreateConsultOpen(true)}><CalendarPlus className="h-4 w-4" /> {t('consultations.schedule_return')}</Button></TooltipTrigger><TooltipContent>{t('consultations.schedule_return')}</TooltipContent></Tooltip>
                                         <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={handleCopy}><Copy className="h-4 w-4" /></Button></TooltipTrigger><TooltipContent>{t('diagnosis.tooltips.copy')}</TooltipContent></Tooltip>
-                                        <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-slate-100 dark:hover:bg-slate-800"><Maximize2 className="h-4 w-4" /></Button></TooltipTrigger><TooltipContent>{t('diagnosis.tooltips.expand')}</TooltipContent></Tooltip>
-                                        <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-slate-100 dark:hover:bg-slate-800"><Share2 className="h-4 w-4" /></Button></TooltipTrigger><TooltipContent>{t('diagnosis.tooltips.share')}</TooltipContent></Tooltip>
-                                        <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-slate-100 dark:hover:bg-slate-800"><Printer className="h-4 w-4" /></Button></TooltipTrigger><TooltipContent>{t('diagnosis.tooltips.print')}</TooltipContent></Tooltip>
+                                        <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={handleExpand}><Maximize2 className="h-4 w-4" /></Button></TooltipTrigger><TooltipContent>{t('diagnosis.tooltips.expand')}</TooltipContent></Tooltip>
+                                        <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={handleShare}><Share2 className="h-4 w-4" /></Button></TooltipTrigger><TooltipContent>{t('diagnosis.tooltips.share')}</TooltipContent></Tooltip>
+                                        <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={handlePrint}><Printer className="h-4 w-4" /></Button></TooltipTrigger><TooltipContent>{t('diagnosis.tooltips.print')}</TooltipContent></Tooltip>
                                     </TooltipProvider>
                                 </div>
                             )}
