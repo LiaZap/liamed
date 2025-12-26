@@ -8,6 +8,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/contexts/AuthContext"
+import api from "@/services/api"
+import { toast } from "sonner"
 
 // Mock Data
 const PLANS = [
@@ -58,6 +60,25 @@ export default function Plans() {
     const { t } = useTranslation()
     const { user } = useAuth()
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly')
+    const [isLoading, setIsLoading] = useState(false)
+
+    const handleSubscribe = async (planName: string) => {
+        try {
+            setIsLoading(true)
+            const response = await api.post('/payments/create-checkout-session', {
+                plan: planName.toUpperCase()
+            })
+
+            if (response.data.url) {
+                window.location.href = response.data.url
+            }
+        } catch (error) {
+            console.error("Checkout error", error)
+            toast.error("Erro ao iniciar pagamento")
+        } finally {
+            setIsLoading(false)
+        }
+    }
 
     // --- ADMIN VIEW ---
     if (user?.role === 'ADMIN') {
@@ -241,9 +262,10 @@ export default function Plans() {
                             <Button
                                 variant={plan.current ? "outline" : "default"}
                                 className={cn("w-full", plan.current ? "border-primary text-primary hover:bg-primary/5" : "bg-primary hover:bg-primary/90")}
-                                disabled={plan.current}
+                                disabled={plan.current || isLoading}
+                                onClick={() => !plan.current && handleSubscribe(plan.id)}
                             >
-                                {plan.current ? t('plans.current_plan') : t('plans.upgrade')}
+                                {plan.current ? t('plans.current_plan') : isLoading ? "Processando..." : t('plans.upgrade')}
                             </Button>
                         </CardFooter>
                     </Card>

@@ -34,6 +34,7 @@ import settingRoutes from './routes/setting.routes';
 import promptRoutes from './routes/prompt.routes';
 import auditRoutes from './routes/audit.routes';
 import calculatorRoutes from './routes/calculator.routes';
+import paymentRoutes from './routes/payment.routes';
 import healthRoutes from './routes/health.routes';
 import swaggerUi from 'swagger-ui-express';
 import { specs } from './config/swagger';
@@ -64,6 +65,7 @@ app.use('/api/settings', settingRoutes);
 app.use('/api/prompts', promptRoutes);
 app.use('/api/audit', auditRoutes);
 app.use('/api/calculators', calculatorRoutes);
+app.use('/api/payments', paymentRoutes);
 app.use('/api/health', healthRoutes);
 
 // Documentation
