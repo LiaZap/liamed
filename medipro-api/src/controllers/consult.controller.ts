@@ -3,6 +3,8 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+import { logAction } from '../services/audit.service';
+
 interface AuthRequest extends Request {
     user?: any;
 }
@@ -107,6 +109,17 @@ export const createConsult = async (req: AuthRequest, res: Response) => {
             }
         });
 
+        // Audit Log
+        await logAction({
+            userId: req.user.id,
+            userName: req.user.name || 'Unknown',
+            action: 'CREATE',
+            resource: 'CONSULT',
+            resourceId: newConsult.id,
+            details: { patientName, date, type, doctorName: doctor.name },
+            req
+        });
+
         res.status(201).json(newConsult);
     } catch (error) {
         res.status(500).json({ error: 'Erro ao criar consulta.' });
@@ -188,6 +201,17 @@ export const updateConsultStatus = async (req: AuthRequest, res: Response) => {
         const updatedConsult = await prisma.consult.update({
             where: { id },
             data: { status }
+        });
+
+        // Audit Log
+        await logAction({
+            userId: req.user.id,
+            userName: req.user.name || 'Unknown',
+            action: 'UPDATE',
+            resource: 'CONSULT',
+            resourceId: id,
+            details: { status, previousStatus: existingConsult.status },
+            req
         });
 
         res.json(updatedConsult);

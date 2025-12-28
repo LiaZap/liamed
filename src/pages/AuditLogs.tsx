@@ -9,6 +9,7 @@ import {
 import { exportToCSV, exportToPDF } from "@/utils/exportUtils"
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import api from '@/services/api';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -49,32 +50,23 @@ export default function AuditLogs() {
     const fetchLogs = async (currentPage = 1) => {
         setLoading(true);
         try {
-            const token = localStorage.getItem('token');
-            const params = new URLSearchParams({
+            const params = {
                 page: String(currentPage),
                 limit: '20',
                 search,
                 action: actionFilter
-            });
+            };
 
-            const response = await fetch(`http://localhost:4000/api/audit?${params}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+            const response = await api.get('/audit', { params });
 
-            if (response.ok) {
-                const data = await response.json();
-                setLogs(data.data);
-                setTotalPages(data.pagination.pages);
-                setTotal(data.pagination.total);
-                setPage(data.pagination.page);
-            } else {
-                toast.error('Erro ao carregar logs');
-            }
+            setLogs(response.data.data);
+            setTotalPages(response.data.pagination.pages);
+            setTotal(response.data.pagination.total);
+            setPage(response.data.pagination.page);
+
         } catch (error) {
             console.error('Fetch audit logs error:', error);
-            toast.error('Erro de conexão');
+            toast.error('Erro ao carregar logs');
         } finally {
             setLoading(false);
         }

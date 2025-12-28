@@ -3,6 +3,8 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+import { logAction } from '../services/audit.service';
+
 export const listDiagnoses = async (req: Request, res: Response) => {
     try {
         const doctorId = (req as any).user.id;
@@ -142,6 +144,17 @@ export const createDiagnosis = async (req: Request, res: Response) => {
             }
         });
 
+        // Audit Log
+        await logAction({
+            userId: doctorId,
+            userName: doctor.name || 'Unknown',
+            action: 'CREATE',
+            resource: 'DIAGNOSIS',
+            resourceId: diagnosis.id,
+            details: { patientName, model: modelUsed },
+            req
+        });
+
         res.json(diagnosis);
 
     } catch (error) {
@@ -171,6 +184,16 @@ export const deleteDiagnosis = async (req: Request, res: Response) => {
 
         await prisma.diagnosis.delete({
             where: { id }
+        });
+
+        // Audit Log
+        await logAction({
+            userId: (req as any).user.id,
+            userName: (req as any).user.name || 'Unknown',
+            action: 'DELETE',
+            resource: 'DIAGNOSIS',
+            resourceId: id,
+            req
         });
 
         res.json({ message: 'Diagnóstico removido com sucesso.' });
