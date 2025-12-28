@@ -13,7 +13,6 @@ export const healthController = {
             const usersCount = await prisma.user.count();
             const consultsCount = await prisma.consult.count();
             const diagnosesCount = await prisma.diagnosis.count();
-            // @ts-ignore
             const logsCount = await prisma.auditLog.count();
 
             const dbLatency = Date.now() - start;
@@ -26,7 +25,6 @@ export const healthController = {
             const totalMem = os.totalmem();
 
             // 3. Recent Activity (using Audit Logs if available)
-            // @ts-ignore
             const recentLogs = await prisma.auditLog.findMany({
                 take: 5,
                 orderBy: { createdAt: 'desc' },

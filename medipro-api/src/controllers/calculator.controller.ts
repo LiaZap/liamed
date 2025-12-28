@@ -194,7 +194,6 @@ export const calculatorController = {
             for (const data of formulas) {
                 const exists = await prisma.calculatorFormula.findFirst({ where: { name: data.name } });
                 if (!exists) {
-                    // @ts-ignore
                     await prisma.calculatorFormula.create({
                         data: {
                             name: data.name,

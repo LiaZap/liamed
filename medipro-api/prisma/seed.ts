@@ -263,75 +263,77 @@ Use sempre a estrutura:
             message: 'Consulta com Maria Santos agendada para 20/12/2025 às 14:00.',
             read: false
         }
+    });
+
     // 9. Criar Calculadoras Médicas
     console.log('🧮 Criando calculadoras médicas...');
 
-        // IMC
-        const imc = await prisma.calculatorFormula.create({
-            data: {
-                name: 'IMC (Índice de Massa Corporal)',
-                description: 'Cálculo utilizado para avaliar se a pessoa está dentro do seu peso ideal.',
-                category: 'Geral',
-                expression: 'weight / (height * height)',
-                reference: 'OMS',
-                variables: {
-                    create: [
-                        { name: 'weight', label: 'Peso', type: 'NUMBER', unit: 'kg', min: 0, max: 500, step: 0.1 },
-                        { name: 'height', label: 'Altura', type: 'NUMBER', unit: 'm', min: 0, max: 3, step: 0.01 }
-                    ]
-                }
+    // IMC
+    const imc = await prisma.calculatorFormula.create({
+        data: {
+            name: 'IMC (Índice de Massa Corporal)',
+            description: 'Cálculo utilizado para avaliar se a pessoa está dentro do seu peso ideal.',
+            category: 'Geral',
+            expression: 'weight / (height * height)',
+            reference: 'OMS',
+            variables: {
+                create: [
+                    { name: 'weight', label: 'Peso', type: 'NUMBER', unit: 'kg', min: 0, max: 500, step: 0.1 },
+                    { name: 'height', label: 'Altura', type: 'NUMBER', unit: 'm', min: 0, max: 3, step: 0.01 }
+                ]
             }
-        });
+        }
+    });
 
-        // Cockcroft-Gault (Clearance de Creatinina)
-        await prisma.calculatorFormula.create({
-            data: {
-                name: 'Clearance de Creatinina (Cockcroft-Gault)',
-                description: 'Estimativa da taxa de filtração glomerular baseada na creatinina sérica.',
-                category: 'Nefrologia',
-                // Fórmula base para homens. O ajuste para mulheres (* 0.85) deve ser tratado na lógica da expressão ou backend se complexo, 
-                // mas aqui usaremos uma expressão conditional ternária do math.js se suportado, ou simplificado.
-                // Math.js suporta condicionais: condition ? true_val : false_val
-                // Sexo: 1 = Homem, 0.85 = Mulher (usaremos como multiplicador direto no select)
-                expression: '((140 - age) * weight * gender) / (72 * creatinine)',
-                reference: 'Cockcroft DW, Gault MH. Prediction of creatinine clearance from serum creatinine. Nephron. 1976;16(1):31-41.',
-                variables: {
-                    create: [
-                        { name: 'age', label: 'Idade', type: 'NUMBER', unit: 'anos', min: 18, max: 120 },
-                        { name: 'weight', label: 'Peso', type: 'NUMBER', unit: 'kg', min: 30, max: 300 },
-                        { name: 'creatinine', label: 'Creatinina Sérica', type: 'NUMBER', unit: 'mg/dL', min: 0.1, max: 20, step: 0.1 },
-                        {
-                            name: 'gender',
-                            label: 'Sexo',
-                            type: 'SELECT',
-                            unit: '',
-                            options: [
-                                { label: 'Masculino', value: 1 },
-                                { label: 'Feminino', value: 0.85 }
-                            ]
-                        }
-                    ]
-                }
+    // Cockcroft-Gault (Clearance de Creatinina)
+    await prisma.calculatorFormula.create({
+        data: {
+            name: 'Clearance de Creatinina (Cockcroft-Gault)',
+            description: 'Estimativa da taxa de filtração glomerular baseada na creatinina sérica.',
+            category: 'Nefrologia',
+            // Fórmula base para homens. O ajuste para mulheres (* 0.85) deve ser tratado na lógica da expressão ou backend se complexo, 
+            // mas aqui usaremos uma expressão conditional ternária do math.js se suportado, ou simplificado.
+            // Math.js suporta condicionais: condition ? true_val : false_val
+            // Sexo: 1 = Homem, 0.85 = Mulher (usaremos como multiplicador direto no select)
+            expression: '((140 - age) * weight * gender) / (72 * creatinine)',
+            reference: 'Cockcroft DW, Gault MH. Prediction of creatinine clearance from serum creatinine. Nephron. 1976;16(1):31-41.',
+            variables: {
+                create: [
+                    { name: 'age', label: 'Idade', type: 'NUMBER', unit: 'anos', min: 18, max: 120 },
+                    { name: 'weight', label: 'Peso', type: 'NUMBER', unit: 'kg', min: 30, max: 300 },
+                    { name: 'creatinine', label: 'Creatinina Sérica', type: 'NUMBER', unit: 'mg/dL', min: 0.1, max: 20, step: 0.1 },
+                    {
+                        name: 'gender',
+                        label: 'Sexo',
+                        type: 'SELECT',
+                        unit: '',
+                        options: [
+                            { label: 'Masculino', value: 1 },
+                            { label: 'Feminino', value: 0.85 }
+                        ]
+                    }
+                ]
             }
-        });
+        }
+    });
 
-        console.log('✅ Seed concluído com sucesso!');
-        console.log('\n📧 Credenciais criadas:');
-        console.log('----------------------------------');
-        console.log('ADMIN:');
-        console.log('  Email: admin@medipro.com');
-        console.log('  Senha: Admin@123');
-        console.log('\nMÉDICOS:');
-        console.log('  Email: tiago.carlos.sulzbach@gmail.com');
-        console.log('  Senha: Medico@123');
-        console.log('----------------------------------\n');
-    }
+    console.log('✅ Seed concluído com sucesso!');
+    console.log('\n📧 Credenciais criadas:');
+    console.log('----------------------------------');
+    console.log('ADMIN:');
+    console.log('  Email: admin@medipro.com');
+    console.log('  Senha: Admin@123');
+    console.log('\nMÉDICOS:');
+    console.log('  Email: tiago.carlos.sulzbach@gmail.com');
+    console.log('  Senha: Medico@123');
+    console.log('----------------------------------\n');
+}
 
 main()
-            .catch((e) => {
-                console.error('❌ Erro no seed:', e);
-                process.exit(1);
-            })
-            .finally(async () => {
-                await prisma.$disconnect();
-            });
+    .catch((e) => {
+        console.error('❌ Erro no seed:', e);
+        process.exit(1);
+    })
+    .finally(async () => {
+        await prisma.$disconnect();
+    });
