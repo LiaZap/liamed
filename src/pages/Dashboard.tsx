@@ -269,7 +269,7 @@ export default function Dashboard() {
                 ) : (
                     <>
                         {/* Card 1: Patients (Replaces Avg Time or similar) */}
-                        <Card className="shadow-sm hover:translate-y-[-2px] hover:shadow-md transition-all duration-300 dark:bg-[#222428] dark:border-slate-800">
+                        <Card className="shadow-sm hover:translate-y-[-2px] hover:shadow-md transition-all duration-300 dark:bg-[#222428] dark:border-slate-800 animate-fade-in-up">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium text-muted-foreground">{t('dashboard.total_patients')}</CardTitle>
                                 <Users className="h-4 w-4 text-blue-600 dark:text-slate-50" />
@@ -285,7 +285,7 @@ export default function Dashboard() {
                         </Card>
 
                         {/* Card 2: Consults (Total) */}
-                        <Card className="shadow-sm hover:translate-y-[-2px] hover:shadow-md transition-all duration-300 dark:bg-[#222428] dark:border-slate-800">
+                        <Card className="shadow-sm hover:translate-y-[-2px] hover:shadow-md transition-all duration-300 dark:bg-[#222428] dark:border-slate-800 animate-fade-in-up animate-delay-100">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium text-muted-foreground">{t('dashboard.total_consults')}</CardTitle>
                                 <Calendar className="h-4 w-4 text-purple-600 dark:text-purple-400" />
@@ -301,7 +301,7 @@ export default function Dashboard() {
                         </Card>
 
                         {/* Card 3: Consults Today (New!) */}
-                        <Card className="shadow-sm hover:translate-y-[-2px] hover:shadow-md transition-all duration-300 dark:bg-[#222428] dark:border-slate-800">
+                        <Card className="shadow-sm hover:translate-y-[-2px] hover:shadow-md transition-all duration-300 dark:bg-[#222428] dark:border-slate-800 animate-fade-in-up animate-delay-200">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium text-muted-foreground">{t('dashboard.consults_today')}</CardTitle>
                                 <Activity className="h-4 w-4 text-blue-500 dark:text-slate-50" />
@@ -317,7 +317,7 @@ export default function Dashboard() {
                         </Card>
 
                         {/* Card 3: Diagnoses */}
-                        <Card className="shadow-sm hover:translate-y-[-2px] hover:shadow-md transition-all duration-300 dark:bg-[#222428] dark:border-slate-800">
+                        <Card className="shadow-sm hover:translate-y-[-2px] hover:shadow-md transition-all duration-300 dark:bg-[#222428] dark:border-slate-800 animate-fade-in-up animate-delay-300">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium text-muted-foreground">{t('dashboard.ai_diagnoses')}</CardTitle>
                                 <Activity className="h-4 w-4 text-orange-600 dark:text-orange-400" />
@@ -337,7 +337,7 @@ export default function Dashboard() {
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
                 {/* Chart 1: Consultas */}
-                <Card className="col-span-4 shadow-sm dark:bg-[#222428] dark:border-slate-800">
+                <Card className="col-span-4 shadow-sm dark:bg-[#222428] dark:border-slate-800 animate-fade-in-up animate-delay-400">
                     <CardHeader>
                         {loading ? <Skeleton className="h-6 w-48 mb-2" /> : <CardTitle className="dark:text-slate-50">{t('dashboard.chart_evolution')}</CardTitle>}
                         {loading ? <Skeleton className="h-4 w-64" /> : <CardDescription>{t('dashboard.chart_evolution_desc', { days: period })}</CardDescription>}
@@ -376,7 +376,7 @@ export default function Dashboard() {
                 </Card>
 
                 {/* Chart 2: Novos Pacientes (New!) */}
-                <Card className="col-span-3 shadow-sm dark:bg-[#222428] dark:border-slate-800">
+                <Card className="col-span-3 shadow-sm dark:bg-[#222428] dark:border-slate-800 animate-fade-in-up animate-delay-500">
                     <CardHeader>
                         {loading ? <Skeleton className="h-6 w-48 mb-2" /> : <CardTitle className="dark:text-slate-50">{t('dashboard.chart_new_users')}</CardTitle>}
                         {loading ? <Skeleton className="h-4 w-64" /> : <CardDescription>{t('dashboard.chart_new_users_desc')}</CardDescription>}
