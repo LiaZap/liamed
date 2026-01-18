@@ -18,6 +18,7 @@ import { toast } from "sonner"
 import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
 import { Progress } from "@/components/ui/progress"
+import { AnimatedCounter } from "@/components/ui/animated-counter"
 
 export default function Dashboard() {
     const { user } = useAuth()
@@ -149,7 +150,9 @@ export default function Dashboard() {
                                 <Users className="h-4 w-4 text-blue-600 dark:text-slate-50" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-slate-900 dark:text-slate-50">{stats.totalPatients}</div>
+                                <div className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+                                    <AnimatedCounter value={stats.totalPatients || 0} />
+                                </div>
                                 <p className="text-xs text-muted-foreground pt-1 flex items-center">
                                     <span className="text-green-600 dark:text-green-400 flex items-center mr-1 font-medium"><ArrowUpRight className="h-3 w-3 mr-0.5" /> {t('dashboard.active_in_base')}</span>
                                 </p>
@@ -163,7 +166,9 @@ export default function Dashboard() {
                                 <Calendar className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-slate-900 dark:text-slate-50">{stats.consults}</div>
+                                <div className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+                                    <AnimatedCounter value={stats.consults || 0} />
+                                </div>
                                 <p className="text-xs text-muted-foreground pt-1 flex items-center">
                                     <span className="text-green-600 dark:text-green-400 flex items-center mr-1 font-medium"><ArrowUpRight className="h-3 w-3 mr-0.5" /> +12%</span> {t('dashboard.vs_last_month')}
                                 </p>
@@ -177,7 +182,9 @@ export default function Dashboard() {
                                 <Activity className="h-4 w-4 text-blue-500 dark:text-slate-50" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-slate-900 dark:text-slate-50">{stats.todayConsults || 0}</div>
+                                <div className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+                                    <AnimatedCounter value={stats.todayConsults || 0} />
+                                </div>
                                 <p className="text-xs text-muted-foreground pt-1 flex items-center">
                                     {t('dashboard.scheduled_today')}
                                 </p>
@@ -191,7 +198,9 @@ export default function Dashboard() {
                                 <Activity className="h-4 w-4 text-orange-600 dark:text-orange-400" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-slate-900 dark:text-slate-50">{stats.diagnoses}</div>
+                                <div className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+                                    <AnimatedCounter value={stats.diagnoses || 0} />
+                                </div>
                                 <p className="text-xs text-muted-foreground pt-1 flex items-center">
                                     <span className="text-green-600 dark:text-green-400 flex items-center mr-1 font-medium"><ArrowUpRight className="h-3 w-3 mr-0.5" /> +24%</span> {t('dashboard.avg_accuracy')} 98%
                                 </p>
