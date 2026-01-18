@@ -46,7 +46,6 @@ export default function Diagnosis() {
     const [historyLoading, setHistoryLoading] = useState(true)
     const [page, setPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
-    const [total, setTotal] = useState(0)
     const ITEMS_PER_PAGE = 10
 
     // ... existing states ...
@@ -59,7 +58,6 @@ export default function Diagnosis() {
             setHistory(res.data.data)
             setPage(res.data.pagination.page)
             setTotalPages(res.data.pagination.pages)
-            setTotal(res.data.pagination.total)
         } catch (error) {
             console.error("Failed to fetch history", error)
             toast.error(t('diagnosis.toasts.history_error'))
