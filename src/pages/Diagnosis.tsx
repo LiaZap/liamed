@@ -44,15 +44,22 @@ export default function Diagnosis() {
 
     const [history, setHistory] = useState<any[]>([])
     const [historyLoading, setHistoryLoading] = useState(true)
+    const [page, setPage] = useState(1)
+    const [totalPages, setTotalPages] = useState(1)
+    const [total, setTotal] = useState(0)
+    const ITEMS_PER_PAGE = 10
 
     // ... existing states ...
 
     // Fetch history
-    const fetchHistory = async () => {
+    const fetchHistory = async (currentPage = 1) => {
         setHistoryLoading(true)
         try {
-            const res = await api.get('/diagnosis')
-            setHistory(res.data)
+            const res = await api.get(`/diagnosis?page=${currentPage}&limit=${ITEMS_PER_PAGE}`)
+            setHistory(res.data.data)
+            setPage(res.data.pagination.page)
+            setTotalPages(res.data.pagination.pages)
+            setTotal(res.data.pagination.total)
         } catch (error) {
             console.error("Failed to fetch history", error)
             toast.error(t('diagnosis.toasts.history_error'))
@@ -311,8 +318,20 @@ export default function Diagnosis() {
     }
 
     const handleReloadHistory = () => {
-        fetchHistory()
+        fetchHistory(page)
         toast.success(t('diagnosis.toasts.history_updated'))
+    }
+
+    const handlePreviousPage = () => {
+        if (page > 1) {
+            fetchHistory(page - 1)
+        }
+    }
+
+    const handleNextPage = () => {
+        if (page < totalPages) {
+            fetchHistory(page + 1)
+        }
     }
 
     return (
@@ -420,11 +439,25 @@ export default function Diagnosis() {
 
                     {/* Pagination */}
                     <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-800">
-                        <Button variant="outline" size="sm" className="h-8 text-xs dark:bg-slate-800 dark:border-slate-700" disabled>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 text-xs dark:bg-slate-800 dark:border-slate-700"
+                            disabled={page <= 1}
+                            onClick={handlePreviousPage}
+                        >
                             <ChevronLeft className="h-3 w-3 mr-1" /> {t('diagnosis.history.previous')}
                         </Button>
-                        <span className="text-xs text-muted-foreground">{t('diagnosis.history.page_info')}</span>
-                        <Button variant="outline" size="sm" className="h-8 text-xs dark:bg-slate-800 dark:border-slate-700">
+                        <span className="text-xs text-muted-foreground">
+                            {t('diagnosis.history.page_info').replace('1 de 2', `${page} de ${totalPages}`)}
+                        </span>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 text-xs dark:bg-slate-800 dark:border-slate-700"
+                            disabled={page >= totalPages}
+                            onClick={handleNextPage}
+                        >
                             {t('diagnosis.history.next')} <ChevronRight className="h-3 w-3 ml-1" />
                         </Button>
                     </div>

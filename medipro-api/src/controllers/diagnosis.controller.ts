@@ -9,7 +9,11 @@ export const listDiagnoses = async (req: Request, res: Response) => {
     try {
         const doctorId = (req as any).user.id;
         const userRole = (req as any).user.role;
-        const { search } = req.query;
+        const { search, page = '1', limit = '10' } = req.query;
+
+        const pageNum = Math.max(1, parseInt(page as string) || 1);
+        const limitNum = Math.min(50, Math.max(1, parseInt(limit as string) || 10));
+        const skip = (pageNum - 1) * limitNum;
 
         let whereClause: any = {};
 
@@ -25,13 +29,27 @@ export const listDiagnoses = async (req: Request, res: Response) => {
             ];
         }
 
-        const diagnoses = await prisma.diagnosis.findMany({
-            where: whereClause,
-            orderBy: { createdAt: 'desc' },
-            take: 50 // Limit to last 50 for now
-        });
+        const [diagnoses, total] = await Promise.all([
+            prisma.diagnosis.findMany({
+                where: whereClause,
+                orderBy: { createdAt: 'desc' },
+                skip,
+                take: limitNum
+            }),
+            prisma.diagnosis.count({ where: whereClause })
+        ]);
 
-        res.json(diagnoses);
+        const totalPages = Math.ceil(total / limitNum);
+
+        res.json({
+            data: diagnoses,
+            pagination: {
+                page: pageNum,
+                limit: limitNum,
+                total,
+                pages: totalPages
+            }
+        });
     } catch (error) {
         console.error('Error listing diagnoses:', error);
         res.status(500).json({ error: 'Failed to list diagnoses' });
