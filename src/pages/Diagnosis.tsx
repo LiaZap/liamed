@@ -23,6 +23,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useNotifications } from "@/contexts/NotificationContext"
 
 import api from "@/services/api"
+import { playSound } from "@/utils/sounds"
 
 export default function Diagnosis() {
     const { t } = useTranslation();
@@ -237,6 +238,7 @@ export default function Diagnosis() {
             // Simulate delayed response for UX (or use real data if we parse it)
             setTimeout(() => {
                 setResponseState('content')
+                playSound('complete') // Play success sound
                 toast.success(t('diagnosis.toasts.success_title'))
 
                 addNotification({
