@@ -97,8 +97,8 @@ export const demoController = {
                         doctorId: assignedDoctor.id,
                         doctorName: assignedDoctor.name,
                         date: date,
-                        type: randomElement(CONSULT_TYPES),
-                        status: randomElement(CONSULT_STATUSES)
+                        type: randomElement(CONSULT_TYPES) as any,
+                        status: randomElement(CONSULT_STATUSES) as any
                     }
                 });
                 consultsCreated++;
