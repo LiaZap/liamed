@@ -47,15 +47,17 @@ export default function Diagnosis() {
     const [historyLoading, setHistoryLoading] = useState(true)
     const [page, setPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
+    const [searchTerm, setSearchTerm] = useState('')
     const ITEMS_PER_PAGE = 10
 
     // ... existing states ...
 
     // Fetch history
-    const fetchHistory = async (currentPage = 1) => {
+    const fetchHistory = async (currentPage = 1, search = '') => {
         setHistoryLoading(true)
         try {
-            const res = await api.get(`/diagnosis?page=${currentPage}&limit=${ITEMS_PER_PAGE}`)
+            const searchParam = search ? `&search=${encodeURIComponent(search)}` : ''
+            const res = await api.get(`/diagnosis?page=${currentPage}&limit=${ITEMS_PER_PAGE}${searchParam}`)
             setHistory(res.data.data)
             setPage(res.data.pagination.page)
             setTotalPages(res.data.pagination.pages)
@@ -67,8 +69,17 @@ export default function Diagnosis() {
         }
     }
 
+    // Debounced search
     useEffect(() => {
-        fetchHistory()
+        const timer = setTimeout(() => {
+            fetchHistory(1, searchTerm)
+        }, 300)
+        return () => clearTimeout(timer)
+    }, [searchTerm])
+
+    useEffect(() => {
+        // Initial load only when searchTerm is empty (debounce handles search)
+        if (!searchTerm) fetchHistory()
     }, [])
 
     // Web Speech API State
@@ -355,7 +366,12 @@ export default function Diagnosis() {
                     {/* Search */}
                     <div className="relative">
                         <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input placeholder={t('diagnosis.history.search_placeholder')} className="pl-9 bg-white dark:bg-[#222428] dark:border-slate-800" />
+                        <Input
+                            placeholder={t('diagnosis.history.search_placeholder')}
+                            className="pl-9 bg-white dark:bg-[#222428] dark:border-slate-800"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
                     </div>
 
                     {/* Filters */}
