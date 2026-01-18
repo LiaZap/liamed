@@ -162,6 +162,24 @@ export const createDiagnosis = async (req: Request, res: Response) => {
             }
         });
 
+        // Auto-create linked consultation
+        const consult = await prisma.consult.create({
+            data: {
+                patientName,
+                doctorId,
+                doctorName: doctor.name,
+                date: new Date(),
+                type: 'CONSULTA' as any,
+                status: 'CONCLUIDA' as any
+            }
+        });
+
+        // Link diagnosis to consultation
+        await prisma.diagnosis.update({
+            where: { id: diagnosis.id },
+            data: { consultId: consult.id }
+        });
+
         // Audit Log
         await logAction({
             userId: doctorId,
@@ -169,11 +187,11 @@ export const createDiagnosis = async (req: Request, res: Response) => {
             action: 'CREATE',
             resource: 'DIAGNOSIS',
             resourceId: diagnosis.id,
-            details: { patientName, model: modelUsed },
+            details: { patientName, model: modelUsed, linkedConsultId: consult.id },
             req
         });
 
-        res.json(diagnosis);
+        res.json({ ...diagnosis, consultId: consult.id });
 
     } catch (error) {
         console.error('Error creating diagnosis:', error);
