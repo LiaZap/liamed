@@ -43,49 +43,174 @@ export default function Dashboard() {
     }, [period])
 
     const handleDownloadReport = () => {
-        toast.info("Gerando relatório PDF...", { description: "Baixando métricas do dashboard." })
+        toast.info("Gerando relatório PDF...", { description: "Preparando documento profissional..." })
 
         const doc = new jsPDF()
+        const pageWidth = doc.internal.pageSize.getWidth()
+        const primaryColor: [number, number, number] = [0, 102, 204] // LIAMED Blue
+        const accentColor: [number, number, number] = [16, 185, 129] // Green
+        const grayColor: [number, number, number] = [100, 116, 139]
 
-        // Title
+        // ===== HEADER WITH BRANDING =====
+        doc.setFillColor(...primaryColor)
+        doc.rect(0, 0, pageWidth, 35, 'F')
+
+        doc.setTextColor(255, 255, 255)
+        doc.setFontSize(24)
+        doc.setFont('helvetica', 'bold')
+        doc.text('LIAMED', 14, 18)
+
+        doc.setFontSize(10)
+        doc.setFont('helvetica', 'normal')
+        doc.text('Inteligência Clínica', 14, 26)
+
+        doc.setFontSize(10)
+        doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, pageWidth - 14, 18, { align: 'right' })
+        doc.text(`Período: Últimos ${period} dias`, pageWidth - 14, 26, { align: 'right' })
+
+        // ===== REPORT TITLE =====
+        doc.setTextColor(30, 41, 59)
         doc.setFontSize(18)
-        doc.text("Relatório de Dashboard", 14, 22)
-        doc.setFontSize(11)
-        doc.setTextColor(100)
-        doc.text(`Período: Últimos ${period} dias`, 14, 30)
-        doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 36)
+        doc.setFont('helvetica', 'bold')
+        doc.text('Relatório de Performance Médica', 14, 50)
 
-        // Metrics Table
-        autoTable(doc, {
-            head: [['Métrica', 'Valor']],
-            body: [
-                ['Total Consultas', stats.consults],
-                ['Diagnósticos IA', stats.diagnoses],
-                ['Receita Estimada', `R$ ${stats.revenue.toLocaleString('pt-BR')}`],
-                ['Tempo Médio', `${stats.avgTime}m`]
-            ],
-            startY: 45,
-            theme: 'grid',
-            headStyles: { fillColor: [240, 240, 240], textColor: 20 },
-            columnStyles: { 0: { fontStyle: 'bold' } }
+        doc.setDrawColor(...primaryColor)
+        doc.setLineWidth(0.5)
+        doc.line(14, 54, 100, 54)
+
+        // ===== SUMMARY CARDS (4 METRICS) =====
+        const cardY = 62
+        const cardWidth = 42
+        const cardHeight = 25
+        const cardGap = 6
+
+        const metrics = [
+            { label: 'Pacientes', value: stats.totalPatients || 0, color: primaryColor },
+            { label: 'Consultas', value: stats.consults || 0, color: [139, 92, 246] as [number, number, number] },
+            { label: 'Diagnósticos IA', value: stats.diagnoses || 0, color: [249, 115, 22] as [number, number, number] },
+            { label: 'Consultas Hoje', value: stats.todayConsults || 0, color: accentColor }
+        ]
+
+        metrics.forEach((metric, i) => {
+            const x = 14 + (cardWidth + cardGap) * i
+
+            // Card background
+            doc.setFillColor(248, 250, 252)
+            doc.roundedRect(x, cardY, cardWidth, cardHeight, 3, 3, 'F')
+
+            // Colored top border
+            doc.setFillColor(...metric.color)
+            doc.rect(x, cardY, cardWidth, 3, 'F')
+
+            // Value
+            doc.setTextColor(...metric.color)
+            doc.setFontSize(16)
+            doc.setFont('helvetica', 'bold')
+            doc.text(String(metric.value), x + cardWidth / 2, cardY + 14, { align: 'center' })
+
+            // Label
+            doc.setTextColor(...grayColor)
+            doc.setFontSize(8)
+            doc.setFont('helvetica', 'normal')
+            doc.text(metric.label, x + cardWidth / 2, cardY + 21, { align: 'center' })
         })
 
-        // Evolution Table
-        doc.text("Detalhes de Evolução Diária", 14, (doc as any).lastAutoTable.finalY + 15)
+        // ===== FINANCIAL SUMMARY =====
+        const financeY = cardY + cardHeight + 10
+        doc.setFillColor(240, 253, 244) // Light green bg
+        doc.roundedRect(14, financeY, pageWidth - 28, 20, 3, 3, 'F')
 
-        const evoRows = stats.evolution.map((e: any) => [e.name, e.consultas])
+        doc.setTextColor(21, 128, 61)
+        doc.setFontSize(12)
+        doc.setFont('helvetica', 'bold')
+        doc.text('Receita Estimada do Período:', 20, financeY + 12)
+        doc.setFontSize(16)
+        doc.text(`R$ ${(stats.revenue || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, pageWidth - 20, financeY + 12, { align: 'right' })
+
+        // ===== EVOLUTION TABLE =====
+        doc.setTextColor(30, 41, 59)
+        doc.setFontSize(12)
+        doc.setFont('helvetica', 'bold')
+        doc.text('Evolução de Consultas', 14, financeY + 35)
+
+        const evoRows = (stats.evolution || []).map((e: any) => [
+            e.name,
+            e.consultas || 0,
+            e.consultas > 0 ? '●' : '○'
+        ])
 
         autoTable(doc, {
-            head: [['Data/Dia', 'Consultas']],
-            body: evoRows,
-            startY: (doc as any).lastAutoTable.finalY + 20,
-            theme: 'striped',
-            headStyles: { fillColor: [0, 102, 204] }
+            head: [['Dia', 'Consultas', 'Status']],
+            body: evoRows.length > 0 ? evoRows : [['Sem dados', '-', '-']],
+            startY: financeY + 40,
+            theme: 'plain',
+            headStyles: {
+                fillColor: [...primaryColor] as [number, number, number],
+                textColor: 255,
+                fontStyle: 'bold',
+                halign: 'center'
+            },
+            bodyStyles: {
+                halign: 'center'
+            },
+            alternateRowStyles: {
+                fillColor: [248, 250, 252]
+            },
+            columnStyles: {
+                0: { fontStyle: 'bold', halign: 'left' },
+                2: { textColor: accentColor }
+            }
         })
 
-        doc.save(`dashboard_metrics_${period}d.pdf`)
+        // ===== TEAM PERFORMANCE =====
+        const teamY = (doc as any).lastAutoTable.finalY + 15
 
-        setTimeout(() => toast.success("Relatório PDF baixado"), 1000);
+        if (stats.teamPerformance && stats.teamPerformance.length > 0) {
+            doc.setTextColor(30, 41, 59)
+            doc.setFontSize(12)
+            doc.setFont('helvetica', 'bold')
+            doc.text('Desempenho da Equipe Médica', 14, teamY)
+
+            const teamRows = stats.teamPerformance.map((d: any) => [
+                d.name,
+                d.specialty || 'Clínico Geral',
+                d.consults,
+                `★ ${d.rating}`
+            ])
+
+            autoTable(doc, {
+                head: [['Médico', 'Especialidade', 'Consultas', 'Avaliação']],
+                body: teamRows,
+                startY: teamY + 5,
+                theme: 'plain',
+                headStyles: {
+                    fillColor: [139, 92, 246] as [number, number, number],
+                    textColor: 255,
+                    fontStyle: 'bold'
+                },
+                alternateRowStyles: {
+                    fillColor: [248, 250, 252]
+                },
+                columnStyles: {
+                    3: { textColor: [234, 179, 8] as [number, number, number], fontStyle: 'bold' }
+                }
+            })
+        }
+
+        // ===== FOOTER =====
+        const footerY = doc.internal.pageSize.getHeight() - 20
+        doc.setDrawColor(226, 232, 240)
+        doc.line(14, footerY, pageWidth - 14, footerY)
+
+        doc.setTextColor(...grayColor)
+        doc.setFontSize(8)
+        doc.text('LIAMED - Inteligência Clínica | Relatório gerado automaticamente', 14, footerY + 8)
+        doc.text(`${user?.name || 'Administrador'} | ${user?.email || ''}`, pageWidth - 14, footerY + 8, { align: 'right' })
+
+        // ===== SAVE =====
+        doc.save(`LIAMED_Relatorio_${period}dias_${new Date().toISOString().split('T')[0]}.pdf`)
+
+        setTimeout(() => toast.success("Relatório PDF profissional baixado!"), 1000)
     }
 
     return (
