@@ -7,8 +7,9 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Copy, Printer } from "lucide-react"
+import { Copy, Printer, User, Calendar, Activity, Stethoscope, FileText, Bot, CheckCircle } from "lucide-react"
 import ReactMarkdown from 'react-markdown'
+import { toast } from "sonner"
 
 interface ConsultationDetailsModalProps {
     isOpen: boolean
@@ -24,8 +25,6 @@ interface ConsultationDetailsModalProps {
     } | null
 }
 
-import { toast } from "sonner"
-
 export function ConsultationDetailsModal({ isOpen, onClose, data }: ConsultationDetailsModalProps) {
     const handleCopy = () => {
         const textToCopy = data?.aiResponse || "";
@@ -39,90 +38,132 @@ export function ConsultationDetailsModal({ isOpen, onClose, data }: Consultation
         window.print();
     }
 
+    const getStatusConfig = (status: string) => {
+        const configs: Record<string, { bg: string; text: string; icon: any }> = {
+            'ORIGINAL': { bg: 'bg-blue-50 dark:bg-blue-900/20', text: 'text-blue-700 dark:text-blue-400', icon: CheckCircle },
+            'EDITADO': { bg: 'bg-orange-50 dark:bg-orange-900/20', text: 'text-orange-700 dark:text-orange-400', icon: Activity },
+            'CONCLUÍDO': { bg: 'bg-green-50 dark:bg-green-900/20', text: 'text-green-700 dark:text-green-400', icon: CheckCircle },
+        }
+        return configs[status] || configs['ORIGINAL'];
+    }
+
+    const statusConfig = data ? getStatusConfig(data.status) : getStatusConfig('ORIGINAL');
+    const StatusIcon = statusConfig.icon;
+
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="max-w-[800px] w-full p-0 gap-0 overflow-hidden bg-white dark:bg-slate-900 dark:border-slate-800">
-                {/* Header */}
-                <DialogHeader className="p-6 border-b flex flex-row items-center justify-between space-y-0 dark:border-slate-800">
-                    <DialogTitle className="text-xl font-semibold dark:text-slate-50">
-                        {data ? `Detalhes da Consulta - ${data.patientName}` : 'Carregando...'}
-                    </DialogTitle>
+            <DialogContent className="max-w-[850px] w-full p-0 gap-0 overflow-hidden bg-white dark:bg-slate-900 dark:border-slate-800 rounded-xl">
+                {/* Premium Header */}
+                <DialogHeader className="p-0">
+                    <div className="bg-gradient-to-r from-[#0066CC] to-[#0088FF] p-6 text-white">
+                        <div className="flex items-center gap-4">
+                            <div className="h-14 w-14 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                                <User className="h-7 w-7" />
+                            </div>
+                            <div>
+                                <DialogTitle className="text-2xl font-bold text-white mb-1">
+                                    {data?.patientName || 'Carregando...'}
+                                </DialogTitle>
+                                <p className="text-blue-100 text-sm flex items-center gap-2">
+                                    <Calendar className="h-4 w-4" />
+                                    {data ? new Date(data.createdAt).toLocaleString('pt-BR') : '...'}
+                                </p>
+                            </div>
+                            <div className="ml-auto">
+                                <Badge className={`${statusConfig.bg} ${statusConfig.text} border-none px-3 py-1.5 text-sm font-medium`}>
+                                    <StatusIcon className="h-4 w-4 mr-1.5" />
+                                    {data?.status || 'ORIGINAL'}
+                                </Badge>
+                            </div>
+                        </div>
+                    </div>
                 </DialogHeader>
 
                 {/* Body */}
                 {data && (
-                    <div className="p-6 max-h-[70vh] overflow-y-auto">
-                        {/* Section 1: Basic Info */}
-                        <div className="mb-6">
-                            <h3 className="text-lg font-semibold mb-4 dark:text-slate-50">Informações Básicas</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div>
-                                    <span className="text-sm font-medium text-muted-foreground block">Paciente:</span>
-                                    <span className="text-sm dark:text-slate-200">{data.patientName}</span>
+                    <div className="p-6 max-h-[60vh] overflow-y-auto space-y-6">
+                        {/* Section: Sintomas */}
+                        <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-5 border border-slate-100 dark:border-slate-700">
+                            <div className="flex items-center gap-2 mb-4">
+                                <div className="h-8 w-8 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                                    <Stethoscope className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                                 </div>
-                                <div>
-                                    <span className="text-sm font-medium text-muted-foreground block">Data/Hora:</span>
-                                    <span className="text-sm dark:text-slate-200">
-                                        {new Date(data.createdAt).toLocaleString()}
-                                    </span>
-                                </div>
-                                <div>
-                                    <span className="text-sm font-medium text-muted-foreground block">Status:</span>
-                                    <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-none dark:bg-slate-800 dark:text-slate-300">
-                                        {data.status || 'CONCLUÍDO'}
-                                    </Badge>
-                                </div>
+                                <h3 className="font-semibold text-slate-800 dark:text-slate-100">Sintomas e Relato</h3>
                             </div>
-                        </div>
-
-                        {/* Section 2: User Prompt */}
-                        <div className="mb-8">
-                            <h3 className="text-lg font-semibold mb-4 dark:text-slate-50">Dados da Solicitação</h3>
-                            <div className="bg-slate-50 p-4 rounded-lg border border-slate-100 text-sm text-slate-700 whitespace-pre-wrap dark:bg-slate-950 dark:border-slate-800 dark:text-slate-300">
-                                <strong>Sintomas/Relato:</strong>
-                                <br />
+                            <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
                                 {data.userPrompt}
-
-                                {data.complementaryData && (
-                                    <>
-                                        <br /><br />
-                                        <strong>Dados Complementares:</strong>
-                                        <br />
-                                        {data.complementaryData}
-                                    </>
-                                )}
-                            </div>
+                            </p>
                         </div>
 
-                        {/* Section 3: AI Response */}
-                        <div>
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-semibold dark:text-slate-50">Resposta da IA</h3>
-                                <div className="flex gap-2">
-                                    <Button variant="outline" size="sm" className="h-8 gap-2 bg-white dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300" onClick={handleCopy}><Copy className="h-3 w-3" /> Copiar</Button>
-                                    <Button variant="outline" size="sm" className="h-8 gap-2 bg-white dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300" onClick={handlePrint}><Printer className="h-3 w-3" /> Imprimir</Button>
-                                </div>
-                            </div>
-
-                            <div className="bg-white border rounded-lg p-6 shadow-sm dark:bg-slate-900 dark:border-slate-800">
-                                <div className="prose prose-sm max-w-none prose-blue dark:prose-invert">
-                                    <div className="text-slate-600 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">
-                                        <ReactMarkdown>{data.aiResponse}</ReactMarkdown>
+                        {/* Section: Dados Complementares */}
+                        {data.complementaryData && (
+                            <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-5 border border-amber-100 dark:border-amber-800/50">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <div className="h-8 w-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                                        <FileText className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                                     </div>
+                                    <h3 className="font-semibold text-slate-800 dark:text-slate-100">Dados Complementares</h3>
                                 </div>
-
-                                <div className="mt-6 pt-4 border-t dark:border-slate-800 text-xs text-muted-foreground flex justify-between">
-                                    <span>Modelo utilizado: {data.model}</span>
+                                <div className="text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap text-sm">
+                                    {data.complementaryData}
                                 </div>
                             </div>
-                        </div>
+                        )}
 
+                        {/* Section: AI Response */}
+                        <div className="bg-white dark:bg-slate-800/30 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-700 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
+                                <div className="flex items-center gap-2">
+                                    <div className="h-8 w-8 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                                        <Bot className="h-4 w-4 text-green-600 dark:text-green-400" />
+                                    </div>
+                                    <h3 className="font-semibold text-slate-800 dark:text-slate-100">Análise da IA</h3>
+                                </div>
+                                <div className="flex gap-2">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-8 gap-2 bg-white dark:bg-slate-800 dark:border-slate-600 dark:text-slate-300 hover:bg-green-50 dark:hover:bg-green-900/20"
+                                        onClick={handleCopy}
+                                    >
+                                        <Copy className="h-3.5 w-3.5" /> Copiar
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-8 gap-2 bg-white dark:bg-slate-800 dark:border-slate-600 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                                        onClick={handlePrint}
+                                    >
+                                        <Printer className="h-3.5 w-3.5" /> Imprimir
+                                    </Button>
+                                </div>
+                            </div>
+
+                            <div className="p-5">
+                                <div className="prose prose-sm max-w-none prose-blue dark:prose-invert prose-headings:text-slate-800 dark:prose-headings:text-slate-100 prose-p:text-slate-600 dark:prose-p:text-slate-300">
+                                    <ReactMarkdown>{data.aiResponse}</ReactMarkdown>
+                                </div>
+                            </div>
+
+                            <div className="px-5 py-3 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                                <span className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                                    <Activity className="h-3.5 w-3.5" />
+                                    Modelo: <span className="font-medium text-slate-700 dark:text-slate-300">{data.model}</span>
+                                </span>
+                                <span className="text-xs text-slate-400">
+                                    LIAMED - Inteligência Clínica
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 )}
 
                 {/* Footer */}
-                <DialogFooter className="p-6 border-t sm:justify-center dark:border-slate-800">
-                    <Button className="bg-[#0066CC] hover:bg-[#0055AA] min-w-[200px] dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-200" onClick={onClose}>
+                <DialogFooter className="p-5 border-t dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30">
+                    <Button
+                        className="bg-gradient-to-r from-[#0066CC] to-[#0088FF] hover:from-[#0055AA] hover:to-[#0077EE] text-white min-w-[180px] h-11 rounded-lg font-medium shadow-lg shadow-blue-500/20"
+                        onClick={onClose}
+                    >
                         Fechar
                     </Button>
                 </DialogFooter>
