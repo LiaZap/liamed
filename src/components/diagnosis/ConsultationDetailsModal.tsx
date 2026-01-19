@@ -7,8 +7,9 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Copy, Printer, User, Calendar, Activity, Stethoscope, FileText, Bot, CheckCircle } from "lucide-react"
+import { Copy, Printer, User, Calendar, Activity, Stethoscope, FileText, Bot, CheckCircle, ExternalLink } from "lucide-react"
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { toast } from "sonner"
 
 interface ConsultationDetailsModalProps {
@@ -149,9 +150,19 @@ export function ConsultationDetailsModal({ isOpen, onClose, data }: Consultation
                                     prose-a:text-blue-600 prose-a:underline prose-a:font-medium hover:prose-a:text-blue-800
                                     dark:prose-a:text-blue-400 dark:hover:prose-a:text-blue-300">
                                     <ReactMarkdown
+                                        remarkPlugins={[remarkGfm]}
                                         components={{
-                                            a: ({ node, ...props }) => (
-                                                <a {...props} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 underline font-medium hover:text-blue-800 dark:hover:text-blue-300 break-all" />
+                                            a: ({ node, children, href, ...props }) => (
+                                                <a
+                                                    href={href}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 underline font-medium hover:text-blue-800 dark:hover:text-blue-300 break-all"
+                                                    {...props}
+                                                >
+                                                    {children}
+                                                    <ExternalLink className="h-3 w-3 inline-block flex-shrink-0" />
+                                                </a>
                                             ),
                                             p: ({ node, ...props }) => (
                                                 <p {...props} className="my-4 leading-relaxed text-slate-700 dark:text-slate-300" />
