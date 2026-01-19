@@ -188,3 +188,126 @@
 .animate-delay-600 { animation-delay: 600ms; }
 .animate-delay-700 { animation-delay: 700ms; }
 .animate-delay-800 { animation-delay: 800ms; }
+
+/* ===== PRINT STYLES ===== */
+@media print {
+  /* Hide everything except the dialog content */
+  body > *:not([role="dialog"]),
+  nav,
+  aside,
+  header,
+  footer,
+  .sidebar,
+  [data-radix-popper-content-wrapper] {
+    display: none !important;
+  }
+
+  /* Reset page layout */
+  body {
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Dialog adjustments for print */
+  [role="dialog"] {
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: white !important;
+    overflow: visible !important;
+  }
+
+  /* Remove dialog overlay */
+  [data-radix-dialog-overlay] {
+    display: none !important;
+  }
+
+  /* Hide buttons not needed in print */
+  button,
+  [role="button"] {
+    display: none !important;
+  }
+
+  /* Show header info */
+  .print-header {
+    display: block !important;
+  }
+
+  /* Dialog content adjustments */
+  [role="dialog"] > div {
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* Make scrollable areas visible */
+  .overflow-y-auto,
+  .overflow-auto {
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
+  /* Header gradient - convert to solid for print */
+  .bg-gradient-to-r {
+    background: #0066CC !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Ensure text is black for readability */
+  .prose p,
+  .prose li,
+  .prose strong {
+    color: #111 !important;
+  }
+
+  .prose h1,
+  .prose h2,
+  .prose h3 {
+    color: #000 !important;
+    page-break-after: avoid;
+  }
+
+  /* Links show URL for print */
+  a[href]:after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #666;
+  }
+
+  /* Prevent page breaks inside elements */
+  .prose p,
+  .prose li {
+    page-break-inside: avoid;
+  }
+
+  /* Page margins */
+  @page {
+    margin: 1.5cm;
+    size: A4;
+  }
+
+  /* Footer with branding */
+  .print-footer {
+    display: block !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 10px;
+    color: #666;
+    padding: 10px;
+    border-top: 1px solid #ddd;
+  }
+}
