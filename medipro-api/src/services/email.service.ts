@@ -14,12 +14,12 @@ export const sendPasswordResetEmail = async (to: string, token: string) => {
     const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
 
     const mailOptions = {
-        from: `"${process.env.EMAIL_FROM_NAME || 'MediPro Support'}" <${process.env.EMAIL_FROM}>`,
+        from: `"${process.env.EMAIL_FROM_NAME || 'LIAMED Suporte'}" <${process.env.EMAIL_FROM}>`,
         to,
-        subject: 'Recuperação de Senha - MediPro',
+        subject: 'Recuperação de Senha - LIAMED',
         html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <h2 style="color: #0066CC;">Recuperação de Senha</h2>
+                <h2 style="color: #0066CC;">LIAMED - Recuperação de Senha</h2>
                 <p>Você solicitou a redefinição de sua senha. Clique no botão abaixo para criar uma nova senha:</p>
                 <div style="text-align: center; margin: 30px 0;">
                     <a href="${resetLink}" style="background-color: #0066CC; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">Redefinir Senha</a>
@@ -27,6 +27,8 @@ export const sendPasswordResetEmail = async (to: string, token: string) => {
                 <p>Ou copie e cole o link abaixo no seu navegador:</p>
                 <p style="color: #666;">${resetLink}</p>
                 <p style="font-size: 12px; color: #999; margin-top: 30px;">Este link expira em 1 hora.</p>
+                <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+                <p style="font-size: 11px; color: #aaa; text-align: center;">LIAMED - Inteligência Clínica</p>
             </div>
         `,
     };
