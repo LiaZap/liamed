@@ -93,9 +93,6 @@ export const createDiagnosis = async (req: Request, res: Response) => {
             where: {
                 category: 'DIAGNOSTICO',
                 isActive: true
-            },
-            orderBy: {
-                updatedAt: 'desc'
             }
         });
 
