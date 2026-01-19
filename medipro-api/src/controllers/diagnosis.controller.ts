@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import fs from 'fs';
-import pdfParse from 'pdf-parse';
+const pdfParse = require('pdf-parse');
 
 const prisma = new PrismaClient();
 
@@ -175,7 +175,7 @@ export const createDiagnosis = async (req: Request, res: Response) => {
             // 1. Use User's Custom Endpoint
             modelUsed = "custom-endpoint";
             try {
-                aiResponse = await callOpenAICompatible(endpoint.url, endpoint, systemInstruction, userMessage, { patientName, userPrompt, complementaryData });
+                aiResponse = await callOpenAICompatible(endpoint.url, endpoint, systemInstruction, userMessage, { patientName, userPrompt, complementaryData, exams: examsData });
             } catch (err: any) {
                 console.error("Custom Endpoint Error:", err);
                 aiResponse = `Erro ao consultar IA personalizada: ${err.message}. \n\nGerando resposta simulada de fallback...`;
@@ -340,7 +340,13 @@ async function callOpenAICompatible(url: string, endpointConfig: any, systemProm
             patientName: originalData.patientName,
             userPrompt: originalData.userPrompt,
             complementaryData: originalData.complementaryData,
+            exams: originalData.exams || [],
+            examsContent: originalData.exams?.filter((e: any) => e.textContent).map((e: any) => ({
+                fileName: e.originalName,
+                content: e.textContent
+            })) || [],
             systemInstruction: systemPrompt,
+            fullUserMessage: userPrompt, // This contains the assembled message with exam content
             timestamp: new Date().toISOString(),
             source: 'LiaMed-System'
         };
