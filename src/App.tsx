@@ -17,6 +17,7 @@ import AuditLogs from "@/pages/AuditLogs"
 import Plans from "@/pages/Plans"
 import Calculators from "@/pages/Calculators"
 import SystemHealth from "@/pages/SystemHealth"
+import ClinicDashboard from "@/pages/ClinicDashboard"
 import { type NavItem } from "@/components/layout/Sidebar"
 import { Toaster } from "@/components/ui/sonner"
 import { ThemeProvider } from "@/contexts/ThemeContext"
@@ -44,6 +45,7 @@ function AuthenticatedApp() {
     <NotificationProvider>
       <DashboardLayout currentPath={currentPath} onNavigate={setCurrentPath}>
         {currentPath === "Dashboard" && <Dashboard />}
+        {currentPath === "Clínica" && <ClinicDashboard />}
         {currentPath === "Diagnóstico" && <Diagnosis />}
         {currentPath === "Usuários" && <UsersPage />}
         {currentPath === "Consultas" && <Consultations />}

@@ -15,8 +15,8 @@ export const getStats = async (req: AuthRequest, res: Response) => {
         let whereClause = {};
         let diagnosisWhereClause = {};
 
-        // Se não for ADMIN, filtra pelos dados do próprio médico
-        if (userRole !== 'ADMIN') {
+        // Se não for ADMIN ou GESTOR, filtra pelos dados do próprio médico
+        if (userRole !== 'ADMIN' && userRole !== 'GESTOR') {
             whereClause = { doctorId: userId };
             diagnosisWhereClause = { doctorId: userId };
         }
@@ -148,7 +148,7 @@ export const getStats = async (req: AuthRequest, res: Response) => {
         let occupancyRate = 0;
         let satisfactionIndex = 0;
 
-        if (userRole === 'ADMIN') {
+        if (userRole === 'ADMIN' || userRole === 'GESTOR') {
             // Team Performance (List of Doctors)
             const doctors = await prisma.user.findMany({
                 where: { role: 'MEDICO' },

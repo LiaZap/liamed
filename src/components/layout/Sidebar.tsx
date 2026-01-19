@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { LayoutDashboard, User, Calendar, Activity, Users, Link, Settings, Brain, FileText, CreditCard, Calculator, Server } from "lucide-react"
+import { LayoutDashboard, User, Calendar, Activity, Users, Link, Settings, Brain, FileText, CreditCard, Calculator, Server, Building2 } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import { LanguageSwitcher } from "../LanguageSwitcher"
 import { useTranslation } from "react-i18next"
@@ -9,7 +9,7 @@ import { useTheme } from "@/contexts/ThemeContext"
 import LogoLiamed from "@/assets/logo-liamed.png"
 import LogoLiamedWhite from "@/assets/logo-liamed-white.png"
 
-export type NavItem = "Dashboard" | "Diagnóstico" | "Usuários" | "Consultas" | "Endpoints" | "Configurações" | "Prompts" | "Logs" | "Perfil" | "Notificações" | "Planos" | "Calculadoras" | "Health" | "Others"
+export type NavItem = "Dashboard" | "Diagnóstico" | "Usuários" | "Consultas" | "Endpoints" | "Configurações" | "Prompts" | "Logs" | "Perfil" | "Notificações" | "Planos" | "Calculadoras" | "Health" | "Clínica" | "Others"
 
 interface SidebarProps {
     className?: string
@@ -23,8 +23,9 @@ export function Sidebar({ className, currentPath = "Dashboard", onNavigate }: Si
     const { user } = useAuth()
     const { t } = useTranslation();
 
-    const menuItems: { icon: any, label: string, key: NavItem, href: string, adminOnly?: boolean }[] = [
+    const menuItems: { icon: any, label: string, key: NavItem, href: string, adminOnly?: boolean, gestorOnly?: boolean }[] = [
         { icon: LayoutDashboard, label: t('sidebar.dashboard'), key: "Dashboard", href: "#" },
+        { icon: Building2, label: "Visão da Clínica", key: "Clínica", href: "#", gestorOnly: true },
         { icon: User, label: t('sidebar.profile'), key: "Perfil", href: "#" },
         { icon: Calendar, label: t('sidebar.appointments'), key: "Consultas", href: "#" },
         { icon: Activity, label: t('sidebar.diagnosis'), key: "Diagnóstico", href: "#" },
@@ -39,8 +40,13 @@ export function Sidebar({ className, currentPath = "Dashboard", onNavigate }: Si
     ]
 
     const filteredItems = menuItems.filter(item => {
-        if (!item.adminOnly) return true
-        return user?.role === 'ADMIN'
+        if (item.gestorOnly) {
+            return user?.role === 'ADMIN' || user?.role === 'GESTOR'
+        }
+        if (item.adminOnly) {
+            return user?.role === 'ADMIN'
+        }
+        return true
     })
 
     const { isDark } = useTheme()
