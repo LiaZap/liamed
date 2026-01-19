@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react"
-import { useTranslation } from "react-i18next"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -7,13 +6,13 @@ import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
-    Users, Stethoscope, Activity, TrendingUp, Star,
-    Calendar, Building2, RefreshCw, FileDown, Trophy,
+    Users, Stethoscope, Activity, Star,
+    Calendar, Building2, RefreshCw, Trophy,
     ArrowUpRight, Clock
 } from "lucide-react"
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-    ResponsiveContainer, PieChart, Pie, Cell, Legend
+    ResponsiveContainer
 } from 'recharts'
 import api from "@/services/api"
 import { toast } from "sonner"
@@ -22,7 +21,6 @@ import { useTheme } from "@/contexts/ThemeContext"
 const COLORS = ['#0066CC', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4']
 
 export default function ClinicDashboard() {
-    const { t } = useTranslation()
     const { theme } = useTheme()
     const isDark = theme === 'dark'
 
@@ -56,13 +54,6 @@ export default function ClinicDashboard() {
     useEffect(() => {
         fetchStats()
     }, [period])
-
-    // Calculate doctor distribution by consults
-    const doctorDistribution = stats.teamPerformance?.map((doc: any, index: number) => ({
-        name: doc.name.split(' ')[0], // First name only
-        value: doc.consults,
-        color: COLORS[index % COLORS.length]
-    })) || []
 
     // Top 3 doctors
     const topDoctors = [...(stats.teamPerformance || [])]
