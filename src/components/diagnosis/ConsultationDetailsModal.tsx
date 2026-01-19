@@ -140,8 +140,47 @@ export function ConsultationDetailsModal({ isOpen, onClose, data }: Consultation
                             </div>
 
                             <div className="p-5">
-                                <div className="prose prose-sm max-w-none prose-blue dark:prose-invert prose-headings:text-slate-800 dark:prose-headings:text-slate-100 prose-p:text-slate-600 dark:prose-p:text-slate-300">
-                                    <ReactMarkdown>{data.aiResponse}</ReactMarkdown>
+                                <div className="prose prose-sm max-w-none prose-blue dark:prose-invert 
+                                    prose-headings:text-slate-800 dark:prose-headings:text-slate-100 
+                                    prose-headings:font-bold prose-headings:mt-6 prose-headings:mb-3
+                                    prose-p:text-slate-600 dark:prose-p:text-slate-300 prose-p:my-3 prose-p:leading-relaxed
+                                    prose-strong:text-slate-800 dark:prose-strong:text-slate-100
+                                    prose-li:my-1
+                                    prose-a:text-blue-600 prose-a:underline prose-a:font-medium hover:prose-a:text-blue-800
+                                    dark:prose-a:text-blue-400 dark:hover:prose-a:text-blue-300">
+                                    <ReactMarkdown
+                                        components={{
+                                            a: ({ node, ...props }) => (
+                                                <a {...props} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 underline font-medium hover:text-blue-800 dark:hover:text-blue-300 break-all" />
+                                            ),
+                                            p: ({ node, ...props }) => (
+                                                <p {...props} className="my-4 leading-relaxed text-slate-700 dark:text-slate-300" />
+                                            ),
+                                            strong: ({ node, ...props }) => (
+                                                <strong {...props} className="font-bold text-slate-900 dark:text-slate-100" />
+                                            ),
+                                            h1: ({ node, ...props }) => (
+                                                <h1 {...props} className="text-xl font-bold text-slate-900 dark:text-slate-100 mt-6 mb-4 pb-2 border-b border-slate-200 dark:border-slate-700" />
+                                            ),
+                                            h2: ({ node, ...props }) => (
+                                                <h2 {...props} className="text-lg font-bold text-slate-900 dark:text-slate-100 mt-6 mb-3" />
+                                            ),
+                                            h3: ({ node, ...props }) => (
+                                                <h3 {...props} className="text-base font-bold text-slate-800 dark:text-slate-200 mt-5 mb-2" />
+                                            ),
+                                            ul: ({ node, ...props }) => (
+                                                <ul {...props} className="my-3 pl-5 space-y-2" />
+                                            ),
+                                            ol: ({ node, ...props }) => (
+                                                <ol {...props} className="my-3 pl-5 space-y-2" />
+                                            ),
+                                            li: ({ node, ...props }) => (
+                                                <li {...props} className="text-slate-700 dark:text-slate-300 leading-relaxed" />
+                                            ),
+                                        }}
+                                    >
+                                        {data.aiResponse}
+                                    </ReactMarkdown>
                                 </div>
                             </div>
 
