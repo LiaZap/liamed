@@ -85,12 +85,35 @@ export const createDiagnosis = async (req: Request, res: Response) => {
             size: file.size
         })) : [];
 
-        // Prepare context for AI
-        // Prepare context for AI
-        const systemInstruction = doctor.customPrompt || `Você é um assistente médico especialista (IA) do sistema BahFlash/LiaMed. 
-        Sua função é auxiliar médicos fornecendo hipóteses diagnósticas e recomendações baseadas nos dados fornecidos.
-        IMPORTANTE: Você é um assistente, a decisão final é sempre do médico.
-        Formato de resposta: Markdown estruturado (negrito, listas).`;
+        // Fetch the active DIAGNOSTICO prompt from the database
+        let systemInstruction = '';
+
+        // 1. First try: Get the active DIAGNOSTICO prompt from Prompt table
+        const activePrompt = await prisma.prompt.findFirst({
+            where: {
+                category: 'DIAGNOSTICO',
+                isActive: true
+            },
+            orderBy: {
+                updatedAt: 'desc'
+            }
+        });
+
+        if (activePrompt) {
+            systemInstruction = activePrompt.content;
+            console.log(`[Diagnosis] Using prompt from table: "${activePrompt.name}"`);
+        } else if (doctor.customPrompt) {
+            // 2. Fallback: User's custom prompt
+            systemInstruction = doctor.customPrompt;
+            console.log(`[Diagnosis] Using user's custom prompt`);
+        } else {
+            // 3. Default fallback
+            systemInstruction = `Você é um assistente médico especialista (IA) do sistema LIAMED. 
+            Sua função é auxiliar médicos fornecendo hipóteses diagnósticas e recomendações baseadas nos dados fornecidos.
+            IMPORTANTE: Você é um assistente, a decisão final é sempre do médico.
+            Formato de resposta: Markdown estruturado (negrito, listas).`;
+            console.log(`[Diagnosis] Using default prompt`);
+        }
 
         const userMessage = `
         **Paciente:** ${patientName}
