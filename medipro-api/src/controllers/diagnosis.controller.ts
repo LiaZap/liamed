@@ -95,13 +95,32 @@ export const createDiagnosis = async (req: Request, res: Response) => {
                 // Extract text from PDF files
                 if (file.mimetype === 'application/pdf') {
                     try {
-                        const pdfBuffer = fs.readFileSync(file.path);
-                        const pdfData = await pdfParse(pdfBuffer);
-                        fileData.textContent = pdfData.text;
-                        console.log(`[Diagnosis] Extracted ${pdfData.numpages} pages from ${file.originalname}`);
+                        console.log(`[Diagnosis] Attempting to read PDF: ${file.path}`);
+
+                        // Check if file exists
+                        if (!fs.existsSync(file.path)) {
+                            console.error(`[Diagnosis] PDF file not found at: ${file.path}`);
+                            fileData.textContent = '[Arquivo PDF não encontrado no servidor]';
+                        } else {
+                            const pdfBuffer = fs.readFileSync(file.path);
+                            console.log(`[Diagnosis] PDF buffer size: ${pdfBuffer.length} bytes`);
+
+                            const pdfData = await pdfParse(pdfBuffer);
+                            const extractedText = pdfData.text?.trim() || '';
+
+                            console.log(`[Diagnosis] Extracted ${pdfData.numpages} pages, ${extractedText.length} chars from ${file.originalname}`);
+
+                            // Check if PDF has actual text content (not just scanned images)
+                            if (extractedText.length < 50) {
+                                fileData.textContent = `[PDF pode ser escaneado - texto extraído insuficiente (${extractedText.length} caracteres). Nome: ${file.originalname}]`;
+                            } else {
+                                fileData.textContent = extractedText;
+                            }
+                        }
                     } catch (pdfErr: any) {
-                        console.error(`[Diagnosis] PDF extraction error for ${file.originalname}:`, pdfErr.message);
-                        fileData.textContent = '[Erro ao extrair texto do PDF]';
+                        console.error(`[Diagnosis] PDF extraction error for ${file.originalname}:`, pdfErr);
+                        console.error(`[Diagnosis] Full error:`, JSON.stringify(pdfErr, null, 2));
+                        fileData.textContent = `[Erro ao extrair texto do PDF: ${pdfErr.message || 'erro desconhecido'}]`;
                     }
                 }
 
