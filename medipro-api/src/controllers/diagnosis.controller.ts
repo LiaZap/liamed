@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import fs from 'fs';
+import pdfParse from 'pdf-parse';
 
 const prisma = new PrismaClient();
 
@@ -75,15 +77,37 @@ export const createDiagnosis = async (req: Request, res: Response) => {
             return res.status(404).json({ error: 'Médico não encontrado.' });
         }
 
-        // Handle uploaded files (metadata only for now)
+        // Handle uploaded files and extract PDF content
         const files = req.files as Express.Multer.File[];
-        const examsData = files ? files.map(file => ({
-            originalName: file.originalname,
-            filename: file.filename,
-            path: file.path,
-            mimetype: file.mimetype,
-            size: file.size
-        })) : [];
+        const examsData: { originalName: string; filename: string; path: string; mimetype: string; size: number; textContent?: string }[] = [];
+
+        // Extract text from PDFs
+        if (files && files.length > 0) {
+            for (const file of files) {
+                const fileData: any = {
+                    originalName: file.originalname,
+                    filename: file.filename,
+                    path: file.path,
+                    mimetype: file.mimetype,
+                    size: file.size
+                };
+
+                // Extract text from PDF files
+                if (file.mimetype === 'application/pdf') {
+                    try {
+                        const pdfBuffer = fs.readFileSync(file.path);
+                        const pdfData = await pdfParse(pdfBuffer);
+                        fileData.textContent = pdfData.text;
+                        console.log(`[Diagnosis] Extracted ${pdfData.numpages} pages from ${file.originalname}`);
+                    } catch (pdfErr: any) {
+                        console.error(`[Diagnosis] PDF extraction error for ${file.originalname}:`, pdfErr.message);
+                        fileData.textContent = '[Erro ao extrair texto do PDF]';
+                    }
+                }
+
+                examsData.push(fileData);
+            }
+        }
 
         // Fetch the active DIAGNOSTICO prompt from the database
         let systemInstruction = '';
@@ -112,11 +136,25 @@ export const createDiagnosis = async (req: Request, res: Response) => {
             console.log(`[Diagnosis] Using default prompt`);
         }
 
+        // Build exam content for AI
+        let examContent = '';
+        if (examsData.length > 0) {
+            const examTexts = examsData
+                .filter(e => e.textContent)
+                .map(e => `\n--- EXAME: ${e.originalName} ---\n${e.textContent}`)
+                .join('\n');
+
+            if (examTexts) {
+                examContent = `\n\n**Conteúdo dos Exames Anexados:**${examTexts}`;
+            } else {
+                examContent = `\n\n**Exames Anexados (sem texto extraído):** ${examsData.map(e => e.originalName).join(', ')}`;
+            }
+        }
+
         const userMessage = `
         **Paciente:** ${patientName}
         **Relato/Sintomas:** ${userPrompt}
-        ${complementaryData ? `**Dados Complementares:** ${complementaryData}` : ''}
-        ${examsData.length > 0 ? `**Exames Anexados (Metadados):** ${examsData.map(e => e.originalName).join(', ')}` : ''}
+        ${complementaryData ? `**Dados Complementares:** ${complementaryData}` : ''}${examContent}
         
         Por favor, forneça:
         1. Hipótese Diagnóstica (Listar possíveis condições)
