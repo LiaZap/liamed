@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { LayoutDashboard, User, Calendar, Activity, Users, Link, Settings, Brain, FileText, CreditCard, Calculator, Server, Building2 } from "lucide-react"
+import { LayoutDashboard, User, Calendar, Activity, Users, Link, Settings, Brain, FileText, CreditCard, Calculator, Server, Building2, Briefcase } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import { LanguageSwitcher } from "../LanguageSwitcher"
 import { useTranslation } from "react-i18next"
@@ -9,7 +9,7 @@ import { useTheme } from "@/contexts/ThemeContext"
 import LogoLiamed from "@/assets/logo-liamed.png"
 import LogoLiamedWhite from "@/assets/logo-liamed-white.png"
 
-export type NavItem = "Dashboard" | "Diagnóstico" | "Usuários" | "Consultas" | "Endpoints" | "Configurações" | "Prompts" | "Logs" | "Perfil" | "Notificações" | "Planos" | "Calculadoras" | "Health" | "Clínica" | "Others"
+export type NavItem = "Dashboard" | "Diagnóstico" | "Usuários" | "Consultas" | "Endpoints" | "Configurações" | "Prompts" | "Logs" | "Perfil" | "Notificações" | "Planos" | "Calculadoras" | "Health" | "Clínica" | "Vagas" | "Others"
 
 interface SidebarProps {
     className?: string
@@ -36,6 +36,7 @@ export function Sidebar({ className, currentPath = "Dashboard", onNavigate }: Si
         { icon: FileText, label: t('sidebar.logs'), key: "Logs", href: "#", adminOnly: true },
         { icon: CreditCard, label: t('plans.title'), key: "Planos", href: "#", adminOnly: true },
         { icon: Calculator, label: t('calculators.title'), key: "Calculadoras", href: "#" },
+        { icon: Briefcase, label: "Vagas", key: "Vagas", href: "#" },
         { icon: Server, label: t('health.title'), key: "Health", href: "#", adminOnly: true },
     ]
 

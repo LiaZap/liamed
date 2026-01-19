@@ -18,6 +18,7 @@ import Plans from "@/pages/Plans"
 import Calculators from "@/pages/Calculators"
 import SystemHealth from "@/pages/SystemHealth"
 import ClinicDashboard from "@/pages/ClinicDashboard"
+import Vagas from "@/pages/Vagas"
 import { type NavItem } from "@/components/layout/Sidebar"
 import { Toaster } from "@/components/ui/sonner"
 import { ThemeProvider } from "@/contexts/ThemeContext"
@@ -58,6 +59,7 @@ function AuthenticatedApp() {
         {currentPath === "Notificações" && <Notifications />}
         {currentPath === "Logs" && <AuditLogs />}
         {currentPath === "Planos" && <Plans />}
+        {currentPath === "Vagas" && <Vagas />}
 
         {currentPath === "Others" && (
           <div className="flex items-center justify-center h-[500px] text-muted-foreground">
