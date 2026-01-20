@@ -220,3 +220,48 @@ export const updateConsultStatus = async (req: AuthRequest, res: Response) => {
         res.status(500).json({ error: 'Erro ao atualizar status da consulta.' });
     }
 };
+
+export const deleteConsult = async (req: AuthRequest, res: Response) => {
+    try {
+        const { id } = req.params;
+
+        // 1. Only ADMIN or GESTOR can delete
+        if (req.user.role !== 'ADMIN' && req.user.role !== 'GESTOR') {
+            return res.status(403).json({ error: 'Apenas administradores podem excluir consultas.' });
+        }
+
+        // 2. Check if consult exists
+        const existingConsult = await prisma.consult.findUnique({
+            where: { id },
+            include: { diagnosis: true }
+        });
+
+        if (!existingConsult) {
+            return res.status(404).json({ error: 'Consulta não encontrada.' });
+        }
+
+        // 3. If there's a linked diagnosis, delete it first (or set consultId to null)
+        if (existingConsult.diagnosis) {
+            await prisma.diagnosis.delete({ where: { id: existingConsult.diagnosis.id } });
+        }
+
+        // 4. Delete the consult
+        await prisma.consult.delete({ where: { id } });
+
+        // 5. Audit Log
+        await logAction({
+            userId: req.user.id,
+            userName: req.user.name || 'Unknown',
+            action: 'DELETE',
+            resource: 'CONSULT',
+            resourceId: id,
+            details: { patientName: existingConsult.patientName, doctorName: existingConsult.doctorName },
+            req
+        });
+
+        res.json({ message: 'Consulta excluída com sucesso.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Erro ao excluir consulta.' });
+    }
+};
