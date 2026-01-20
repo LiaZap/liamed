@@ -104,9 +104,10 @@ export const createDiagnosis = async (req: Request, res: Response) => {
                             fileData.textContent = '[Arquivo PDF não encontrado no servidor]';
                         } else {
                             const pdfBuffer = fs.readFileSync(file.path);
+                            const uint8Array = new Uint8Array(pdfBuffer);
                             console.log(`[Diagnosis] PDF buffer size: ${pdfBuffer.length} bytes`);
 
-                            const parser = new PDFParse(pdfBuffer);
+                            const parser = new PDFParse(uint8Array);
                             await parser.load();
                             const extractedText = (await parser.getText())?.trim() || '';
                             const pageInfo = await parser.getInfo();
