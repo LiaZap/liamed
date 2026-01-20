@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useAuth } from './AuthContext';
 // import { v4 as uuidv4 } from 'uuid'; // Unused
 
 // Helper for ID generator if uuid is missing, though recommended to install
@@ -30,23 +31,32 @@ const NotificationContext = createContext<NotificationContexttype | undefined>(u
 
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
     const [notifications, setNotifications] = useState<Notification[]>([]);
+    const { user } = useAuth();
 
-    // Load from local storage on mount
+    // Generate user-specific storage key
+    const storageKey = user?.id ? `medipro-notifications-${user.id}` : 'medipro-notifications-guest';
+
+    // Load from local storage on mount or user change
     useEffect(() => {
-        const saved = localStorage.getItem('medipro-notifications');
+        const saved = localStorage.getItem(storageKey);
         if (saved) {
             try {
                 setNotifications(JSON.parse(saved));
             } catch (e) {
                 console.error("Failed to parse notifications", e);
+                setNotifications([]);
             }
+        } else {
+            setNotifications([]);
         }
-    }, []);
+    }, [storageKey]);
 
     // Save to local storage on change
     useEffect(() => {
-        localStorage.setItem('medipro-notifications', JSON.stringify(notifications));
-    }, [notifications]);
+        if (notifications.length > 0 || localStorage.getItem(storageKey)) {
+            localStorage.setItem(storageKey, JSON.stringify(notifications));
+        }
+    }, [notifications, storageKey]);
 
     const unreadCount = notifications.filter(n => !n.read).length;
 
