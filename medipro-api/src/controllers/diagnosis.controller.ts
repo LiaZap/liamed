@@ -231,6 +231,7 @@ export const createDiagnosis = async (req: Request, res: Response) => {
         const diagnosis = await prisma.diagnosis.create({
             data: {
                 doctorId,
+                clinicId: doctor.clinicId, // Link to doctor's clinic for multi-clinic support
                 patientName,
                 userPrompt,
                 complementaryData,
@@ -247,6 +248,7 @@ export const createDiagnosis = async (req: Request, res: Response) => {
                 patientName,
                 doctorId,
                 doctorName: doctor.name,
+                clinicId: doctor.clinicId, // Link to doctor's clinic
                 date: new Date(),
                 type: 'CONSULTA' as any,
                 status: 'CONCLUIDA' as any

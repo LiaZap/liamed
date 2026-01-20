@@ -112,6 +112,7 @@ export const createConsult = async (req: AuthRequest, res: Response) => {
                 type,
                 doctorId: finalDoctorId,
                 doctorName: doctor.name,
+                clinicId: doctor.clinicId, // Link to doctor's clinic for multi-clinic support
                 status: 'AGENDADA'
             }
         });
