@@ -7,6 +7,26 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Modelo de Clínicas (Multi-tenant)
+model Clinic {
+  id          String   @id @default(uuid())
+  name        String
+  cnpj        String?  @unique
+  address     String?
+  phone       String?
+  email       String?
+  logo        String?
+  status      Status   @default(ATIVO)
+  createdAt   DateTime @default(now())
+  
+  // Relações
+  users       User[]
+  consults    Consult[]
+  diagnoses   Diagnosis[]
+  
+  @@map("clinics")
+}
+
 // Modelo de Usuários
 model User {
   id            String    @id @default(uuid())
@@ -20,10 +40,12 @@ model User {
   status        Status    @default(ATIVO)
   endpointId    String?
   customPrompt  String?   @db.Text
+  clinicId      String?   // NULL = Individual, WITH VALUE = Linked to clinic
   createdAt     DateTime  @default(now())
   lastLogin     DateTime?
   
   // Relações
+  clinic        Clinic?         @relation(fields: [clinicId], references: [id])
   endpoint      Endpoint?       @relation(fields: [endpointId], references: [id])
   consults      Consult[]
   diagnoses     Diagnosis[]
@@ -33,6 +55,7 @@ model User {
   calculationHistory CalculationHistory[]
   
   @@map("users")
+  @@index([clinicId])
 }
 
 // Modelo de Consultas
@@ -41,17 +64,20 @@ model Consult {
   patientName String
   doctorId    String
   doctorName  String
+  clinicId    String?     // NULL = Individual doctor's consult
   date        DateTime
   type        ConsultType @default(CONSULTA)
   status      ConsultStatus @default(AGENDADA)
   createdAt   DateTime    @default(now())
   
   // Relações
+  clinic      Clinic?     @relation(fields: [clinicId], references: [id])
   doctor      User        @relation(fields: [doctorId], references: [id], onDelete: Cascade)
   diagnosis   Diagnosis?
   
   @@map("consults")
   @@index([doctorId])
+  @@index([clinicId])
   @@index([date])
   @@index([status])
 }
@@ -61,6 +87,7 @@ model Diagnosis {
   id          String   @id @default(uuid())
   consultId   String?  @unique
   doctorId    String
+  clinicId    String?  // NULL = Individual doctor's diagnosis
   patientName String
   userPrompt  String   @db.Text
   exams       Json?    // Stores array of file paths/metadata
@@ -72,11 +99,13 @@ model Diagnosis {
   createdAt   DateTime @default(now())
   
   // Relações
+  clinic      Clinic?  @relation(fields: [clinicId], references: [id])
   consult     Consult? @relation(fields: [consultId], references: [id], onDelete: SetNull)
   doctor      User     @relation(fields: [doctorId], references: [id], onDelete: Cascade)
   
   @@map("diagnoses")
   @@index([doctorId])
+  @@index([clinicId])
   @@index([patientName])
   @@index([createdAt])
 }

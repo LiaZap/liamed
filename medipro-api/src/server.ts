@@ -37,6 +37,7 @@ import calculatorRoutes from './routes/calculator.routes';
 import paymentRoutes from './routes/payment.routes';
 import healthRoutes from './routes/health.routes';
 import demoRoutes from './routes/demo.routes';
+import clinicRoutes from './routes/clinic.routes';
 import swaggerUi from 'swagger-ui-express';
 import { specs } from './config/swagger';
 import path from 'path';
@@ -69,6 +70,7 @@ app.use('/api/calculators', calculatorRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/health', healthRoutes);
 app.use('/api/demo', demoRoutes);
+app.use('/api/clinics', clinicRoutes);
 
 // Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
