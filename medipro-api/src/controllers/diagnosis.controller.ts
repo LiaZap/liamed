@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import fs from 'fs';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { PDFParse } = require('pdf-parse');
+// pdf-parse v1.1.1 simple function API
+const pdfParse = require('pdf-parse');
 
 const prisma = new PrismaClient();
 
@@ -104,15 +104,13 @@ export const createDiagnosis = async (req: Request, res: Response) => {
                             fileData.textContent = '[Arquivo PDF não encontrado no servidor]';
                         } else {
                             const pdfBuffer = fs.readFileSync(file.path);
-                            const uint8Array = new Uint8Array(pdfBuffer);
                             console.log(`[Diagnosis] PDF buffer size: ${pdfBuffer.length} bytes`);
 
-                            const parser = new PDFParse(uint8Array);
-                            await parser.load();
-                            const extractedText = (await parser.getText())?.trim() || '';
-                            const pageInfo = await parser.getInfo();
+                            // pdf-parse v1.1.1 simple function
+                            const pdfData = await pdfParse(pdfBuffer);
+                            const extractedText = pdfData.text?.trim() || '';
 
-                            console.log(`[Diagnosis] Extracted ${pageInfo?.numPages || '?'} pages, ${extractedText.length} chars from ${file.originalname}`);
+                            console.log(`[Diagnosis] Extracted ${pdfData.numpages} pages, ${extractedText.length} chars from ${file.originalname}`);
 
                             // Check if PDF has actual text content (not just scanned images)
                             if (extractedText.length < 50) {
