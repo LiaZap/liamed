@@ -106,7 +106,8 @@ export const createDiagnosis = async (req: Request, res: Response) => {
                             const pdfBuffer = fs.readFileSync(file.path);
                             console.log(`[Diagnosis] PDF buffer size: ${pdfBuffer.length} bytes`);
 
-                            const pdfData = await PDFParse(pdfBuffer);
+                            const parser = new PDFParse(pdfBuffer);
+                            const pdfData = await parser.parse();
                             const extractedText = pdfData.text?.trim() || '';
 
                             console.log(`[Diagnosis] Extracted ${pdfData.numpages} pages, ${extractedText.length} chars from ${file.originalname}`);
