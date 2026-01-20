@@ -11,19 +11,32 @@ export const getStats = async (req: AuthRequest, res: Response) => {
     try {
         const userId = req.user.id;
         const userRole = req.user.role;
+        const userClinicId = req.user.clinicId;
 
-        let whereClause = {};
-        let diagnosisWhereClause = {};
+        let whereClause: any = {};
+        let diagnosisWhereClause: any = {};
+        let userWhereClause: any = { role: 'MEDICO', status: 'ATIVO' };
 
-        // Se não for ADMIN ou GESTOR, filtra pelos dados do próprio médico
-        if (userRole !== 'ADMIN' && userRole !== 'GESTOR') {
+        // Filter based on role
+        if (userRole === 'ADMIN') {
+            // Admin sees everything
+        } else if (userRole === 'GESTOR' && userClinicId) {
+            // GESTOR sees only their clinic's data
+            whereClause = { clinicId: userClinicId };
+            diagnosisWhereClause = { clinicId: userClinicId };
+            userWhereClause = { ...userWhereClause, clinicId: userClinicId };
+        } else {
+            // MEDICO sees only their own data
             whereClause = { doctorId: userId };
             diagnosisWhereClause = { doctorId: userId };
         }
 
         const validUserId = userId || ''; // Ensure string
 
-        const usersCount = await prisma.user.count();
+        // For GESTOR, count only users in their clinic
+        const usersCount = userRole === 'GESTOR' && userClinicId
+            ? await prisma.user.count({ where: { clinicId: userClinicId } })
+            : await prisma.user.count();
         const consultsCount = await prisma.consult.count({ where: whereClause });
         const diagnosesCount = await prisma.diagnosis.count({ where: diagnosisWhereClause });
 
@@ -75,13 +88,9 @@ export const getStats = async (req: AuthRequest, res: Response) => {
             value: 250
         }));
 
-        // --- Medical Team Stats ---
-        // Fetch all doctors and their consult counts
+        // --- Medical Team Stats (filtered by clinic for GESTOR) ---
         const doctors = await prisma.user.findMany({
-            where: {
-                role: 'MEDICO',
-                status: 'ATIVO'
-            },
+            where: userWhereClause,
             select: {
                 id: true,
                 name: true,
@@ -149,9 +158,13 @@ export const getStats = async (req: AuthRequest, res: Response) => {
         let satisfactionIndex = 0;
 
         if (userRole === 'ADMIN' || userRole === 'GESTOR') {
-            // Team Performance (List of Doctors)
-            const doctors = await prisma.user.findMany({
-                where: { role: 'MEDICO' },
+            // Team Performance (List of Doctors) - filtered by clinic for GESTOR
+            const teamWhereClause = userRole === 'GESTOR' && userClinicId
+                ? { role: 'MEDICO' as const, clinicId: userClinicId }
+                : { role: 'MEDICO' as const };
+
+            const teamDoctors = await prisma.user.findMany({
+                where: teamWhereClause,
                 include: {
                     _count: {
                         select: { consults: true }
@@ -162,7 +175,7 @@ export const getStats = async (req: AuthRequest, res: Response) => {
             occupancyRate = 78; // Mock value for now
             satisfactionIndex = 4.8; // Mock value for now
 
-            teamPerformance = await Promise.all(doctors.map(async (doc) => {
+            teamPerformance = await Promise.all(teamDoctors.map(async (doc: any) => {
                 // Get consults for this doctor specifically to calculate revenue/rating if we had it
                 // For now, we use the count
                 return {

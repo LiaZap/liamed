@@ -13,6 +13,7 @@ export const listConsults = async (req: AuthRequest, res: Response) => {
     try {
         const userRole = req.user.role;
         const userId = req.user.id;
+        const userClinicId = req.user.clinicId;
 
         // Filters
         const { status, type, search } = req.query;
@@ -20,7 +21,13 @@ export const listConsults = async (req: AuthRequest, res: Response) => {
         let whereClause: any = {};
 
         // 1. Restriction by Role
-        if (userRole !== 'ADMIN') {
+        if (userRole === 'ADMIN') {
+            // Admin sees everything
+        } else if (userRole === 'GESTOR' && userClinicId) {
+            // GESTOR sees only consults from their clinic
+            whereClause.clinicId = userClinicId;
+        } else {
+            // MEDICO sees only their own consults
             whereClause.doctorId = userId;
         }
 
@@ -130,9 +137,16 @@ export const getConsultStats = async (req: AuthRequest, res: Response) => {
     try {
         const userId = req.user.id;
         const userRole = req.user.role;
+        const userClinicId = req.user.clinicId;
 
         let whereClause: any = {};
-        if (userRole !== 'ADMIN') {
+        if (userRole === 'ADMIN') {
+            // Admin sees everything
+        } else if (userRole === 'GESTOR' && userClinicId) {
+            // GESTOR sees only their clinic's stats
+            whereClause.clinicId = userClinicId;
+        } else {
+            // MEDICO sees only their own
             whereClause.doctorId = userId;
         }
 
