@@ -107,10 +107,11 @@ export const createDiagnosis = async (req: Request, res: Response) => {
                             console.log(`[Diagnosis] PDF buffer size: ${pdfBuffer.length} bytes`);
 
                             const parser = new PDFParse(pdfBuffer);
-                            const pdfData = await parser.parse();
-                            const extractedText = pdfData.text?.trim() || '';
+                            await parser.load();
+                            const extractedText = (await parser.getText())?.trim() || '';
+                            const pageInfo = await parser.getInfo();
 
-                            console.log(`[Diagnosis] Extracted ${pdfData.numpages} pages, ${extractedText.length} chars from ${file.originalname}`);
+                            console.log(`[Diagnosis] Extracted ${pageInfo?.numPages || '?'} pages, ${extractedText.length} chars from ${file.originalname}`);
 
                             // Check if PDF has actual text content (not just scanned images)
                             if (extractedText.length < 50) {
