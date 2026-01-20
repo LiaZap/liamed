@@ -165,24 +165,31 @@ export const getStats = async (req: AuthRequest, res: Response) => {
 
             const teamDoctors = await prisma.user.findMany({
                 where: teamWhereClause,
-                include: {
-                    _count: {
-                        select: { consults: true }
-                    }
+                select: {
+                    id: true,
+                    name: true,
+                    status: true,
+                    clinicId: true
                 }
             });
 
             occupancyRate = 78; // Mock value for now
             satisfactionIndex = 4.8; // Mock value for now
 
+            // For GESTOR, only count consults within their clinic
             teamPerformance = await Promise.all(teamDoctors.map(async (doc: any) => {
-                // Get consults for this doctor specifically to calculate revenue/rating if we had it
-                // For now, we use the count
+                const consultCount = await prisma.consult.count({
+                    where: {
+                        doctorId: doc.id,
+                        ...(userRole === 'GESTOR' && userClinicId ? { clinicId: userClinicId } : {})
+                    }
+                });
+
                 return {
                     id: doc.id,
                     name: doc.name,
                     specialty: "Clínico Geral", // Mock, needs field in DB or relation
-                    consults: doc._count.consults,
+                    consults: consultCount,
                     rating: (4 + Math.random()).toFixed(1), // Mock rating
                     status: doc.status
                 };
