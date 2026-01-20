@@ -21,6 +21,7 @@ import {
     Eye,
     ChevronLeft,
     ChevronRight,
+    Trash2,
 } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner"
@@ -50,11 +51,14 @@ import api from "@/services/api"
 
 import { CreateConsultationModal } from "@/components/consultations/CreateConsultationModal"
 import { Plus } from "lucide-react"
+import { useAuth } from "@/contexts/AuthContext"
 
 // ... imports ...
 
 export default function Consultations() {
     const { t } = useTranslation();
+    const { user } = useAuth();
+    const isAdmin = user?.role === 'ADMIN' || user?.role === 'GESTOR';
     const [consultations, setConsultations] = useState<any[]>([])
     const [stats, setStats] = useState({ total: 0, scheduled: 0, completed: 0, cancelled: 0 })
     const [loading, setLoading] = useState(true)
@@ -70,6 +74,9 @@ export default function Consultations() {
 
     // Create Modal State
     const [isCreateOpen, setIsCreateOpen] = useState(false)
+
+    // Delete confirmation state
+    const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
 
     // Fetch Consults
     async function fetchConsultations() {
@@ -176,6 +183,23 @@ export default function Consultations() {
         } catch (error) {
             console.error("Failed to update status", error)
             toast.error(t('consultations.toasts.status_error'))
+        }
+    }
+
+    const handleDelete = async (id: string) => {
+        if (!isAdmin) {
+            toast.error("Apenas administradores podem excluir consultas")
+            return
+        }
+
+        try {
+            await api.delete(`/consults/${id}`)
+            toast.success("Consulta excluída com sucesso!")
+            setDeleteConfirmId(null)
+            fetchConsultations()
+        } catch (error: any) {
+            console.error("Failed to delete consultation", error)
+            toast.error(error.response?.data?.error || "Erro ao excluir consulta")
         }
     }
 
@@ -378,9 +402,27 @@ export default function Consultations() {
                                                     </Badge>
                                                 </TableCell>
                                                 <TableCell className="text-right">
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:bg-blue-100 hover:text-primary dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200" onClick={() => handleViewDetails(consult.id)}>
-                                                        <Eye className="h-4 w-4" />
-                                                    </Button>
+                                                    <div className="flex items-center justify-end gap-1">
+                                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:bg-blue-100 hover:text-primary dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200" onClick={() => handleViewDetails(consult.id)}>
+                                                            <Eye className="h-4 w-4" />
+                                                        </Button>
+                                                        {isAdmin && (
+                                                            deleteConfirmId === consult.id ? (
+                                                                <div className="flex items-center gap-1">
+                                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600 hover:bg-red-100 dark:text-red-400 dark:hover:bg-red-900/30" onClick={() => handleDelete(consult.id)}>
+                                                                        ✓
+                                                                    </Button>
+                                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800" onClick={() => setDeleteConfirmId(null)}>
+                                                                        ✕
+                                                                    </Button>
+                                                                </div>
+                                                            ) : (
+                                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:bg-red-100 hover:text-red-600 dark:text-red-400 dark:hover:bg-red-900/30" onClick={() => setDeleteConfirmId(consult.id)}>
+                                                                    <Trash2 className="h-4 w-4" />
+                                                                </Button>
+                                                            )
+                                                        )}
+                                                    </div>
                                                 </TableCell>
                                             </TableRow>
                                         ))
