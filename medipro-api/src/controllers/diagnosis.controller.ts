@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import fs from 'fs';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const pdf = require('pdf-parse');
+const { PDFParse } = require('pdf-parse');
 
 const prisma = new PrismaClient();
 
@@ -106,7 +106,7 @@ export const createDiagnosis = async (req: Request, res: Response) => {
                             const pdfBuffer = fs.readFileSync(file.path);
                             console.log(`[Diagnosis] PDF buffer size: ${pdfBuffer.length} bytes`);
 
-                            const pdfData = await pdf(pdfBuffer);
+                            const pdfData = await PDFParse(pdfBuffer);
                             const extractedText = pdfData.text?.trim() || '';
 
                             console.log(`[Diagnosis] Extracted ${pdfData.numpages} pages, ${extractedText.length} chars from ${file.originalname}`);
