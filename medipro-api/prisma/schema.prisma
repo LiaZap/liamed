@@ -36,6 +36,7 @@ model User {
   phone         String?
   address       String?
   biography     String?
+  specialty     String?   // Especialidade do médico (ex: Cardiologista, Pediatra)
   role          Role      @default(MEDICO)
   status        Status    @default(ATIVO)
   endpointId    String?
