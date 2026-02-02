@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import LogoLiamed from "@/assets/logo-liamed.png"
 
@@ -10,6 +10,85 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Loader2, ArrowRight, CheckCircle2, ShieldCheck, Star } from "lucide-react"
+
+// Lista de Depoimentos (15 variações)
+const TESTIMONIALS = [
+    {
+        name: "Dr. Rafael Mendes",
+        role: "Cardiologista",
+        text: "A LIAMED reduziu meu tempo de burocracia em 70%. Hoje consigo focar totalmente no paciente e não na papelada."
+    },
+    {
+        name: "Dra. Juliana Costa",
+        role: "Dermatologista",
+        text: "Impressionante como a IA captura os detalhes das lesões e já sugere o protocolo correto. Minhas consultas ficaram muito mais ágeis."
+    },
+    {
+        name: "Dr. Marcos Oliveira",
+        role: "Neurologista",
+        text: "Para exames complexos, a precisão da transcrição é fundamental. A LIAMED nunca errou um termo técnico. Recomendo."
+    },
+    {
+        name: "Dra. Fernanda Santos",
+        role: "Pediatra",
+        text: "Consigo dar muito mais atenção aos pais e às crianças, pois não preciso ficar digitando durante a consulta."
+    },
+    {
+        name: "Dr. André Ferreira",
+        role: "Ortopedista",
+        text: "A geração automática de atestados e pedidos de exames agilizou muito o fluxo do meu consultório lotado."
+    },
+    {
+        name: "Dra. Beatriz Lima",
+        role: "Ginecologista",
+        text: "Segurança de dados era minha maior preocupação. A criptografia da LIAMED me deu a tranquilidade que eu precisava."
+    },
+    {
+        name: "Dr. Ricardo Alves",
+        role: "Psiquiatra",
+        text: "A IA capta nuances do discurso do paciente que antes eu precisava anotar correndo. A qualidade dos meus prontuários triplicou."
+    },
+    {
+        name: "Dra. Camila Rocha",
+        role: "Endocrinologista",
+        text: "A interface é limpa e não atrapalha o atendimento. Parece que tenho uma assistente invisível anotando tudo."
+    },
+    {
+        name: "Dr. Bruno Carvalho",
+        role: "Cirurgião Geral",
+        text: "Uso no pós-operatório para registrar evoluções rápidas. É um divisor de águas na gestão do tempo hospitalar."
+    },
+    {
+        name: "Dra. Luana Martins",
+        role: "Oftalmologista",
+        text: "Integração perfeita com meu fluxo de trabalho. Não consigo mais imaginar atender sem esse suporte."
+    },
+    {
+        name: "Dr. Tiago Gomes",
+        role: "Urologista",
+        text: "Simples, direto e eficiente. Cumpre exatamente o que promete sem complicações desnecessárias."
+    },
+    {
+        name: "Dra. Mariana Dias",
+        role: "Geriatra",
+        text: "Meus pacientes idosos se sentem mais ouvidos, pois olho para eles o tempo todo, não para a tela do computador."
+    },
+    {
+        name: "Dr. Gustavo Pereira",
+        role: "Otorrinolaringologista",
+        text: "A transcrição funciona perfeitamente até mesmo com ruído ambiente do consultório. Tecnologia de ponta."
+    },
+    {
+        name: "Dra. Vanessa Cunha",
+        role: "Nefrologista",
+        text: "O suporte é excelente e a ferramenta evolui a cada semana. Sinto que faço parte de algo inovador."
+    },
+    {
+        name: "Dr. Felipe Barbosa",
+        role: "Infectologista",
+        text: "Essencial para manter o histórico detalhado dos pacientes sem perder horas digitando após os atendimentos."
+    }
+]
 
 // Lista completa de especialidades médicas (mantida)
 const MEDICAL_SPECIALTIES = [
@@ -75,6 +154,18 @@ export default function Register() {
     const { login } = useAuth()
     
     const [isLoading, setIsLoading] = useState(false)
+    
+    // Carousel State
+    const [currentTestimonial, setCurrentTestimonial] = useState(0)
+    const [fadeKey, setFadeKey] = useState(0)
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentTestimonial((prev) => (prev + 1) % TESTIMONIALS.length)
+            setFadeKey((prev) => prev + 1)
+        }, 5000) // 5 seconds per slide
+        return () => clearInterval(interval)
+    }, [])
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
@@ -151,23 +242,42 @@ export default function Register() {
 
                 {/* Testimonial / Footer */}
                 <div className="relative z-10 space-y-6">
-                    <div className="bg-white/10 backdrop-blur-sm p-6 rounded-2xl border border-white/10">
-                        <div className="flex gap-1 mb-3">
-                            {[1,2,3,4,5].map(i => <Star key={i} className="h-4 w-4 text-yellow-400 fill-yellow-400" />)}
-                        </div>
-                        <p className="text-lg italic font-light mb-4 text-blue-50">
-                            "A LIAMED reduziu meu tempo de burocracia em 70%. Hoje consigo focar totalmente no paciente."
-                        </p>
-                        <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-full bg-blue-400 flex items-center justify-center font-bold text-[#002A4D]">DR</div>
-                            <div>
-                                <p className="font-medium text-sm">Dr. Rafael Mendes</p>
-                                <p className="text-xs text-blue-300">Cardiologista</p>
+                    {/* Carousel Container */}
+                    <div className="h-[180px] flex items-end"> 
+                        <div 
+                            key={fadeKey}
+                            className="bg-white/10 backdrop-blur-sm p-6 rounded-2xl border border-white/10 animate-in fade-in slide-in-from-bottom-2 duration-700 w-full"
+                        >
+                            <div className="flex gap-1 mb-3">
+                                {[1,2,3,4,5].map(i => <Star key={i} className="h-4 w-4 text-yellow-400 fill-yellow-400" />)}
+                            </div>
+                            <p className="text-lg italic font-light mb-4 text-blue-50 line-clamp-3">
+                                "{TESTIMONIALS[currentTestimonial].text}"
+                            </p>
+                            <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 rounded-full bg-blue-400 flex items-center justify-center font-bold text-[#002A4D]">
+                                    {TESTIMONIALS[currentTestimonial].name.split(" ")[0].substring(0,2).toUpperCase()}
+                                </div>
+                                <div>
+                                    <p className="font-medium text-sm">{TESTIMONIALS[currentTestimonial].name}</p>
+                                    <p className="text-xs text-blue-300">{TESTIMONIALS[currentTestimonial].role}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-blue-300/60">
-                         <ShieldCheck className="h-4 w-4" /> Dados criptografados ponta-a-ponta.
+                    
+                    <div className="flex items-center justify-between text-xs text-blue-300/60">
+                         <div className="flex items-center gap-2">
+                             <ShieldCheck className="h-4 w-4" /> Dados criptografados ponta-a-ponta.
+                         </div>
+                         <div className="flex gap-1">
+                            {TESTIMONIALS.map((_, idx) => (
+                                <div 
+                                    key={idx} 
+                                    className={`h-1.5 rounded-full transition-all duration-500 ${idx === currentTestimonial ? 'w-4 bg-blue-400' : 'w-1.5 bg-blue-400/20'}`}
+                                />
+                            ))}
+                         </div>
                     </div>
                 </div>
             </div>
