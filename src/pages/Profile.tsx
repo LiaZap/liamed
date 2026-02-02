@@ -153,7 +153,7 @@ export default function Profile({ onNavigate }: ProfileProps) {
                         <div className="space-y-2">
                             <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">{displayUser.name || "Usuário"}</h2>
                             <Badge variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-none font-semibold dark:bg-slate-800 dark:text-white">
-                                {displayUser.role || "MÉDICO"}
+                                {displayUser.specialty || displayUser.role || "Médico"}
                             </Badge>
                         </div>
 
