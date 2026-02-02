@@ -36,7 +36,7 @@ async function main() {
         }
     });
 
-    // 2. Criar usuário ADMIN
+    // 3. Criar usuário ADMIN com Plano Premium Vitalício
     console.log('👤 Criando usuário administrador...');
     const hashedPasswordAdmin = await bcrypt.hash('Admin@123', 10);
 
@@ -51,7 +51,36 @@ async function main() {
         }
     });
 
-    // 3. Criar médicos
+    // Criar planos se não existirem (garantia)
+    let premiumPlan = await prisma.plan.findFirst({ where: { name: 'Premium' } });
+    
+    if (!premiumPlan) {
+        premiumPlan = await prisma.plan.create({
+            data: {
+                name: 'Premium',
+                description: 'Acesso total e ilimitado',
+                price: 99.90,
+                interval: 'MONTHLY',
+                features: JSON.stringify(['unlimited_transcription', 'all_calculators', 'protocols']),
+                active: true
+            }
+        });
+    }
+
+    // Dar assinatura Premium para o Admin
+    console.log('🌟 Atribuindo plano Premium vitalício para Admin...');
+    await prisma.subscription.create({
+        data: {
+            userId: admin.id,
+            planId: premiumPlan.id,
+            status: 'ACTIVE',
+            currentPeriodStart: new Date(),
+            currentPeriodEnd: new Date('2099-12-31T23:59:59'), // Vitalício de facto
+            stripeSubscriptionId: 'admin_lifetime_access'
+        }
+    });
+
+    // 4. Criar médicos
     console.log('👨‍⚕️ Criando médicos...');
     const hashedPasswordMedico = await bcrypt.hash('Medico@123', 10);
 

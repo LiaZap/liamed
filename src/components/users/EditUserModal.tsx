@@ -22,6 +22,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Menu } from "lucide-react";
 import { SelectPromptModal } from "./SelectPromptModal";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface EditUserModalProps {
   isOpen: boolean;
@@ -36,6 +37,7 @@ export function EditUserModal({
   user,
   onSave,
 }: EditUserModalProps) {
+  const { user: currentUser } = useAuth();
   const [isPromptModalOpen, setIsPromptModalOpen] = useState(false);
   const [promptText, setPromptText] = useState("");
 
@@ -47,6 +49,9 @@ export function EditUserModal({
   const [isActive, setIsActive] = useState(true);
   const [endpointId, setEndpointId] = useState("none");
   const [specialty, setSpecialty] = useState("");
+  const [plan, setPlan] = useState("ESSENTIAL");
+  const [planStatus, setPlanStatus] = useState("ACTIVE");
+  
   const [endpoints, setEndpoints] = useState<any[]>([]);
 
   useEffect(() => {
@@ -71,6 +76,8 @@ export function EditUserModal({
         setPromptText(user.customPrompt || "");
         setEndpointId(user.endpointId || "none");
         setSpecialty(user.specialty || "");
+        setPlan(user.plan || "ESSENTIAL");
+        setPlanStatus(user.planStatus || "ACTIVE");
         setPassword(""); // Limpar senha ao editar para evitar envio acidental de dados antigos
       } else {
         // New User defaults
@@ -81,6 +88,8 @@ export function EditUserModal({
         setIsActive(true);
         setEndpointId("none");
         setSpecialty("");
+        setPlan("ESSENTIAL");
+        setPlanStatus("ACTIVE");
         setPromptText(
           `# Prompt para Geração de Evolução Médica no Formato SOAP...`,
         );
@@ -110,6 +119,8 @@ export function EditUserModal({
         status: isActive ? "ATIVO" : "INATIVO",
         customPrompt: promptText,
         endpointId: endpointId === "none" ? null : endpointId,
+        plan,
+        planStatus
       });
     }
   };
@@ -179,6 +190,39 @@ export function EditUserModal({
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Plan Management - Only for Admins editing others */}
+            {currentUser?.role === 'ADMIN' && (
+                <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-lg border">
+                    <div className="space-y-2">
+                        <Label>Plano de Assinatura</Label>
+                        <Select value={plan} onValueChange={setPlan}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Selecione o plano" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="ESSENTIAL">Essential (Gratuito/Básico)</SelectItem>
+                                <SelectItem value="PRO">Pro (Pago)</SelectItem>
+                                <SelectItem value="PREMIUM">Premium (Ilimitado)</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                     <div className="space-y-2">
+                        <Label>Status da Assinatura</Label>
+                        <Select value={planStatus} onValueChange={setPlanStatus}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="ACTIVE">Ativo</SelectItem>
+                                <SelectItem value="TRIALING">Em Período de Teste</SelectItem>
+                                <SelectItem value="PAST_DUE">Pagamento Pendente</SelectItem>
+                                <SelectItem value="CANCELED">Cancelado</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+            )}
 
             {/* Specialty - Only for MEDICO */}
             {role === "MEDICO" && (

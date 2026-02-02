@@ -75,6 +75,8 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
       specialty,
       notifyVagasWhatsApp,
       notifyVagasEmail,
+      plan,          // New field
+      planStatus     // New field
     } = req.body;
     const requestingUserId = req.user.id;
     const requestingUserRole = req.user.role;
@@ -89,13 +91,13 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
         });
     }
 
-    // Security Check: Only Admin can change role or status
-    if (requestingUserRole !== "ADMIN" && (role || status)) {
+    // Security Check: Only Admin can change role or status or plan
+    if (requestingUserRole !== "ADMIN" && (role || status || plan || planStatus)) {
       return res
         .status(403)
         .json({
           error:
-            "Acesso negado. Apenas administradores podem alterar funções ou status.",
+            "Acesso negado. Apenas administradores podem alterar funções, status ou planos.",
         });
     }
 
@@ -123,9 +125,61 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
       (key) => data[key] === undefined && delete data[key],
     );
 
-    const user = await prisma.user.update({
-      where: { id },
-      data,
+    // Transaction to update user and handle plan subscription if needed
+    const user = await prisma.$transaction(async (tx) => {
+        // 1. Update basic user data
+        const updatedUser = await tx.user.update({
+            where: { id },
+            data,
+        });
+
+        // 2. Handle Plan Update (Only if plan is provided and user is Admin)
+        if (plan && requestingUserRole === 'ADMIN') {
+            // Find plan by name (case insensitive usually, but our logic uses title case 'Essential', 'Pro')
+            // Trying to find roughly matching plan
+            const planRecord = await tx.plan.findFirst({
+                where: { 
+                    name: { equals: plan, mode: 'insensitive' }
+                }
+            });
+
+            if (planRecord) {
+                // Deactivate user's existing active subscriptions
+                await tx.subscription.updateMany({
+                    where: { userId: id, status: { in: ['ACTIVE', 'TRIALING'] } },
+                    data: { status: 'CANCELED' } // No canceledAt field in schema
+                });
+
+                // Create new subscription
+                // If plan status provided use it, otherwise valid ACTIVE
+                const newStatus = planStatus || 'ACTIVE';
+                
+                // Calculate dates
+                const startDate = new Date();
+                let endDate = new Date();
+                
+                if (newStatus === 'ACTIVE') {
+                   // If Admin sets it manually, let's give it a long time or standard 30 days?
+                   // Usually manual valid means unlimited or monthly. Let's do 1 year for manual assignment convenience
+                   endDate.setFullYear(endDate.getFullYear() + 1);
+                } else if (newStatus === 'TRIALING') {
+                   endDate.setDate(endDate.getDate() + 15);
+                }
+
+                await tx.subscription.create({
+                    data: {
+                        userId: id,
+                        planId: planRecord.id,
+                        status: newStatus as any, // active/trialing
+                        currentPeriodStart: startDate,
+                        currentPeriodEnd: endDate,
+                        stripeSubscriptionId: 'manual_admin_override_' + Date.now()
+                    }
+                });
+            }
+        }
+
+        return updatedUser;
     });
 
     // Audit Log
@@ -135,12 +189,13 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
       action: "UPDATE",
       resource: "USER",
       resourceId: id,
-      details: { updatedFields: Object.keys(data) },
+      details: { updatedFields: Object.keys(data), planUpdate: plan },
       req,
     });
 
     res.json(user);
   } catch (error) {
+    console.error("Update User Error: ", error);
     res.status(500).json({ error: "Erro ao atualizar usuário." });
   }
 };
