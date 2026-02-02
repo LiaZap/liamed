@@ -10,6 +10,12 @@ async function main() {
     await prisma.notification.deleteMany();
     await prisma.diagnosis.deleteMany();
     await prisma.consult.deleteMany();
+    // Limpar logs de auditoria antes dos usuários (FK constraint)
+    try {
+        await prisma.$executeRaw`DELETE FROM audit_logs`; 
+    } catch (e) {
+        console.log('Tabela audit_logs pode não existir ou erro ao limpar:', e);
+    }
     await prisma.user.deleteMany();
     await prisma.prompt.deleteMany();
     await prisma.setting.deleteMany();
