@@ -9,137 +9,141 @@ datasource db {
 
 // Modelo de Clínicas (Multi-tenant)
 model Clinic {
-  id          String   @id @default(uuid())
-  name        String
-  cnpj        String?  @unique
-  address     String?
-  phone       String?
-  email       String?
-  logo        String?
-  status      Status   @default(ATIVO)
-  createdAt   DateTime @default(now())
-  
+  id        String   @id @default(uuid())
+  name      String
+  cnpj      String?  @unique
+  address   String?
+  phone     String?
+  email     String?
+  logo      String?
+  status    Status   @default(ATIVO)
+  createdAt DateTime @default(now())
+
   // Relações
-  users       User[]
-  consults    Consult[]
-  diagnoses   Diagnosis[]
-  
+  users     User[]
+  consults  Consult[]
+  diagnoses Diagnosis[]
+
   @@map("clinics")
 }
 
 // Modelo de Usuários
 model User {
-  id            String    @id @default(uuid())
-  name          String
-  email         String    @unique
-  password      String
-  phone         String?
-  address       String?
-  biography     String?
-  specialty     String?   // Especialidade do médico (ex: Cardiologista, Pediatra)
-  role          Role      @default(MEDICO)
-  status        Status    @default(ATIVO)
-  endpointId    String?
-  customPrompt  String?   @db.Text
-  clinicId      String?   // NULL = Individual, WITH VALUE = Linked to clinic
-  createdAt     DateTime  @default(now())
-  lastLogin     DateTime?
-  
+  id           String    @id @default(uuid())
+  name         String
+  email        String    @unique
+  password     String
+  phone        String?
+  address      String?
+  biography    String?
+  specialty    String? // Especialidade do médico (ex: Cardiologista, Pediatra)
+  role         Role      @default(MEDICO)
+  status       Status    @default(ATIVO)
+  endpointId   String?
+  customPrompt String?   @db.Text
+  clinicId     String? // NULL = Individual, WITH VALUE = Linked to clinic
+  createdAt    DateTime  @default(now())
+  lastLogin    DateTime?
+
+  // Notification preferences for Vagas (Marketplace)
+  notifyVagasWhatsApp Boolean @default(false)
+  notifyVagasEmail    Boolean @default(false)
+
   // Relações
-  clinic        Clinic?         @relation(fields: [clinicId], references: [id])
-  endpoint      Endpoint?       @relation(fields: [endpointId], references: [id])
-  consults      Consult[]
-  diagnoses     Diagnosis[]
-  notifications Notification[]
-  auditLogs     AuditLog[]
-  subscriptions Subscription[]
+  clinic             Clinic?              @relation(fields: [clinicId], references: [id])
+  endpoint           Endpoint?            @relation(fields: [endpointId], references: [id])
+  consults           Consult[]
+  diagnoses          Diagnosis[]
+  notifications      Notification[]
+  auditLogs          AuditLog[]
+  subscriptions      Subscription[]
   calculationHistory CalculationHistory[]
-  
-  @@map("users")
+
   @@index([clinicId])
+  @@map("users")
 }
 
 // Modelo de Consultas
 model Consult {
-  id          String      @id @default(uuid())
+  id          String        @id @default(uuid())
   patientName String
   doctorId    String
   doctorName  String
-  clinicId    String?     // NULL = Individual doctor's consult
+  clinicId    String? // NULL = Individual doctor's consult
   date        DateTime
-  type        ConsultType @default(CONSULTA)
+  type        ConsultType   @default(CONSULTA)
   status      ConsultStatus @default(AGENDADA)
-  createdAt   DateTime    @default(now())
-  
+  createdAt   DateTime      @default(now())
+
   // Relações
-  clinic      Clinic?     @relation(fields: [clinicId], references: [id])
-  doctor      User        @relation(fields: [doctorId], references: [id], onDelete: Cascade)
-  diagnosis   Diagnosis?
-  
-  @@map("consults")
+  clinic    Clinic?    @relation(fields: [clinicId], references: [id])
+  doctor    User       @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  diagnosis Diagnosis?
+
   @@index([doctorId])
   @@index([clinicId])
   @@index([date])
   @@index([status])
+  @@map("consults")
 }
 
 // Modelo de Diagnósticos IA
 model Diagnosis {
-  id          String   @id @default(uuid())
-  consultId   String?  @unique
-  doctorId    String
-  clinicId    String?  // NULL = Individual doctor's diagnosis
-  patientName String
-  userPrompt  String   @db.Text
-  exams       Json?    // Stores array of file paths/metadata
-  complementaryData String? @db.Text
-  aiResponse  String   @db.Text
-  model       String   @default("gpt-4")
-  status      DiagnosisStatus @default(ORIGINAL)
-  metadata    Json?
-  createdAt   DateTime @default(now())
-  
+  id                String          @id @default(uuid())
+  consultId         String?         @unique
+  doctorId          String
+  clinicId          String? // NULL = Individual doctor's diagnosis
+  patientName       String
+  userPrompt        String          @db.Text
+  exams             Json? // Stores array of file paths/metadata
+  complementaryData String?         @db.Text
+  aiResponse        String          @db.Text
+  model             String          @default("gpt-4")
+  status            DiagnosisStatus @default(ORIGINAL)
+  metadata          Json?
+  createdAt         DateTime        @default(now())
+
   // Relações
-  clinic      Clinic?  @relation(fields: [clinicId], references: [id])
-  consult     Consult? @relation(fields: [consultId], references: [id], onDelete: SetNull)
-  doctor      User     @relation(fields: [doctorId], references: [id], onDelete: Cascade)
-  
-  @@map("diagnoses")
+  clinic  Clinic?  @relation(fields: [clinicId], references: [id])
+  consult Consult? @relation(fields: [consultId], references: [id], onDelete: SetNull)
+  doctor  User     @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
   @@index([doctorId])
   @@index([clinicId])
   @@index([patientName])
   @@index([createdAt])
+  @@map("diagnoses")
 }
 
 // Modelo de Endpoints
 model Endpoint {
-  id          String       @id @default(uuid())
+  id          String     @id @default(uuid())
   name        String
   url         String
-  method      HttpMethod   @default(POST)
-  authType    AuthType     @default(BASIC_AUTH)
+  method      HttpMethod @default(POST)
+  authType    AuthType   @default(BASIC_AUTH)
   credentials Json
-  status      Status       @default(ATIVO)
-  createdAt   DateTime     @default(now())
-  
+  status      Status     @default(ATIVO)
+  createdAt   DateTime   @default(now())
+
   // Relações
-  users       User[]
-  
+  users User[]
+
   @@map("endpoints")
 }
 
 // Modelo de Configurações
 model Setting {
-  id          String         @id @default(uuid())
-  key         String         @unique
+  id          String          @id @default(uuid())
+  key         String          @unique
   value       String
   type        SettingType
   category    SettingCategory
-  required    Boolean        @default(false)
+  required    Boolean         @default(false)
   description String
-  
-  @@map("settings")
+
   @@index([category])
+  @@map("settings")
 }
 
 // Modelo de Prompts
@@ -149,10 +153,10 @@ model Prompt {
   category PromptCategory
   content  String         @db.Text
   isActive Boolean        @default(true)
-  
-  @@map("prompts")
+
   @@index([category])
   @@index([isActive])
+  @@map("prompts")
 }
 
 // Modelo de Notificações
@@ -165,36 +169,36 @@ model Notification {
   read      Boolean          @default(false)
   link      String?
   createdAt DateTime         @default(now())
-  
+
   // Relações
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@map("notifications")
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId])
   @@index([read])
   @@index([createdAt])
+  @@map("notifications")
 }
 
 // Modelo de Logs de Auditoria
 model AuditLog {
-  id          String   @id @default(uuid())
-  userId      String
-  userName    String
-  action      String   // CREATE, UPDATE, DELETE, LOGIN, ETC
-  resource    String   // USER, SETTING, PROMPT, etc
-  resourceId  String?
-  details     Json?    // Old/New values or other metadata
-  ipAddress   String?
-  userAgent   String?
-  createdAt   DateTime @default(now())
+  id         String   @id @default(uuid())
+  userId     String
+  userName   String
+  action     String // CREATE, UPDATE, DELETE, LOGIN, ETC
+  resource   String // USER, SETTING, PROMPT, etc
+  resourceId String?
+  details    Json? // Old/New values or other metadata
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
 
-  user        User     @relation(fields: [userId], references: [id])
-  
-  @@map("audit_logs")
+  user User @relation(fields: [userId], references: [id])
+
   @@index([userId])
   @@index([resource])
   @@index([action])
   @@index([createdAt])
+  @@map("audit_logs")
 }
 
 // Enums
@@ -276,14 +280,14 @@ enum NotificationType {
 
 // Modelo de Planos (SaaS)
 model Plan {
-  id          String   @id @default(uuid())
+  id          String       @id @default(uuid())
   name        String
   description String?
-  price       Decimal  @db.Decimal(10, 2)
+  price       Decimal      @db.Decimal(10, 2)
   interval    PlanInterval
-  features    Json?    // Lista de funcionalidades incluídas
-  active      Boolean  @default(true)
-  createdAt   DateTime @default(now())
+  features    Json? // Lista de funcionalidades incluídas
+  active      Boolean      @default(true)
+  createdAt   DateTime     @default(now())
 
   subscriptions Subscription[]
 
@@ -298,17 +302,17 @@ model Subscription {
   status               SubscriptionStatus @default(ACTIVE)
   currentPeriodStart   DateTime
   currentPeriodEnd     DateTime
-  stripeSubscriptionId String?            // ID externo (Stripe)
+  stripeSubscriptionId String? // ID externo (Stripe)
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
 
-  user User @relation(fields: [userId], references: [id])
-  plan Plan @relation(fields: [planId], references: [id])
+  user     User      @relation(fields: [userId], references: [id])
+  plan     Plan      @relation(fields: [planId], references: [id])
   invoices Invoice[]
 
-  @@map("subscriptions")
   @@index([userId])
   @@index([status])
+  @@map("subscriptions")
 }
 
 // Modelo de Faturas
@@ -319,16 +323,16 @@ model Invoice {
   status          InvoiceStatus @default(OPEN)
   dueDate         DateTime
   paidAt          DateTime?
-  stripeInvoiceId String?       // ID externo (Stripe)
+  stripeInvoiceId String? // ID externo (Stripe)
   pdfUrl          String?
   createdAt       DateTime      @default(now())
 
   subscription Subscription @relation(fields: [subscriptionId], references: [id])
   payments     Payment[]
 
-  @@map("invoices")
   @@index([subscriptionId])
   @@index([status])
+  @@map("invoices")
 }
 
 // Modelo de Pagamentos
@@ -338,15 +342,15 @@ model Payment {
   amount        Decimal       @db.Decimal(10, 2)
   method        PaymentMethod
   status        PaymentStatus @default(PENDING)
-  transactionId String?       // ID externo da transação
+  transactionId String? // ID externo da transação
   metadata      Json?
   createdAt     DateTime      @default(now())
 
   invoice Invoice @relation(fields: [invoiceId], references: [id])
 
-  @@map("payments")
   @@index([invoiceId])
   @@index([status])
+  @@map("payments")
 }
 
 enum PlanInterval {
@@ -388,9 +392,9 @@ model CalculatorFormula {
   id          String   @id @default(uuid())
   name        String
   description String?
-  expression  String   // Math.js expression (e.g. "weight / (height * height)")
-  category    String   // e.g., "Cardiology", "Pediatrics"
-  reference   String?  // URL or citation
+  expression  String // Math.js expression (e.g. "weight / (height * height)")
+  category    String // e.g., "Cardiology", "Pediatrics"
+  reference   String? // URL or citation
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -402,40 +406,40 @@ model CalculatorFormula {
 
 // Variáveis da Fórmula
 model CalculatorVariable {
-  id          String       @id @default(uuid())
-  formulaId   String
-  name        String       // Variable name in expression (e.g. "weight")
-  label       String       // Display label (e.g. "Weight (kg)")
-  type        VariableType @default(NUMBER)
-  unit        String?      // e.g. "kg", "cm"
+  id           String       @id @default(uuid())
+  formulaId    String
+  name         String // Variable name in expression (e.g. "weight")
+  label        String // Display label (e.g. "Weight (kg)")
+  type         VariableType @default(NUMBER)
+  unit         String? // e.g. "kg", "cm"
   defaultValue String?
-  options     Json?        // For SELECT type: [{label: "Male", value: 1}]
-  min         Float?
-  max         Float?
-  step        Float?
+  options      Json? // For SELECT type: [{label: "Male", value: 1}]
+  min          Float?
+  max          Float?
+  step         Float?
 
   formula CalculatorFormula @relation(fields: [formulaId], references: [id], onDelete: Cascade)
 
-  @@map("calculator_variables")
   @@index([formulaId])
+  @@map("calculator_variables")
 }
 
 // Histórico de Cálculos
 model CalculationHistory {
-  id        String   @id @default(uuid())
-  userId    String
-  formulaId String
+  id          String   @id @default(uuid())
+  userId      String
+  formulaId   String
   patientName String?
-  inputs    Json     // Values used {weight: 80, height: 1.80}
-  result    Float
-  createdAt DateTime @default(now())
+  inputs      Json // Values used {weight: 80, height: 1.80}
+  result      Float
+  createdAt   DateTime @default(now())
 
   user    User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   formula CalculatorFormula @relation(fields: [formulaId], references: [id])
 
-  @@map("calculation_history")
   @@index([userId])
   @@index([formulaId])
+  @@map("calculation_history")
 }
 
 // Tokens de Recuperação de Senha

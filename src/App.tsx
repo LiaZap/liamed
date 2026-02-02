@@ -10,6 +10,7 @@ import Settings from "@/pages/Settings"
 import Prompts from "@/pages/Prompts"
 import Profile from "@/pages/Profile"
 import Login from "@/pages/Login"
+import Register from "@/pages/Register"
 import ForgotPassword from "@/pages/ForgotPassword"
 import ResetPassword from "@/pages/ResetPassword"
 import Notifications from "@/pages/Notifications"
@@ -19,6 +20,7 @@ import Calculators from "@/pages/Calculators"
 import SystemHealth from "@/pages/SystemHealth"
 import ClinicDashboard from "@/pages/ClinicDashboard"
 import Vagas from "@/pages/Vagas"
+import Protocols from "@/pages/Protocols"
 import { type NavItem } from "@/components/layout/Sidebar"
 import { Toaster } from "@/components/ui/sonner"
 import { ThemeProvider } from "@/contexts/ThemeContext"
@@ -60,6 +62,7 @@ function AuthenticatedApp() {
         {currentPath === "Logs" && <AuditLogs />}
         {currentPath === "Planos" && <Plans />}
         {currentPath === "Vagas" && <Vagas />}
+        {currentPath === "Protocolos" && <Protocols />}
 
         {currentPath === "Others" && (
           <div className="flex items-center justify-center h-[500px] text-muted-foreground">
@@ -77,6 +80,8 @@ function App() {
       <ThemeProvider defaultTheme="light" storageKey="medipro-theme">
         <AuthProvider>
           <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/*" element={<AuthenticatedApp />} />

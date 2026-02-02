@@ -8,6 +8,8 @@ interface User {
     email: string;
     role: string;
     avatar?: string;
+    plan?: 'ESSENTIAL' | 'PRO' | 'PREMIUM' | null;
+    planStatus?: 'ACTIVE' | 'TRIALING' | 'PAST_DUE' | 'CANCELED' | null;
 }
 
 interface AuthContextType {

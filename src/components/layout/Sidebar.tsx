@@ -14,6 +14,7 @@ import {
   Calculator,
   Server,
   Building2,
+  Book,
   Briefcase,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -40,8 +41,8 @@ export type NavItem =
   | "Health"
   | "Clínica"
   | "Vagas"
+  | "Protocolos"
   | "Others";
-
 interface SidebarProps {
   className?: string;
   currentPath?: NavItem;
@@ -133,6 +134,12 @@ export function Sidebar({
       key: "Planos",
       href: "#",
       adminOnly: true,
+    },
+    {
+      icon: Book,
+      label: "Protocolos",
+      key: "Protocolos",
+      href: "#",
     },
     {
       icon: Calculator,

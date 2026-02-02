@@ -47,8 +47,13 @@ const PORT = process.env.PORT || 4000;
 
 // Middlewares
 app.use(helmet());
+// CORS: Production uses only FRONTEND_URL, dev allows localhost
+const isProduction = process.env.NODE_ENV === 'production';
+const allowedOrigins = isProduction 
+    ? [process.env.FRONTEND_URL].filter(Boolean) as string[]
+    : [process.env.FRONTEND_URL || 'http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:5173'];
 app.use(cors({
-    origin: [process.env.FRONTEND_URL || 'http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:5173'],
+    origin: allowedOrigins,
     credentials: true
 }));
 app.use(express.json());
@@ -72,8 +77,10 @@ app.use('/api/health', healthRoutes);
 app.use('/api/demo', demoRoutes);
 app.use('/api/clinics', clinicRoutes);
 
-// Documentation
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+// Documentation - Protected in production
+if (process.env.NODE_ENV !== 'production') {
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+}
 
 // Serve uploads
 app.use('/uploads', express.static(path.resolve(__dirname, '..', 'uploads')));
@@ -87,37 +94,38 @@ app.get('/health', (req, res) => {
     });
 });
 
-// Rota de teste do banco
-import { authenticateToken } from './middleware/auth.middleware';
-app.get('/test-db', authenticateToken, async (req, res) => {
-    try {
-        const { PrismaClient } = await import('@prisma/client');
-        const prisma = new PrismaClient();
+// Rota de teste do banco - Development only
+import { authenticateToken, isAdmin } from './middleware/auth.middleware';
+if (process.env.NODE_ENV !== 'production') {
+    app.get('/test-db', authenticateToken, isAdmin, async (req, res) => {
+        try {
+            const { PrismaClient } = await import('@prisma/client');
+            const prisma = new PrismaClient();
 
-        const usersCount = await prisma.user.count();
-        const consultsCount = await prisma.consult.count();
-        const diagnosesCount = await prisma.diagnosis.count();
+            const usersCount = await prisma.user.count();
+            const consultsCount = await prisma.consult.count();
+            const diagnosesCount = await prisma.diagnosis.count();
 
-        await prisma.$disconnect();
+            await prisma.$disconnect();
 
-        res.json({
-            status: 'ok',
-            database: 'connected',
-            stats: {
-                users: usersCount,
-                consults: consultsCount,
-                diagnoses: diagnosesCount
-            }
-        });
-    } catch (error: any) {
-        res.status(500).json({
-            status: 'error',
-            message: 'Erro ao conectar com banco de dados',
-            error: error.message
-        });
-    }
-});
-
+            res.json({
+                status: 'ok',
+                database: 'connected',
+                stats: {
+                    users: usersCount,
+                    consults: consultsCount,
+                    diagnoses: diagnosesCount
+                }
+            });
+        } catch (error: any) {
+            res.status(500).json({
+                status: 'error',
+                message: 'Erro ao conectar com banco de dados',
+                error: error.message
+            });
+        }
+    });
+}
 // Rota 404
 app.use((req, res) => {
     res.status(404).json({

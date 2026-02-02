@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { calculatorService, type CalculatorFormula } from "@/services/calculatorService"
 import { toast } from "sonner"
+import { PlanGate } from "@/components/PlanGate"
 
 export default function Calculators() {
     const { t } = useTranslation()
@@ -76,6 +77,7 @@ export default function Calculators() {
     const interpretation = (selectedCalc && result !== null) ? getInterpretation(selectedCalc.name, result) : null
 
     return (
+        <PlanGate requiredPlan="PRO" featureName="Calculadoras Médicas">
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* Header */}
             <div className="flex flex-col gap-2">
@@ -207,5 +209,6 @@ export default function Calculators() {
                 </Card>
             </div>
         </div>
+        </PlanGate>
     )
 }

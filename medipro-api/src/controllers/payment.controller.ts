@@ -10,9 +10,10 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
     // apiVersion: '2024-12-18.acacia', 
 });
 
-const PRICE_IDS = {
+const PRICE_IDS: Record<string, string> = {
+    ESSENTIAL: process.env.STRIPE_PRICE_ID_ESSENTIAL || '',
     PRO: process.env.STRIPE_PRICE_ID_PRO || '',
-    ENTERPRISE: process.env.STRIPE_PRICE_ID_ENTERPRISE || ''
+    PREMIUM: process.env.STRIPE_PRICE_ID_PREMIUM || ''
 };
 
 export const paymentController = {
@@ -21,14 +22,16 @@ export const paymentController = {
         try {
             const userId = (req as any).user?.id;
             const userEmail = (req as any).user?.email;
-            const { plan } = req.body; // 'PRO' or 'ENTERPRISE'
+            const { plan } = req.body; // 'ESSENTIAL', 'PRO' or 'PREMIUM'
 
             if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
-            const priceId = plan === 'PRO' ? PRICE_IDS.PRO : plan === 'ENTERPRISE' ? PRICE_IDS.ENTERPRISE : null;
+            // Get price ID from plan name (uppercase)
+            const planKey = plan?.toUpperCase();
+            const priceId = PRICE_IDS[planKey];
 
             if (!priceId) {
-                return res.status(400).json({ error: 'Invalid plan selected' });
+                return res.status(400).json({ error: 'Invalid plan selected. Valid options: ESSENTIAL, PRO, PREMIUM' });
             }
 
             // Find user to check field

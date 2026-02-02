@@ -67,6 +67,125 @@ export const login = async (req: Request, res: Response) => {
     }
 };
 
+// Register new doctor
+export const register = async (req: Request, res: Response) => {
+    try {
+        const { name, email, password, specialty, phone } = req.body;
+        console.log(`[AUTH] Register attempt for: ${email}`);
+
+        // Validations
+        if (!name || !email || !password) {
+            return res.status(400).json({ error: 'Nome, email e senha são obrigatórios.' });
+        }
+
+        if (password.length < 6) {
+            return res.status(400).json({ error: 'Senha deve ter no mínimo 6 caracteres.' });
+        }
+
+        // Check if user already exists
+        const existingUser = await prisma.user.findUnique({ where: { email } });
+        if (existingUser) {
+            return res.status(400).json({ error: 'Este email já está cadastrado.' });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Create user
+        const user = await prisma.user.create({
+            data: {
+                name,
+                email,
+                password: hashedPassword,
+                role: 'MEDICO',
+                status: 'ATIVO',
+                specialty: specialty || null,
+                phone: phone || null
+            }
+        });
+
+        // Create PRO plan trial subscription (15 days)
+        const trialEndDate = new Date();
+        trialEndDate.setDate(trialEndDate.getDate() + 15);
+
+        // Find or create PRO plan
+        let proPlan = await prisma.plan.findFirst({ where: { name: 'Pro' } });
+        if (!proPlan) {
+            proPlan = await prisma.plan.create({
+                data: {
+                    name: 'Pro',
+                    price: 89.90,
+                    interval: 'MONTHLY',
+                    features: [
+                        'Assistente IA LIAMED',
+                        'Transcrições Ilimitadas',
+                        'Calculadoras Médicas',
+                        'Suporte Prioritário'
+                    ]
+                }
+            });
+        }
+
+        // Create trial subscription
+        await prisma.subscription.create({
+            data: {
+                userId: user.id,
+                planId: proPlan.id,
+                status: 'TRIALING',
+                currentPeriodStart: new Date(),
+                currentPeriodEnd: trialEndDate
+            }
+        });
+
+        // Generate JWT token
+        const token = jwt.sign(
+            {
+                id: user.id,
+                email: user.email,
+                role: user.role,
+                name: user.name
+            },
+            process.env.JWT_SECRET as string,
+            { expiresIn: (process.env.JWT_EXPIRES_IN || '7d') as any }
+        );
+
+        // Update last login
+        await prisma.user.update({
+            where: { id: user.id },
+            data: { lastLogin: new Date() }
+        });
+
+        // Audit log
+        await logAction({
+            userId: user.id,
+            userName: user.name,
+            action: 'REGISTER',
+            resource: 'AUTH',
+            details: { email: user.email, specialty, plan: 'PRO_TRIAL' },
+            req
+        });
+
+        console.log(`[AUTH] User registered successfully: ${email} with PRO trial`);
+
+        res.status(201).json({
+            token,
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                specialty: user.specialty,
+                plan: 'PRO',
+                planStatus: 'TRIALING'
+            },
+            message: 'Conta criada com sucesso! Você tem 15 dias de teste do Plano PRO.'
+        });
+
+    } catch (error) {
+        console.error('Register error:', error);
+        res.status(500).json({ error: 'Erro ao criar conta. Tente novamente.' });
+    }
+};
+
 // Forgot Password
 export const forgotPassword = async (req: Request, res: Response) => {
     try {
@@ -89,14 +208,6 @@ export const forgotPassword = async (req: Request, res: Response) => {
                 expiresAt
             }
         });
-
-        // SIMULATE EMAIL SENDING
-        // const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
-        // console.log('----------------------------------------------------');
-        // console.log('📧  [MOCK EMAIL SERVICE] Password Reset Link:');
-        // console.log(`📧  To: ${email}`);
-        // console.log(`🔗  Link: ${resetLink}`);
-        // console.log('----------------------------------------------------');
 
         // REAL EMAIL SENDING
         await sendPasswordResetEmail(email, token);

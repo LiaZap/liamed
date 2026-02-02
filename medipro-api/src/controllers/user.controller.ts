@@ -11,6 +11,13 @@ import { logAction } from "../services/audit.service";
 
 export const createUser = async (req: AuthRequest, res: Response) => {
   try {
+    // Security: Only ADMIN can create users
+    if (req.user?.role !== "ADMIN") {
+      return res.status(403).json({ 
+        error: "Acesso negado. Apenas administradores podem criar usuários." 
+      });
+    }
+
     const { name, email, password, role, status, endpointId, specialty } =
       req.body;
 
@@ -66,6 +73,8 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
       endpointId,
       customPrompt,
       specialty,
+      notifyVagasWhatsApp,
+      notifyVagasEmail,
     } = req.body;
     const requestingUserId = req.user.id;
     const requestingUserRole = req.user.role;
@@ -101,6 +110,8 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
       endpointId,
       customPrompt,
       specialty,
+      notifyVagasWhatsApp,
+      notifyVagasEmail,
     };
 
     if (password) {
@@ -178,6 +189,7 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user.id;
 
+    // Fetch user with subscriptions to determine plan
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -192,6 +204,15 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
         endpointId: true,
         createdAt: true,
         lastLogin: true,
+        notifyVagasWhatsApp: true,
+        notifyVagasEmail: true,
+        specialty: true,
+        subscriptions: {
+            where: { status: { in: ['ACTIVE', 'TRIALING'] } },
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+            include: { plan: true }
+        }
       },
     });
 
@@ -199,8 +220,30 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ error: "Usuário não encontrado." });
     }
 
-    res.json(user);
+    // Determine plan
+    let plan = 'ESSENTIAL';
+    let planStatus = 'ACTIVE';
+
+    if (user.subscriptions && user.subscriptions.length > 0) {
+        const sub = user.subscriptions[0];
+        // Normalize plan name to uppercase (Essential -> ESSENTIAL)
+        if (sub.plan) {
+            plan = sub.plan.name.toUpperCase();
+        }
+        planStatus = sub.status;
+    }
+
+    // Return flattened user object with plan info
+    const { subscriptions, ...userData } = user;
+    
+    res.json({
+        ...userData,
+        plan,
+        planStatus
+    });
+
   } catch (error) {
+    console.error("Get profile error:", error);
     res.status(500).json({ error: "Erro ao buscar perfil." });
   }
 };

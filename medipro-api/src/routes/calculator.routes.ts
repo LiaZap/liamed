@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { calculatorController } from '../controllers/calculator.controller';
-import { authenticateToken } from '../middleware/auth.middleware';
+import { authenticateToken, isAdmin } from '../middleware/auth.middleware';
 
 const router = Router();
 
-// Admin Seed (Public GET for easy setup - changed from POST/Protected)
-router.get('/seed', calculatorController.seedCalculators);
+// Admin Seed - Protected with auth + isAdmin
+router.get('/seed', authenticateToken, isAdmin, calculatorController.seedCalculators);
 
 // Protected Routes
 router.use(authenticateToken);

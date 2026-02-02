@@ -111,10 +111,16 @@ export default function Login() {
                         </Link>
                     </div>
                 </CardContent>
-                <CardFooter className="flex justify-center border-t p-4 dark:border-slate-800">
-                    <p className="text-xs text-muted-foreground text-center dark:text-slate-200">
-                        {t('auth.no_access')}
+                <CardFooter className="flex flex-col gap-2 border-t p-4 dark:border-slate-800">
+                    <p className="text-xs text-muted-foreground text-center dark:text-slate-400">
+                        Ainda não tem uma conta?
                     </p>
+                    <Link 
+                        to="/register" 
+                        className="text-sm font-medium text-primary hover:underline dark:text-blue-400"
+                    >
+                        Criar conta gratuita →
+                    </Link>
                 </CardFooter>
             </Card>
         </div>

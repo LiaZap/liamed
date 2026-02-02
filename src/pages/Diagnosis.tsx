@@ -13,7 +13,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import {
     Search, RefreshCw, ChevronLeft, ChevronRight,
     Mic, FileText, Plus, Send,
-    Bot, Copy, Maximize2, Share2, Printer, Loader2, X, CalendarPlus, Trash2
+    Bot, Copy, Maximize2, Share2, Printer, Loader2, X, CalendarPlus, Trash2, Clock
 } from "lucide-react"
 import ReactMarkdown from 'react-markdown'
 import { ConsultationDetailsModal } from "@/components/diagnosis/ConsultationDetailsModal"
@@ -21,12 +21,21 @@ import { CreateConsultationModal } from "@/components/consultations/CreateConsul
 import { toast } from "sonner"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useNotifications } from "@/contexts/NotificationContext"
+import { useUserPlan } from "@/components/PlanGate"
 
 import api from "@/services/api"
 import { playSound } from "@/utils/sounds"
 
+// Limite de transcrição por plano (em minutos)
+const TRANSCRIPTION_LIMITS = {
+    ESSENTIAL: 20, // 20 minutos
+    PRO: null,     // Ilimitado
+    PREMIUM: null  // Ilimitado
+}
+
 export default function Diagnosis() {
     const { t } = useTranslation();
+    const { plan } = useUserPlan()
     const [responseState, setResponseState] = useState<'empty' | 'loading' | 'content'>('empty')
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [selectedHistoryItem, setSelectedHistoryItem] = useState<any>(null)
@@ -42,6 +51,11 @@ export default function Diagnosis() {
     const [isComplementaryModalOpen, setIsComplementaryModalOpen] = useState(false)
     const [files, setFiles] = useState<File[]>([])
     const [isRecording, setIsRecording] = useState(false)
+    
+    // Transcription time tracking
+    const [recordingSeconds, setRecordingSeconds] = useState(0)
+    const recordingTimerRef = useRef<NodeJS.Timeout | null>(null)
+    const transcriptionLimit = TRANSCRIPTION_LIMITS[plan] // em minutos
 
     const [history, setHistory] = useState<any[]>([])
     const [historyLoading, setHistoryLoading] = useState(true)
@@ -147,17 +161,77 @@ export default function Diagnosis() {
         }
 
         if (isRecording) {
+            // Stop recording
             recognition.stop()
             setIsRecording(false)
+            if (recordingTimerRef.current) {
+                clearInterval(recordingTimerRef.current)
+                recordingTimerRef.current = null
+            }
             toast.success(t('diagnosis.toasts.transcription_ended'))
         } else {
+            // Check if limit was already reached (for Essential plan)
+            if (transcriptionLimit && recordingSeconds >= transcriptionLimit * 60) {
+                toast.error(`Limite de transcrição atingido (${transcriptionLimit} min). Faça upgrade para continuar.`, {
+                    action: {
+                        label: 'Ver Planos',
+                        onClick: () => window.location.href = '/planos'
+                    }
+                })
+                return
+            }
+            
+            // Start recording
             recognition.start()
             setIsRecording(true)
+            
+            // Start timer
+            recordingTimerRef.current = setInterval(() => {
+                setRecordingSeconds(prev => {
+                    const newTime = prev + 1
+                    // Check limit during recording
+                    if (transcriptionLimit && newTime >= transcriptionLimit * 60) {
+                        recognition.stop()
+                        setIsRecording(false)
+                        if (recordingTimerRef.current) {
+                            clearInterval(recordingTimerRef.current)
+                            recordingTimerRef.current = null
+                        }
+                        toast.warning(`Limite de ${transcriptionLimit} minutos atingido!`, {
+                            description: 'Faça upgrade para transcrições ilimitadas.',
+                            action: {
+                                label: 'Ver Planos',
+                                onClick: () => window.location.href = '/planos'
+                            }
+                        })
+                    }
+                    return newTime
+                })
+            }, 1000)
+            
             toast.info(t('diagnosis.toasts.recording_start'), {
-                description: t('diagnosis.toasts.recording_desc'),
+                description: transcriptionLimit 
+                    ? `Limite: ${transcriptionLimit} min (${Math.floor((transcriptionLimit * 60 - recordingSeconds) / 60)} min restantes)`
+                    : t('diagnosis.toasts.recording_desc'),
             })
         }
     }
+    
+    // Format recording time for display
+    const formatTime = (totalSeconds: number) => {
+        const mins = Math.floor(totalSeconds / 60)
+        const secs = totalSeconds % 60
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+    }
+    
+    // Cleanup timer on unmount
+    useEffect(() => {
+        return () => {
+            if (recordingTimerRef.current) {
+                clearInterval(recordingTimerRef.current)
+            }
+        }
+    }, [])
 
     // Modal Form States
     const [height, setHeight] = useState('')
@@ -537,7 +611,15 @@ export default function Diagnosis() {
                                 onClick={toggleRecording}
                             >
                                 {isRecording ? <div className="h-3 w-3 bg-white rounded-sm" /> : <Mic className="h-4 w-4" />}
-                                {isRecording ? t('diagnosis.form.recording') : t('diagnosis.form.transcribe')}
+                                {isRecording ? (
+                                    <span className="flex items-center gap-2">
+                                        <Clock className="h-3 w-3" />
+                                        {formatTime(recordingSeconds)}
+                                        {transcriptionLimit && (
+                                            <span className="text-xs opacity-75">/ {transcriptionLimit}:00</span>
+                                        )}
+                                    </span>
+                                ) : t('diagnosis.form.transcribe')}
                             </Button>
                             <Button
                                 variant="outline"
