@@ -25,28 +25,31 @@ model Clinic {
 }
 
 model User {
-  id                 String               @id @default(uuid())
-  name               String
-  email              String               @unique
-  password           String
-  phone              String?
-  address            String?
-  biography          String?
-  role               Role                 @default(MEDICO)
-  status             Status               @default(ATIVO)
-  endpointId         String?
-  customPrompt       String?
-  createdAt          DateTime             @default(now())
-  lastLogin          DateTime?
-  clinicId           String?
-  auditLogs          AuditLog[]
-  calculationHistory CalculationHistory[]
-  consults           Consult[]
-  diagnoses          Diagnosis[]
-  notifications      Notification[]
-  subscriptions      Subscription[]
-  clinic             Clinic?              @relation(fields: [clinicId], references: [id])
-  endpoint           Endpoint?            @relation(fields: [endpointId], references: [id])
+  id                  String               @id @default(uuid())
+  name                String
+  email               String               @unique
+  password            String
+  phone               String?
+  address             String?
+  biography           String?
+  role                Role                 @default(MEDICO)
+  status              Status               @default(ATIVO)
+  endpointId          String?
+  customPrompt        String?
+  createdAt           DateTime             @default(now())
+  lastLogin           DateTime?
+  clinicId            String?
+  specialty           String?
+  notifyVagasWhatsApp Boolean              @default(false)
+  notifyVagasEmail    Boolean              @default(false)
+  auditLogs           AuditLog[]
+  calculationHistory  CalculationHistory[]
+  consults            Consult[]
+  diagnoses           Diagnosis[]
+  notifications       Notification[]
+  subscriptions       Subscription[]
+  clinic              Clinic?              @relation(fields: [clinicId], references: [id])
+  endpoint            Endpoint?            @relation(fields: [endpointId], references: [id])
 
   @@index([clinicId])
   @@map("users")
