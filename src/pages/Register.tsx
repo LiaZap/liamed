@@ -245,40 +245,47 @@ export default function Register() {
                 </div>
 
                 {/* Testimonial / Footer */}
-                <div className="relative z-10 space-y-6">
+                <div className="relative z-10 space-y-8">
                     {/* Carousel Container */}
-                    <div className="h-[180px] flex items-end"> 
+                    <div className="min-h-[160px] flex items-end"> 
                         <div 
                             key={fadeKey}
-                            className="bg-white/10 backdrop-blur-sm p-6 rounded-2xl border border-white/10 animate-in fade-in slide-in-from-bottom-2 duration-700 w-full"
+                            className="animate-in fade-in slide-in-from-bottom-4 duration-700 w-full"
                         >
-                            <div className="flex gap-1 mb-3">
-                                {[1,2,3,4,5].map(i => <Star key={i} className="h-4 w-4 text-yellow-400 fill-yellow-400" />)}
+                            <div className="relative">
+                                {/* Large Quote Icon for visual interest */}
+                                <span className="absolute -top-6 -left-2 text-6xl text-blue-400/20 font-serif leading-none">"</span>
+                                
+                                <p className="relative text-xl md:text-2xl font-light leading-relaxed text-blue-50 mb-6 pl-4">
+                                    {TESTIMONIALS[currentTestimonial].text}
+                                </p>
                             </div>
-                            <p className="text-lg italic font-light mb-4 text-blue-50 line-clamp-3">
-                                "{TESTIMONIALS[currentTestimonial].text}"
-                            </p>
-                            <div className="flex items-center gap-3">
-                                <div className="h-10 w-10 rounded-full bg-blue-400 flex items-center justify-center font-bold text-[#002A4D]">
+
+                            <div className="flex items-center gap-4 pl-4">
+                                <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center font-bold text-white shadow-lg shadow-blue-900/20 text-sm">
                                     {TESTIMONIALS[currentTestimonial].name.split(" ")[0].substring(0,2).toUpperCase()}
                                 </div>
                                 <div>
-                                    <p className="font-medium text-sm">{TESTIMONIALS[currentTestimonial].name}</p>
-                                    <p className="text-xs text-blue-300">{TESTIMONIALS[currentTestimonial].role}</p>
+                                    <div className="flex gap-1 mb-1">
+                                        {[1,2,3,4,5].map(i => <Star key={i} className="h-3 w-3 text-yellow-500 fill-yellow-500" />)}
+                                    </div>
+                                    <p className="font-semibold text-white tracking-wide">{TESTIMONIALS[currentTestimonial].name}</p>
+                                    <p className="text-sm text-blue-200 font-medium">{TESTIMONIALS[currentTestimonial].role}</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    <div className="flex items-center justify-between text-xs text-blue-300/60">
+                    <div className="flex items-center justify-between text-xs font-medium text-blue-200/50 pt-6 border-t border-white/5">
                          <div className="flex items-center gap-2">
-                             <ShieldCheck className="h-4 w-4" /> Dados criptografados ponta-a-ponta.
+                             <ShieldCheck className="h-4 w-4 text-blue-400" /> 
+                             <span className="tracking-wide uppercase">Dados criptografados</span>
                          </div>
-                         <div className="flex gap-1">
+                         <div className="flex gap-2">
                             {TESTIMONIALS.map((_, idx) => (
                                 <div 
                                     key={idx} 
-                                    className={`h-1.5 rounded-full transition-all duration-500 ${idx === currentTestimonial ? 'w-4 bg-blue-400' : 'w-1.5 bg-blue-400/20'}`}
+                                    className={`h-1 rounded-full transition-all duration-500 ${idx === currentTestimonial ? 'w-6 bg-blue-400' : 'w-1 bg-white/10'}`}
                                 />
                             ))}
                          </div>
