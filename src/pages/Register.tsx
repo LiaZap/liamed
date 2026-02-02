@@ -212,15 +212,19 @@ export default function Register() {
     return (
         <div className="min-h-screen flex bg-white dark:bg-[#0f1115]">
             {/* Esquerda - Visual / Trust (Desktop Only) */}
-            <div className="hidden lg:flex lg:w-1/2 relative bg-[#002A4D] text-white flex-col justify-between p-12 overflow-hidden">
+            <div className="hidden lg:flex lg:w-1/2 relative bg-[#002A4D] text-white flex-col p-12 overflow-hidden">
                 {/* Background Pattern Subtle */}
                 <div className="absolute inset-0 opacity-10" 
                     style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0)', backgroundSize: '32px 32px' }}>
                 </div>
                 
-                {/* Content */}
-                <div className="relative z-10 mt-10">
-                    <img src={LogoLiamed} alt="LIAMED" className="h-10 mb-8 opacity-90 brightness-0 invert" />
+                {/* Header / Logo */}
+                <div className="relative z-10">
+                    <img src={LogoLiamed} alt="LIAMED" className="h-10 opacity-90 brightness-0 invert" />
+                </div>
+                
+                {/* Content - Vertically Centered */}
+                <div className="relative z-10 flex-1 flex flex-col justify-center max-w-lg">
                     <h1 className="text-4xl font-semibold tracking-tight leading-tight mb-6">
                         A inteligência clínica <br/>que o seu consultório merece.
                     </h1>
