@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import LogoLiamed from "@/assets/logo-liamed.png"
-import LogoLiamedWhite from "@/assets/logo-liamed-white.png"
+
 import api from "@/services/api"
 import { useAuth } from "@/contexts/AuthContext"
 import { toast } from "sonner"
@@ -129,7 +129,7 @@ export default function Register() {
                 
                 {/* Content */}
                 <div className="relative z-10 mt-10">
-                    <img src={LogoLiamedWhite} alt="LIAMED" className="h-10 mb-8 opacity-90" />
+                    <img src={LogoLiamed} alt="LIAMED" className="h-10 mb-8 opacity-90 brightness-0 invert" />
                     <h1 className="text-4xl font-semibold tracking-tight leading-tight mb-6">
                         A inteligência clínica <br/>que o seu consultório merece.
                     </h1>
