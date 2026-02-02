@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import LogoLiamed from "@/assets/logo-liamed.png";
 import LogoLiamedWhite from "@/assets/logo-liamed-white.png";
 import api from "@/services/api"
@@ -16,6 +16,7 @@ import { Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react"
 export default function Login() {
     const { t } = useTranslation();
     const { isDark } = useTheme();
+    const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
     const [email, setEmail] = useState("")
@@ -33,7 +34,7 @@ export default function Login() {
             login(token, user)
             toast.success(t('auth.login_success'))
             // Optionally navigate after successful login
-            // navigate('/dashboard');
+            navigate('/dashboard');
         } catch (error: any) {
             console.error("Login Error:", error)
             const errorMessage = error.response?.data?.error || t('auth.login_error')
