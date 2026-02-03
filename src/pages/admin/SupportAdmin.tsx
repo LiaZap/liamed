@@ -3,7 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import api from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   Headphones, 
@@ -11,10 +11,6 @@ import {
   MessageCircle, 
   Clock, 
   CheckCircle2,
-  ArrowLeft,
-  User,
-  Shield,
-  Filter,
   Search
 } from "lucide-react";
 import {
