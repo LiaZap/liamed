@@ -134,9 +134,12 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
         });
 
         // 2. Handle Plan Update (Only if plan is provided and user is Admin)
+        console.log('[USER UPDATE] Plan data received:', { plan, planStatus, requestingUserRole, userId: id });
+        
         if (plan && requestingUserRole === 'ADMIN') {
             // Normalize plan name to title case (PRO -> Pro, ESSENTIAL -> Essential, PREMIUM -> Premium)
             const normalizedPlan = plan.charAt(0).toUpperCase() + plan.slice(1).toLowerCase();
+            console.log('[USER UPDATE] Normalized plan:', normalizedPlan);
             
             // Find or create the plan
             let planRecord = await tx.plan.findFirst({
@@ -186,7 +189,7 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
                endDate.setDate(endDate.getDate() + 15);
             }
 
-            await tx.subscription.create({
+            const newSubscription = await tx.subscription.create({
                 data: {
                     userId: id,
                     planId: planRecord.id,
@@ -196,6 +199,7 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
                     stripeSubscriptionId: 'manual_admin_override_' + Date.now()
                 }
             });
+            console.log('[USER UPDATE] ✅ Subscription created:', { subscriptionId: newSubscription.id, planId: planRecord.id, status: newStatus });
         }
 
         return updatedUser;
