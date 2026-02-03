@@ -16,6 +16,7 @@ import {
   Building2,
   Book,
   Briefcase,
+  Headphones,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { LanguageSwitcher } from "../LanguageSwitcher";
@@ -42,6 +43,7 @@ export type NavItem =
   | "Clínica"
   | "Vagas"
   | "Protocolos"
+  | "Suporte"
   | "Others";
 interface SidebarProps {
   className?: string;
@@ -148,6 +150,7 @@ export function Sidebar({
       href: "#",
     },
     { icon: Briefcase, label: "Vagas", key: "Vagas", href: "#" },
+    { icon: Headphones, label: "Suporte", key: "Suporte", href: "#" },
     {
       icon: Server,
       label: t("health.title"),

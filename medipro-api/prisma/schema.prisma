@@ -50,6 +50,8 @@ model User {
   diagnoses           Diagnosis[]
   notifications       Notification[]
   subscriptions       Subscription[]
+  supportTickets      SupportTicket[]
+  supportMessages     SupportMessage[]
   clinic              Clinic?              @relation(fields: [clinicId], references: [id])
   endpoint            Endpoint?            @relation(fields: [endpointId], references: [id])
 
@@ -420,4 +422,41 @@ enum VariableType {
   NUMBER
   SELECT
   BOOLEAN
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+model SupportTicket {
+  id        String           @id @default(uuid())
+  userId    String
+  subject   String?
+  status    TicketStatus     @default(OPEN)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  closedAt  DateTime?
+  user      User             @relation(fields: [userId], references: [id])
+  messages  SupportMessage[]
+
+  @@index([userId])
+  @@map("support_tickets")
+}
+
+model SupportMessage {
+  id          String        @id @default(uuid())
+  ticketId    String
+  senderId    String
+  content     String
+  isFromAdmin Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+  readAt      DateTime?
+  ticket      SupportTicket @relation(fields: [ticketId], references: [id])
+  sender      User          @relation(fields: [senderId], references: [id])
+
+  @@index([ticketId])
+  @@map("support_messages")
 }
