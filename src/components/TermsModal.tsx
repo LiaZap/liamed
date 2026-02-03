@@ -20,12 +20,16 @@ interface TermsModalProps {
 }
 
 export function TermsModal({ isOpen, onAccept }: TermsModalProps) {
-  const [accepted, setAccepted] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedLgpd, setAcceptedLgpd] = useState(false);
+  const [acceptedDataProcessing, setAcceptedDataProcessing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  const allAccepted = acceptedTerms && acceptedLgpd && acceptedDataProcessing;
+
   const handleAccept = async () => {
-    if (!accepted) {
-      toast.error("Você precisa aceitar os termos para continuar");
+    if (!allAccepted) {
+      toast.error("Você precisa aceitar todos os termos para continuar");
       return;
     }
 
@@ -176,28 +180,59 @@ export function TermsModal({ isOpen, onAccept }: TermsModalProps) {
           </div>
         </ScrollArea>
 
-        <div className="border-t pt-4 mt-4">
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 mb-4">
+        <div className="border-t pt-4 mt-4 space-y-3">
+          {/* Terms of Use Checkbox */}
+          <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
             <Checkbox
               id="accept-terms"
-              checked={accepted}
-              onCheckedChange={(checked) => setAccepted(checked as boolean)}
+              checked={acceptedTerms}
+              onCheckedChange={(checked) => setAcceptedTerms(checked as boolean)}
               className="mt-0.5"
             />
             <label htmlFor="accept-terms" className="text-sm cursor-pointer select-none">
-              <span className="font-medium">Li, compreendi e aceito</span> os Termos de Uso e Responsabilidade. 
-              Declaro ser profissional de saúde devidamente habilitado e assumo total responsabilidade 
-              pelas decisões clínicas tomadas com base nas informações fornecidas por esta plataforma.
+              <span className="font-medium">Li e aceito os Termos de Uso e Responsabilidade.</span>{" "}
+              Declaro ser profissional de saúde habilitado e assumo responsabilidade pelas decisões 
+              clínicas tomadas com base nas informações desta plataforma.
             </label>
           </div>
 
-          <DialogFooter>
+          {/* LGPD / Privacy Policy Checkbox */}
+          <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+            <Checkbox
+              id="accept-lgpd"
+              checked={acceptedLgpd}
+              onCheckedChange={(checked) => setAcceptedLgpd(checked as boolean)}
+              className="mt-0.5"
+            />
+            <label htmlFor="accept-lgpd" className="text-sm cursor-pointer select-none">
+              <span className="font-medium">Li e aceito a Política de Privacidade (LGPD).</span>{" "}
+              Estou ciente de como meus dados serão coletados, armazenados e utilizados conforme 
+              a Lei Geral de Proteção de Dados (Lei nº 13.709/2018).
+            </label>
+          </div>
+
+          {/* Data Processing Checkbox */}
+          <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+            <Checkbox
+              id="accept-data"
+              checked={acceptedDataProcessing}
+              onCheckedChange={(checked) => setAcceptedDataProcessing(checked as boolean)}
+              className="mt-0.5"
+            />
+            <label htmlFor="accept-data" className="text-sm cursor-pointer select-none">
+              <span className="font-medium">Autorizo o tratamento dos meus dados pessoais.</span>{" "}
+              Consinto com o processamento das informações inseridas na plataforma para fins de 
+              prestação dos serviços e melhoria da experiência.
+            </label>
+          </div>
+
+          <DialogFooter className="pt-2">
             <Button
               onClick={handleAccept}
-              disabled={!accepted || isLoading}
+              disabled={!allAccepted || isLoading}
               className="w-full"
             >
-              {isLoading ? "Processando..." : "Aceitar e Continuar"}
+              {isLoading ? "Processando..." : "Aceitar Todos e Continuar"}
             </Button>
           </DialogFooter>
         </div>
