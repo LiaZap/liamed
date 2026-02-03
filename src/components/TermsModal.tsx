@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Shield, FileText, AlertTriangle } from "lucide-react";
 import api from "@/services/api";
 import { toast } from "sonner";
@@ -48,8 +47,8 @@ export function TermsModal({ isOpen, onAccept }: TermsModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
-      <DialogContent className="max-w-2xl max-h-[95vh] overflow-hidden flex flex-col" onPointerDownOutside={(e) => e.preventDefault()}>
-        <DialogHeader className="flex-shrink-0">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0" onPointerDownOutside={(e) => e.preventDefault()}>
+        <DialogHeader className="flex-shrink-0 p-6 pb-4">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900/30">
               <Shield className="h-6 w-6 text-blue-600 dark:text-blue-400" />
@@ -63,8 +62,8 @@ export function TermsModal({ isOpen, onAccept }: TermsModalProps) {
           </div>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 min-h-0 pr-4 -mr-4">
-          <div className="space-y-6 text-sm text-slate-700 dark:text-slate-300">
+        <div className="flex-1 overflow-y-auto px-6" style={{ maxHeight: 'calc(90vh - 180px)' }}>
+          <div className="space-y-6 text-sm text-slate-700 dark:text-slate-300 pb-4">
             {/* Section 1 */}
             <section>
               <h3 className="font-semibold text-base text-slate-900 dark:text-slate-100 flex items-center gap-2 mb-2">
@@ -226,10 +225,10 @@ export function TermsModal({ isOpen, onAccept }: TermsModalProps) {
               </div>
             </div>
           </div>
-        </ScrollArea>
+        </div>
 
         {/* Fixed footer with button */}
-        <DialogFooter className="flex-shrink-0 pt-4 border-t">
+        <DialogFooter className="flex-shrink-0 p-6 pt-4 border-t">
           <Button
             onClick={handleAccept}
             disabled={!allAccepted || isLoading}
