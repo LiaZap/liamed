@@ -48,8 +48,8 @@ export function TermsModal({ isOpen, onAccept }: TermsModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
-      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col" onPointerDownOutside={(e) => e.preventDefault()}>
-        <DialogHeader>
+      <DialogContent className="max-w-2xl max-h-[95vh] overflow-hidden flex flex-col" onPointerDownOutside={(e) => e.preventDefault()}>
+        <DialogHeader className="flex-shrink-0">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900/30">
               <Shield className="h-6 w-6 text-blue-600 dark:text-blue-400" />
@@ -63,7 +63,7 @@ export function TermsModal({ isOpen, onAccept }: TermsModalProps) {
           </div>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 max-h-[60vh] pr-4 -mr-4">
+        <ScrollArea className="flex-1 min-h-0 pr-4 -mr-4">
           <div className="space-y-6 text-sm text-slate-700 dark:text-slate-300">
             {/* Section 1 */}
             <section>
@@ -177,65 +177,67 @@ export function TermsModal({ isOpen, onAccept }: TermsModalProps) {
                 imediatamente após sua publicação.
               </p>
             </section>
+
+            {/* Separator and Checkboxes inside scroll area */}
+            <div className="border-t pt-6 mt-6 space-y-3">
+              {/* Terms of Use Checkbox */}
+              <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+                <Checkbox
+                  id="accept-terms"
+                  checked={acceptedTerms}
+                  onCheckedChange={(checked) => setAcceptedTerms(checked as boolean)}
+                  className="mt-0.5"
+                />
+                <label htmlFor="accept-terms" className="text-sm cursor-pointer select-none">
+                  <span className="font-medium">Li e aceito os Termos de Uso e Responsabilidade.</span>{" "}
+                  Declaro ser profissional de saúde habilitado e assumo responsabilidade pelas decisões 
+                  clínicas tomadas com base nas informações desta plataforma.
+                </label>
+              </div>
+
+              {/* LGPD / Privacy Policy Checkbox */}
+              <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+                <Checkbox
+                  id="accept-lgpd"
+                  checked={acceptedLgpd}
+                  onCheckedChange={(checked) => setAcceptedLgpd(checked as boolean)}
+                  className="mt-0.5"
+                />
+                <label htmlFor="accept-lgpd" className="text-sm cursor-pointer select-none">
+                  <span className="font-medium">Li e aceito a Política de Privacidade (LGPD).</span>{" "}
+                  Estou ciente de como meus dados serão coletados, armazenados e utilizados conforme 
+                  a Lei Geral de Proteção de Dados (Lei nº 13.709/2018).
+                </label>
+              </div>
+
+              {/* Data Processing Checkbox */}
+              <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+                <Checkbox
+                  id="accept-data"
+                  checked={acceptedDataProcessing}
+                  onCheckedChange={(checked) => setAcceptedDataProcessing(checked as boolean)}
+                  className="mt-0.5"
+                />
+                <label htmlFor="accept-data" className="text-sm cursor-pointer select-none">
+                  <span className="font-medium">Autorizo o tratamento dos meus dados pessoais.</span>{" "}
+                  Consinto com o processamento das informações inseridas na plataforma para fins de 
+                  prestação dos serviços e melhoria da experiência.
+                </label>
+              </div>
+            </div>
           </div>
         </ScrollArea>
 
-        <div className="border-t pt-4 mt-4 space-y-3">
-          {/* Terms of Use Checkbox */}
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
-            <Checkbox
-              id="accept-terms"
-              checked={acceptedTerms}
-              onCheckedChange={(checked) => setAcceptedTerms(checked as boolean)}
-              className="mt-0.5"
-            />
-            <label htmlFor="accept-terms" className="text-sm cursor-pointer select-none">
-              <span className="font-medium">Li e aceito os Termos de Uso e Responsabilidade.</span>{" "}
-              Declaro ser profissional de saúde habilitado e assumo responsabilidade pelas decisões 
-              clínicas tomadas com base nas informações desta plataforma.
-            </label>
-          </div>
-
-          {/* LGPD / Privacy Policy Checkbox */}
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
-            <Checkbox
-              id="accept-lgpd"
-              checked={acceptedLgpd}
-              onCheckedChange={(checked) => setAcceptedLgpd(checked as boolean)}
-              className="mt-0.5"
-            />
-            <label htmlFor="accept-lgpd" className="text-sm cursor-pointer select-none">
-              <span className="font-medium">Li e aceito a Política de Privacidade (LGPD).</span>{" "}
-              Estou ciente de como meus dados serão coletados, armazenados e utilizados conforme 
-              a Lei Geral de Proteção de Dados (Lei nº 13.709/2018).
-            </label>
-          </div>
-
-          {/* Data Processing Checkbox */}
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
-            <Checkbox
-              id="accept-data"
-              checked={acceptedDataProcessing}
-              onCheckedChange={(checked) => setAcceptedDataProcessing(checked as boolean)}
-              className="mt-0.5"
-            />
-            <label htmlFor="accept-data" className="text-sm cursor-pointer select-none">
-              <span className="font-medium">Autorizo o tratamento dos meus dados pessoais.</span>{" "}
-              Consinto com o processamento das informações inseridas na plataforma para fins de 
-              prestação dos serviços e melhoria da experiência.
-            </label>
-          </div>
-
-          <DialogFooter className="pt-2">
-            <Button
-              onClick={handleAccept}
-              disabled={!allAccepted || isLoading}
-              className="w-full"
-            >
-              {isLoading ? "Processando..." : "Aceitar Todos e Continuar"}
-            </Button>
-          </DialogFooter>
-        </div>
+        {/* Fixed footer with button */}
+        <DialogFooter className="flex-shrink-0 pt-4 border-t">
+          <Button
+            onClick={handleAccept}
+            disabled={!allAccepted || isLoading}
+            className="w-full"
+          >
+            {isLoading ? "Processando..." : "Aceitar Todos e Continuar"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
