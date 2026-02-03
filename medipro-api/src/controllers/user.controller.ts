@@ -259,6 +259,60 @@ export const deleteUser = async (req: AuthRequest, res: Response) => {
   }
 };
 
+// Debug endpoint to check user subscriptions
+export const getUserSubscriptions = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    
+    // Only admin can check other users' subscriptions
+    if (req.user.role !== 'ADMIN' && req.user.id !== id) {
+      return res.status(403).json({ error: 'Acesso negado.' });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        subscriptions: {
+          include: { plan: true },
+          orderBy: { createdAt: 'desc' }
+        }
+      }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Usuário não encontrado.' });
+    }
+
+    // Calculate current active plan
+    const activeSubscription = user.subscriptions.find(s => 
+      s.status === 'ACTIVE' || s.status === 'TRIALING'
+    );
+
+    res.json({
+      userId: user.id,
+      userName: user.name,
+      email: user.email,
+      currentPlan: activeSubscription?.plan?.name || 'NENHUM',
+      currentPlanStatus: activeSubscription?.status || 'N/A',
+      subscriptions: user.subscriptions.map(s => ({
+        id: s.id,
+        planName: s.plan?.name,
+        status: s.status,
+        createdAt: s.createdAt,
+        currentPeriodStart: s.currentPeriodStart,
+        currentPeriodEnd: s.currentPeriodEnd
+      })),
+      totalSubscriptions: user.subscriptions.length
+    });
+  } catch (error) {
+    console.error("Get subscriptions error:", error);
+    res.status(500).json({ error: "Erro ao buscar assinaturas." });
+  }
+};
+
 interface AuthRequest extends Request {
   user?: any;
 }
