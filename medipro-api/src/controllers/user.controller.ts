@@ -135,48 +135,67 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
 
         // 2. Handle Plan Update (Only if plan is provided and user is Admin)
         if (plan && requestingUserRole === 'ADMIN') {
-            // Find plan by name (case insensitive usually, but our logic uses title case 'Essential', 'Pro')
-            // Trying to find roughly matching plan
-            const planRecord = await tx.plan.findFirst({
+            // Normalize plan name to title case (PRO -> Pro, ESSENTIAL -> Essential, PREMIUM -> Premium)
+            const normalizedPlan = plan.charAt(0).toUpperCase() + plan.slice(1).toLowerCase();
+            
+            // Find or create the plan
+            let planRecord = await tx.plan.findFirst({
                 where: { 
-                    name: { equals: plan, mode: 'insensitive' }
+                    name: { equals: normalizedPlan, mode: 'insensitive' }
                 }
             });
 
-            if (planRecord) {
-                // Deactivate user's existing active subscriptions
-                await tx.subscription.updateMany({
-                    where: { userId: id, status: { in: ['ACTIVE', 'TRIALING'] } },
-                    data: { status: 'CANCELED' } // No canceledAt field in schema
-                });
-
-                // Create new subscription
-                // If plan status provided use it, otherwise valid ACTIVE
-                const newStatus = planStatus || 'ACTIVE';
+            // If plan doesn't exist, create it (for Essential, Pro, Premium)
+            if (!planRecord) {
+                const planDefaults: Record<string, { price: number; features: string[] }> = {
+                    'Essential': { price: 0, features: ['Recursos básicos'] },
+                    'Pro': { price: 89.90, features: ['Assistente IA LIAMED', 'Transcrições Ilimitadas', 'Calculadoras Médicas', 'Suporte Prioritário'] },
+                    'Premium': { price: 149.90, features: ['Todos os recursos Pro', 'Suporte VIP', 'Acesso ilimitado'] }
+                };
                 
-                // Calculate dates
-                const startDate = new Date();
-                let endDate = new Date();
+                const defaults = planDefaults[normalizedPlan] || { price: 0, features: [] };
                 
-                if (newStatus === 'ACTIVE') {
-                   // If Admin sets it manually, let's give it a long time or standard 30 days?
-                   // Usually manual valid means unlimited or monthly. Let's do 1 year for manual assignment convenience
-                   endDate.setFullYear(endDate.getFullYear() + 1);
-                } else if (newStatus === 'TRIALING') {
-                   endDate.setDate(endDate.getDate() + 15);
-                }
-
-                await tx.subscription.create({
+                planRecord = await tx.plan.create({
                     data: {
-                        userId: id,
-                        planId: planRecord.id,
-                        status: newStatus as any, // active/trialing
-                        currentPeriodStart: startDate,
-                        currentPeriodEnd: endDate,
-                        stripeSubscriptionId: 'manual_admin_override_' + Date.now()
+                        name: normalizedPlan,
+                        description: `Plano ${normalizedPlan}`,
+                        price: defaults.price,
+                        interval: 'MONTHLY',
+                        features: defaults.features,
+                        active: true
                     }
                 });
             }
+
+            // Deactivate user's existing active subscriptions
+            await tx.subscription.updateMany({
+                where: { userId: id, status: { in: ['ACTIVE', 'TRIALING'] } },
+                data: { status: 'CANCELED' }
+            });
+
+            // Create new subscription
+            const newStatus = planStatus || 'ACTIVE';
+            
+            // Calculate dates
+            const startDate = new Date();
+            let endDate = new Date();
+            
+            if (newStatus === 'ACTIVE') {
+               endDate.setFullYear(endDate.getFullYear() + 1);
+            } else if (newStatus === 'TRIALING') {
+               endDate.setDate(endDate.getDate() + 15);
+            }
+
+            await tx.subscription.create({
+                data: {
+                    userId: id,
+                    planId: planRecord.id,
+                    status: newStatus as any,
+                    currentPeriodStart: startDate,
+                    currentPeriodEnd: endDate,
+                    stripeSubscriptionId: 'manual_admin_override_' + Date.now()
+                }
+            });
         }
 
         return updatedUser;
