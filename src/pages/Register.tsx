@@ -195,7 +195,7 @@ export default function Register() {
             })
             
             const { token, user } = response.data
-            login(token, user)
+            await login(token, user)
             
             toast.success("Conta criada com sucesso!", {
                 description: "Bem-vindo à LIAMED Profissional."

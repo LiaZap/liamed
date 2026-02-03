@@ -31,7 +31,7 @@ export default function Login() {
             const response = await api.post('/auth/login', { email, password })
             const { token, user } = response.data
 
-            login(token, user)
+            await login(token, user)
             toast.success(t('auth.login_success'))
             // Optionally navigate after successful login
             navigate('/dashboard');

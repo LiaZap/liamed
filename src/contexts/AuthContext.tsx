@@ -18,7 +18,7 @@ interface AuthContextType {
     user: User | null;
     isAuthenticated: boolean;
     isLoading: boolean;
-    login: (token: string, userData: User) => void;
+    login: (token: string, userData: User) => Promise<void>;
     logout: () => void;
     refreshUser: () => Promise<void>;
 }
@@ -89,9 +89,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         loadUser();
     }, []);
 
-    const login = (token: string, userData: User) => {
+    const login = async (token: string, userData: User) => {
         localStorage.setItem('medipro-token', token);
         setUser(userData);
+        
+        // Immediately refresh to get full user data including plan
+        await refreshUser();
         
         // Check if terms need to be accepted after login
         if (userData && !userData.termsAcceptedAt && userData.role !== 'ADMIN') {

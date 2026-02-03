@@ -14,7 +14,15 @@ export const login = async (req: Request, res: Response) => {
         console.log(`[AUTH] Login attempt for: ${email}`);
 
         const user = await prisma.user.findUnique({
-            where: { email }
+            where: { email },
+            include: {
+                subscriptions: {
+                    where: { status: { in: ['ACTIVE', 'TRIALING'] } },
+                    orderBy: { createdAt: 'desc' },
+                    take: 1,
+                    include: { plan: true }
+                }
+            }
         });
 
         if (!user) {
@@ -51,13 +59,27 @@ export const login = async (req: Request, res: Response) => {
             req
         });
 
+        // Determine plan info
+        let plan = 'ESSENTIAL';
+        let planStatus = 'ACTIVE';
+        if (user.subscriptions && user.subscriptions.length > 0) {
+            const sub = user.subscriptions[0];
+            if (sub.plan) {
+                plan = sub.plan.name.toUpperCase();
+            }
+            planStatus = sub.status;
+        }
+
         res.json({
             token,
             user: {
                 id: user.id,
                 name: user.name,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                plan,
+                planStatus,
+                termsAcceptedAt: user.termsAcceptedAt
             }
         });
 
