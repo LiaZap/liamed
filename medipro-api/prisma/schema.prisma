@@ -42,6 +42,7 @@ model User {
   specialty           String?
   notifyVagasWhatsApp Boolean              @default(false)
   notifyVagasEmail    Boolean              @default(false)
+  termsAcceptedAt     DateTime?
   auditLogs           AuditLog[]
   calculationHistory  CalculationHistory[]
   consults            Consult[]

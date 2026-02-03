@@ -339,6 +339,7 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
         notifyVagasWhatsApp: true,
         notifyVagasEmail: true,
         specialty: true,
+        termsAcceptedAt: true,
         subscriptions: {
             where: { status: { in: ['ACTIVE', 'TRIALING'] } },
             orderBy: { createdAt: 'desc' },
@@ -418,5 +419,46 @@ export const listUsers = async (req: AuthRequest, res: Response) => {
     res.json(users);
   } catch (error) {
     res.status(500).json({ error: "Erro ao listar usuários." });
+  }
+};
+
+// Accept Terms of Service
+export const acceptTerms = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ error: "Usuário não autenticado." });
+    }
+
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: { termsAcceptedAt: new Date() },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        termsAcceptedAt: true,
+      },
+    });
+
+    // Audit Log
+    await logAction({
+      userId: userId,
+      userName: req.user?.name || "Unknown",
+      action: "UPDATE",
+      resource: "TERMS_ACCEPTANCE",
+      resourceId: userId,
+      details: { acceptedAt: user.termsAcceptedAt },
+      req,
+    });
+
+    res.json({ 
+      message: "Termos aceitos com sucesso.",
+      termsAcceptedAt: user.termsAcceptedAt 
+    });
+  } catch (error) {
+    console.error("Error accepting terms:", error);
+    res.status(500).json({ error: "Erro ao aceitar termos." });
   }
 };
