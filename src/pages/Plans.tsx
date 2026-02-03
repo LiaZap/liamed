@@ -124,9 +124,6 @@ export default function Plans() {
   // Get current plan details for display
   const currentPlanDetails = PLANS.find(p => p.id === currentUserPlan);
 
-  // Debug log - can be removed after testing
-  console.log('Plan Debug:', { userPlan: user?.plan, currentUserPlan, currentPlanStatus, hasPlan, currentPlanDetails });
-
   const handleSubscribe = async (planName: string) => {
     try {
       setIsLoading(true);
