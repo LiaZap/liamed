@@ -60,8 +60,14 @@ const statusLabels: Record<string, string> = {
   CLOSED: "Fechado"
 };
 
+import SupportAdmin from "./admin/SupportAdmin";
+
 export default function Support() {
   const { user } = useAuth();
+
+  if (user?.role === "ADMIN" || user?.role === "GESTOR") {
+    return <SupportAdmin />;
+  }
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [selectedTicket, setSelectedTicket] = useState<TicketDetails | null>(null);
   const [newMessage, setNewMessage] = useState("");
