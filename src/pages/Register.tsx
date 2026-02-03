@@ -171,6 +171,7 @@ export default function Register() {
     const [password, setPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
     const [specialty, setSpecialty] = useState("")
+    const [birthDate, setBirthDate] = useState("")
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -188,6 +189,7 @@ export default function Register() {
                 email,
                 password,
                 specialty,
+                birthDate: birthDate || null,
                 phone: null,
                 role: "MEDICO"
             })
@@ -349,6 +351,17 @@ export default function Register() {
                                         ))}
                                     </SelectContent>
                                 </Select>
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="birthDate">Data de Nascimento</Label>
+                                <Input 
+                                    id="birthDate" 
+                                    type="date" 
+                                    className="h-11 bg-slate-50 border-slate-200 focus:border-blue-600 focus:ring-blue-600/20 transition-all dark:bg-[#1a1d21] dark:border-slate-800"
+                                    value={birthDate}
+                                    onChange={e => setBirthDate(e.target.value)}
+                                />
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

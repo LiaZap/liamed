@@ -43,6 +43,7 @@ model User {
   notifyVagasWhatsApp Boolean              @default(false)
   notifyVagasEmail    Boolean              @default(false)
   termsAcceptedAt     DateTime?
+  birthDate           DateTime?
   auditLogs           AuditLog[]
   calculationHistory  CalculationHistory[]
   consults            Consult[]

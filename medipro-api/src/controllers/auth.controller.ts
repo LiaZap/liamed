@@ -70,7 +70,7 @@ export const login = async (req: Request, res: Response) => {
 // Register new doctor
 export const register = async (req: Request, res: Response) => {
     try {
-        const { name, email, password, specialty, phone } = req.body;
+        const { name, email, password, specialty, phone, birthDate } = req.body;
         console.log(`[AUTH] Register attempt for: ${email}`);
 
         // Validations
@@ -99,7 +99,8 @@ export const register = async (req: Request, res: Response) => {
                 role: 'MEDICO',
                 status: 'ATIVO',
                 specialty: specialty || null,
-                phone: phone || null
+                phone: phone || null,
+                birthDate: birthDate ? new Date(birthDate) : null
             }
         });
 

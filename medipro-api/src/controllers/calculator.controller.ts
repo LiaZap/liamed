@@ -354,6 +354,84 @@ export const calculatorController = {
                         { name: 'weight', label: 'Peso', unit: 'kg', type: 'NUMBER' },
                         { name: 'hco3', label: 'HCO3 atual', unit: 'mEq/L', type: 'NUMBER' }
                     ]
+                },
+                // ===== CALCULADORAS NEONATAIS =====
+                {
+                    name: 'APGAR Score',
+                    description: 'Avaliação da vitalidade do recém-nascido ao nascer (1, 5 e 10 minutos).',
+                    category: 'Neonatologia',
+                    expression: 'cor + fc + reflexo + tonus + respiracao',
+                    variables: [
+                        { name: 'cor', label: 'Cor da Pele', unit: '', type: 'SELECT', options: JSON.stringify([{ value: 0, label: 'Azul/Pálido' }, { value: 1, label: 'Cianose periférica' }, { value: 2, label: 'Rosado' }]) },
+                        { name: 'fc', label: 'Frequência Cardíaca', unit: '', type: 'SELECT', options: JSON.stringify([{ value: 0, label: 'Ausente' }, { value: 1, label: '< 100 bpm' }, { value: 2, label: '>= 100 bpm' }]) },
+                        { name: 'reflexo', label: 'Irritabilidade Reflexa', unit: '', type: 'SELECT', options: JSON.stringify([{ value: 0, label: 'Ausente' }, { value: 1, label: 'Careta' }, { value: 2, label: 'Choro/Tosse' }]) },
+                        { name: 'tonus', label: 'Tônus Muscular', unit: '', type: 'SELECT', options: JSON.stringify([{ value: 0, label: 'Flácido' }, { value: 1, label: 'Alguma flexão' }, { value: 2, label: 'Movimento ativo' }]) },
+                        { name: 'respiracao', label: 'Respiração', unit: '', type: 'SELECT', options: JSON.stringify([{ value: 0, label: 'Ausente' }, { value: 1, label: 'Lenta/Irregular' }, { value: 2, label: 'Choro forte' }]) }
+                    ]
+                },
+                {
+                    name: 'Peso RN por Idade Gestacional',
+                    description: 'Classifica o peso do recém-nascido (PIG, AIG, GIG) conforme idade gestacional.',
+                    category: 'Neonatologia',
+                    expression: 'neonatal_weight_percentile',
+                    variables: [
+                        { name: 'ig', label: 'Idade Gestacional', unit: 'semanas', type: 'NUMBER' },
+                        { name: 'peso_rn', label: 'Peso ao Nascer', unit: 'gramas', type: 'NUMBER' },
+                        { name: 'sexo', label: 'Sexo', unit: '', type: 'SELECT', options: JSON.stringify([{ value: 'M', label: 'Masculino' }, { value: 'F', label: 'Feminino' }]) }
+                    ]
+                },
+                {
+                    name: 'Idade Gestacional Corrigida',
+                    description: 'Calcula a idade corrigida para prematuros até 2 anos.',
+                    category: 'Neonatologia',
+                    expression: 'idade_cronologica - ((40 - ig_nascimento) * 7)',
+                    variables: [
+                        { name: 'ig_nascimento', label: 'IG ao Nascer', unit: 'semanas', type: 'NUMBER' },
+                        { name: 'idade_cronologica', label: 'Idade Cronológica', unit: 'dias', type: 'NUMBER' }
+                    ]
+                },
+                // ===== CALCULADORAS DE DOSAGEM =====
+                {
+                    name: 'Dosagem por Peso Corporal',
+                    description: 'Calcula a dose de medicamento baseada no peso do paciente.',
+                    category: 'Farmacologia',
+                    expression: 'dose_kg * peso',
+                    variables: [
+                        { name: 'dose_kg', label: 'Dose por kg', unit: 'mg/kg', type: 'NUMBER' },
+                        { name: 'peso', label: 'Peso do Paciente', unit: 'kg', type: 'NUMBER' }
+                    ]
+                },
+                {
+                    name: 'Dosagem por Superfície Corporal (BSA)',
+                    description: 'Calcula a dose baseada na área de superfície corporal (Fórmula de Mosteller).',
+                    category: 'Farmacologia',
+                    expression: 'dose_m2 * Math.sqrt((altura * peso) / 3600)',
+                    variables: [
+                        { name: 'dose_m2', label: 'Dose por m²', unit: 'mg/m²', type: 'NUMBER' },
+                        { name: 'altura', label: 'Altura', unit: 'cm', type: 'NUMBER' },
+                        { name: 'peso', label: 'Peso', unit: 'kg', type: 'NUMBER' }
+                    ]
+                },
+                {
+                    name: 'Taxa de Infusão IV',
+                    description: 'Calcula a velocidade de infusão em mL/h ou gotas/min.',
+                    category: 'Farmacologia',
+                    expression: 'volume / tempo_h',
+                    variables: [
+                        { name: 'volume', label: 'Volume Total', unit: 'mL', type: 'NUMBER' },
+                        { name: 'tempo_h', label: 'Tempo de Infusão', unit: 'horas', type: 'NUMBER' }
+                    ]
+                },
+                {
+                    name: 'Diluição de Medicamentos',
+                    description: 'Calcula o volume final após diluição (C1V1 = C2V2).',
+                    category: 'Farmacologia',
+                    expression: '(c1 * v1) / c2',
+                    variables: [
+                        { name: 'c1', label: 'Concentração Inicial', unit: 'mg/mL', type: 'NUMBER' },
+                        { name: 'v1', label: 'Volume Inicial', unit: 'mL', type: 'NUMBER' },
+                        { name: 'c2', label: 'Concentração Desejada', unit: 'mg/mL', type: 'NUMBER' }
+                    ]
                 }
             ];
 
