@@ -19,4 +19,7 @@ router.post('/calculate', calculatorController.calculate);
 // History
 router.get('/history', calculatorController.getHistory);
 
+// Gasometry Analysis (advanced)
+router.post('/gasometry', calculatorController.analyzeGasometry);
+
 export default router;

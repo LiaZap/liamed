@@ -24,6 +24,27 @@ export interface CalculationResult {
     result: number;
 }
 
+export interface GasometryResult {
+    values: {
+        ph: number;
+        pco2: number;
+        hco3: number;
+        anionGap: number;
+        anionGapCorrected: number;
+        deltaRatio: number | null;
+    };
+    interpretation: {
+        primaryDisorder: string;
+        disorderType: string;
+        severity: string;
+        compensationStatus: string;
+        expectedCompensation: string;
+        anionGapInterpretation: string;
+        deltaRatioInterpretation: string | null;
+        possibleCauses: string[];
+    };
+}
+
 export const calculatorService = {
     list: async (): Promise<CalculatorFormula[]> => {
         const response = await api.get('/calculators');
@@ -32,6 +53,18 @@ export const calculatorService = {
 
     calculate: async (formulaId: string, inputs: Record<string, number | string>): Promise<CalculationResult> => {
         const response = await api.post('/calculators/calculate', { formulaId, inputs });
+        return response.data;
+    },
+
+    analyzeGasometry: async (inputs: {
+        ph: number;
+        pco2: number;
+        hco3: number;
+        na: number;
+        cl: number;
+        albumin: number;
+    }): Promise<GasometryResult> => {
+        const response = await api.post('/calculators/gasometry', inputs);
         return response.data;
     },
 

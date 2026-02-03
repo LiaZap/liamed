@@ -16,6 +16,13 @@ async function main() {
     } catch (e) {
         console.log('Tabela audit_logs pode não existir ou erro ao limpar:', e);
     }
+    // Limpar subscriptions antes de usuários (FK constraint)
+    await prisma.subscription.deleteMany();
+    // Limpar histórico de calculadoras
+    await prisma.calculationHistory.deleteMany();
+    // Limpar variáveis de calculadoras antes das fórmulas
+    await prisma.calculatorVariable.deleteMany();
+    await prisma.calculatorFormula.deleteMany();
     await prisma.user.deleteMany();
     await prisma.prompt.deleteMany();
     await prisma.setting.deleteMany();

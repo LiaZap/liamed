@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { Search, Calculator as CalculatorIcon, ArrowRight, RotateCcw, Loader2 } from "lucide-react"
+import { Search, Calculator as CalculatorIcon, ArrowRight, RotateCcw, Loader2, AlertTriangle, CheckCircle2, Info, Stethoscope } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import { calculatorService, type CalculatorFormula } from "@/services/calculatorService"
+import { calculatorService, type CalculatorFormula, type GasometryResult } from "@/services/calculatorService"
 import { toast } from "sonner"
 import { PlanGate } from "@/components/PlanGate"
 
@@ -19,6 +19,7 @@ export default function Calculators() {
     const [selectedCalc, setSelectedCalc] = useState<CalculatorFormula | null>(null)
     const [inputs, setInputs] = useState<any>({})
     const [result, setResult] = useState<number | null>(null)
+    const [gasometryResult, setGasometryResult] = useState<GasometryResult | null>(null)
     const [isLoading, setIsLoading] = useState(false)
     const [isCalculating, setIsCalculating] = useState(false)
 
@@ -44,12 +45,29 @@ export default function Calculators() {
         calc.category.toLowerCase().includes(searchTerm.toLowerCase())
     )
 
+    const isGasometryCalc = selectedCalc?.name.includes('Gasometria')
+
     const handleCalculate = async () => {
         if (!selectedCalc) return
         try {
             setIsCalculating(true)
-            const res = await calculatorService.calculate(selectedCalc.id, inputs)
-            setResult(res.result)
+            
+            if (isGasometryCalc) {
+                const gasResult = await calculatorService.analyzeGasometry({
+                    ph: Number(inputs.ph),
+                    pco2: Number(inputs.pco2),
+                    hco3: Number(inputs.hco3),
+                    na: Number(inputs.na),
+                    cl: Number(inputs.cl),
+                    albumin: Number(inputs.albumin)
+                })
+                setGasometryResult(gasResult)
+                setResult(null)
+            } else {
+                const res = await calculatorService.calculate(selectedCalc.id, inputs)
+                setResult(res.result)
+                setGasometryResult(null)
+            }
         } catch (error) {
             console.error(error)
             toast.error("Erro ao realizar cálculo")
@@ -61,9 +79,9 @@ export default function Calculators() {
     const reset = () => {
         setInputs({})
         setResult(null)
+        setGasometryResult(null)
     }
 
-    // Client-side interpretation helper (optional, for demo)
     const getInterpretation = (calcName: string, value: number) => {
         if (calcName.includes("IMC") || calcName.includes("Body Mass")) {
             if (value < 18.5) return { text: "Abaixo do peso", color: "text-blue-600", bg: "bg-blue-100" }
@@ -75,6 +93,25 @@ export default function Calculators() {
     }
 
     const interpretation = (selectedCalc && result !== null) ? getInterpretation(selectedCalc.name, result) : null
+
+    const getSeverityColor = (severity: string) => {
+        switch (severity) {
+            case 'Grave': return 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300'
+            case 'Moderada': return 'bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-300'
+            case 'Leve': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300'
+            default: return 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300'
+        }
+    }
+
+    const getDisorderColor = (disorder: string) => {
+        if (disorder.includes('Acidose') || disorder.includes('Acidemia')) {
+            return 'border-red-500 bg-red-50 dark:bg-red-900/20'
+        }
+        if (disorder.includes('Alcalose') || disorder.includes('Alcalemia')) {
+            return 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+        }
+        return 'border-green-500 bg-green-50 dark:bg-green-900/20'
+    }
 
     return (
         <PlanGate requiredPlan="PRO" featureName="Calculadoras Médicas">
@@ -135,13 +172,17 @@ export default function Calculators() {
                         <>
                             <CardHeader className="border-b dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
                                 <CardTitle className="text-xl flex items-center gap-2 dark:text-slate-50">
-                                    <CalculatorIcon className="h-5 w-5 text-primary" />
+                                    {isGasometryCalc ? (
+                                        <Stethoscope className="h-5 w-5 text-primary" />
+                                    ) : (
+                                        <CalculatorIcon className="h-5 w-5 text-primary" />
+                                    )}
                                     {selectedCalc.name}
                                 </CardTitle>
                                 <CardDescription>{selectedCalc.description}</CardDescription>
                             </CardHeader>
 
-                            <CardContent className="flex-1 p-6 space-y-8">
+                            <CardContent className="flex-1 p-6 space-y-8 overflow-y-auto max-h-[500px]">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     {selectedCalc.variables.map((v) => (
                                         <div key={v.id} className="space-y-2">
@@ -161,17 +202,19 @@ export default function Calculators() {
                                             ) : (
                                                 <Input
                                                     type="number"
-                                                    placeholder="0"
+                                                    step="any"
+                                                    placeholder={v.name === 'ph' ? '7.40' : v.name === 'albumin' ? '4.0' : '0'}
                                                     className="dark:bg-slate-800 dark:border-slate-700"
                                                     value={inputs[v.name] || ''}
-                                                    onChange={(e) => setInputs({ ...inputs, [v.name]: Number(e.target.value) })}
+                                                    onChange={(e) => setInputs({ ...inputs, [v.name]: e.target.value })}
                                                 />
                                             )}
                                         </div>
                                     ))}
                                 </div>
 
-                                {result !== null && (
+                                {/* Normal result display */}
+                                {result !== null && !isGasometryCalc && (
                                     <div className="animate-in slide-in-from-bottom-2 fade-in duration-300 rounded-lg border-2 border-primary/10 bg-[#E6F2FF] dark:bg-slate-800 dark:border-slate-700 p-6 flex flex-col items-center justify-center text-center space-y-2">
                                         <span className="text-sm font-medium text-blue-600 dark:text-slate-300 uppercase tracking-wider">Resultado</span>
                                         <div className="text-4xl font-bold text-slate-900 dark:text-slate-50">
@@ -184,6 +227,97 @@ export default function Calculators() {
                                         )}
                                     </div>
                                 )}
+
+                                {/* Gasometry Result Panel */}
+                                {gasometryResult && (
+                                    <div className="animate-in slide-in-from-bottom-2 fade-in duration-300 space-y-4">
+                                        {/* Primary Disorder */}
+                                        <div className={cn("rounded-lg border-2 p-4", getDisorderColor(gasometryResult.interpretation.disorderType))}>
+                                            <div className="flex items-center justify-between mb-2">
+                                                <h3 className="font-semibold text-lg flex items-center gap-2">
+                                                    {gasometryResult.interpretation.primaryDisorder === 'pH Normal' ? (
+                                                        <CheckCircle2 className="h-5 w-5 text-green-600" />
+                                                    ) : (
+                                                        <AlertTriangle className="h-5 w-5 text-amber-600" />
+                                                    )}
+                                                    {gasometryResult.interpretation.disorderType}
+                                                </h3>
+                                                {gasometryResult.interpretation.severity !== 'N/A' && (
+                                                    <Badge className={getSeverityColor(gasometryResult.interpretation.severity)}>
+                                                        {gasometryResult.interpretation.severity}
+                                                    </Badge>
+                                                )}
+                                            </div>
+                                            <p className="text-sm text-muted-foreground">
+                                                pH: <strong>{gasometryResult.values.ph}</strong> | 
+                                                pCO₂: <strong>{gasometryResult.values.pco2} mmHg</strong> | 
+                                                HCO₃⁻: <strong>{gasometryResult.values.hco3} mEq/L</strong>
+                                            </p>
+                                        </div>
+
+                                        {/* Compensation */}
+                                        {gasometryResult.interpretation.compensationStatus && (
+                                            <div className="rounded-lg border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-4">
+                                                <h4 className="font-medium flex items-center gap-2 mb-2">
+                                                    <Info className="h-4 w-4 text-blue-500" />
+                                                    Compensação
+                                                </h4>
+                                                <p className="text-sm">{gasometryResult.interpretation.compensationStatus}</p>
+                                                {gasometryResult.interpretation.expectedCompensation && (
+                                                    <p className="text-xs text-muted-foreground mt-1">
+                                                        {gasometryResult.interpretation.expectedCompensation}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {/* Anion Gap */}
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="rounded-lg border dark:border-slate-700 bg-white dark:bg-slate-800/50 p-3">
+                                                <p className="text-xs text-muted-foreground uppercase tracking-wider">Anion Gap</p>
+                                                <p className="text-2xl font-bold">{gasometryResult.values.anionGap}</p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    Corrigido: {gasometryResult.values.anionGapCorrected}
+                                                </p>
+                                            </div>
+                                            <div className="rounded-lg border dark:border-slate-700 bg-white dark:bg-slate-800/50 p-3">
+                                                <p className="text-xs text-muted-foreground uppercase tracking-wider">Interpretação AG</p>
+                                                <p className="text-sm font-medium mt-1">
+                                                    {gasometryResult.interpretation.anionGapInterpretation}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {/* Delta Ratio if present */}
+                                        {gasometryResult.values.deltaRatio !== null && (
+                                            <div className="rounded-lg border bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 p-4">
+                                                <h4 className="font-medium mb-1">
+                                                    Delta Ratio: {gasometryResult.values.deltaRatio}
+                                                </h4>
+                                                <p className="text-sm text-muted-foreground">
+                                                    {gasometryResult.interpretation.deltaRatioInterpretation}
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        {/* Possible Causes */}
+                                        {gasometryResult.interpretation.possibleCauses.length > 0 && (
+                                            <div className="rounded-lg border dark:border-slate-700 bg-white dark:bg-slate-800/50 p-4">
+                                                <h4 className="font-medium mb-2 flex items-center gap-2">
+                                                    <Stethoscope className="h-4 w-4 text-primary" />
+                                                    Possíveis Causas
+                                                </h4>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {gasometryResult.interpretation.possibleCauses.map((cause, i) => (
+                                                        <Badge key={i} variant="secondary" className="text-xs">
+                                                            {cause}
+                                                        </Badge>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </CardContent>
 
                             <CardFooter className="border-t dark:border-slate-800 p-6 bg-slate-50/50 dark:bg-slate-800/20 flex justify-between">
@@ -192,8 +326,8 @@ export default function Calculators() {
                                     {t('calculators.reset')}
                                 </Button>
                                 <Button onClick={handleCalculate} disabled={isCalculating} className="gap-2 bg-[#0066CC] hover:bg-[#0055AA] dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-200">
-                                    {isCalculating ? <Loader2 className="h-4 w-4 animate-spin" /> : <CalculatorIcon className="h-4 w-4" />}
-                                    {t('calculators.calculate')}
+                                    {isCalculating ? <Loader2 className="h-4 w-4 animate-spin" /> : isGasometryCalc ? <Stethoscope className="h-4 w-4" /> : <CalculatorIcon className="h-4 w-4" />}
+                                    {isGasometryCalc ? 'Analisar' : t('calculators.calculate')}
                                 </Button>
                             </CardFooter>
                         </>
