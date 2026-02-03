@@ -59,7 +59,7 @@ export function TermsModal({ isOpen, onAccept }: TermsModalProps) {
           </div>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 max-h-[50vh] pr-4">
+        <ScrollArea className="flex-1 max-h-[60vh] pr-4 -mr-4">
           <div className="space-y-6 text-sm text-slate-700 dark:text-slate-300">
             {/* Section 1 */}
             <section>
