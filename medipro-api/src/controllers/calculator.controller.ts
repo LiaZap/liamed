@@ -201,6 +201,159 @@ export const calculatorController = {
                         { name: 'cl', label: 'Cloro (Cl⁻)', unit: 'mEq/L', type: 'NUMBER' },
                         { name: 'albumin', label: 'Albumina', unit: 'g/dL', type: 'NUMBER' }
                     ]
+                },
+                // ===== NOVAS CALCULADORAS =====
+                {
+                    name: 'NEWS2 (National Early Warning Score)',
+                    description: 'Score de alerta precoce para deterioração clínica.',
+                    category: 'Emergência',
+                    expression: 'resp + spo2 + supp_o2 + temp + pas + fc + neuro',
+                    variables: [
+                        { name: 'resp', label: 'Frequência Respiratória', type: 'SELECT', options: [{ label: '≤8 (3pt)', value: 3 }, { label: '9-11 (1pt)', value: 1 }, { label: '12-20 (0pt)', value: 0 }, { label: '21-24 (2pt)', value: 2 }, { label: '≥25 (3pt)', value: 3 }] },
+                        { name: 'spo2', label: 'SpO₂', type: 'SELECT', options: [{ label: '≤91% (3pt)', value: 3 }, { label: '92-93% (2pt)', value: 2 }, { label: '94-95% (1pt)', value: 1 }, { label: '≥96% (0pt)', value: 0 }] },
+                        { name: 'supp_o2', label: 'O₂ Suplementar', type: 'SELECT', options: [{ label: 'Sim (2pt)', value: 2 }, { label: 'Não (0pt)', value: 0 }] },
+                        { name: 'temp', label: 'Temperatura', type: 'SELECT', options: [{ label: '≤35.0°C (3pt)', value: 3 }, { label: '35.1-36.0°C (1pt)', value: 1 }, { label: '36.1-38.0°C (0pt)', value: 0 }, { label: '38.1-39.0°C (1pt)', value: 1 }, { label: '≥39.1°C (2pt)', value: 2 }] },
+                        { name: 'pas', label: 'Pressão Arterial Sistólica', type: 'SELECT', options: [{ label: '≤90 (3pt)', value: 3 }, { label: '91-100 (2pt)', value: 2 }, { label: '101-110 (1pt)', value: 1 }, { label: '111-219 (0pt)', value: 0 }, { label: '≥220 (3pt)', value: 3 }] },
+                        { name: 'fc', label: 'Frequência Cardíaca', type: 'SELECT', options: [{ label: '≤40 (3pt)', value: 3 }, { label: '41-50 (1pt)', value: 1 }, { label: '51-90 (0pt)', value: 0 }, { label: '91-110 (1pt)', value: 1 }, { label: '111-130 (2pt)', value: 2 }, { label: '≥131 (3pt)', value: 3 }] },
+                        { name: 'neuro', label: 'Nível Consciência (AVPU)', type: 'SELECT', options: [{ label: 'Alerta (0pt)', value: 0 }, { label: 'Responde Voz (3pt)', value: 3 }, { label: 'Responde Dor (3pt)', value: 3 }, { label: 'Não Responsivo (3pt)', value: 3 }] }
+                    ]
+                },
+                {
+                    name: 'CURB-65 (Pneumonia)',
+                    description: 'Estratificação de gravidade em pneumonia adquirida na comunidade.',
+                    category: 'Pneumologia',
+                    expression: 'confusion + ureia + fr + pa + age',
+                    variables: [
+                        { name: 'confusion', label: 'Confusão Mental', type: 'SELECT', options: [{ label: 'Sim (1pt)', value: 1 }, { label: 'Não (0pt)', value: 0 }] },
+                        { name: 'ureia', label: 'Ureia > 50 mg/dL', type: 'SELECT', options: [{ label: 'Sim (1pt)', value: 1 }, { label: 'Não (0pt)', value: 0 }] },
+                        { name: 'fr', label: 'FR ≥ 30 irpm', type: 'SELECT', options: [{ label: 'Sim (1pt)', value: 1 }, { label: 'Não (0pt)', value: 0 }] },
+                        { name: 'pa', label: 'PAS < 90 ou PAD ≤ 60', type: 'SELECT', options: [{ label: 'Sim (1pt)', value: 1 }, { label: 'Não (0pt)', value: 0 }] },
+                        { name: 'age', label: 'Idade ≥ 65 anos', type: 'SELECT', options: [{ label: 'Sim (1pt)', value: 1 }, { label: 'Não (0pt)', value: 0 }] }
+                    ]
+                },
+                {
+                    name: 'Wells Score (TVP)',
+                    description: 'Probabilidade clínica de Trombose Venosa Profunda.',
+                    category: 'Vascular',
+                    expression: 'cancer + paralysis + bedridden + tenderness + swelling + asymmetry + edema + collateral + previous + alternative',
+                    variables: [
+                        { name: 'cancer', label: 'Câncer ativo (em tto ou últimos 6m)', type: 'SELECT', options: [{ label: 'Sim (1pt)', value: 1 }, { label: 'Não', value: 0 }] },
+                        { name: 'paralysis', label: 'Paralisia/paresia de MMII', type: 'SELECT', options: [{ label: 'Sim (1pt)', value: 1 }, { label: 'Não', value: 0 }] },
+                        { name: 'bedridden', label: 'Acamado > 3 dias ou cirurgia < 12 sem', type: 'SELECT', options: [{ label: 'Sim (1pt)', value: 1 }, { label: 'Não', value: 0 }] },
+                        { name: 'tenderness', label: 'Dor à palpação do trajeto venoso', type: 'SELECT', options: [{ label: 'Sim (1pt)', value: 1 }, { label: 'Não', value: 0 }] },
+                        { name: 'swelling', label: 'Edema em toda perna', type: 'SELECT', options: [{ label: 'Sim (1pt)', value: 1 }, { label: 'Não', value: 0 }] },
+                        { name: 'asymmetry', label: 'Panturrilha > 3cm maior (10cm abaixo da tuberosidade)', type: 'SELECT', options: [{ label: 'Sim (1pt)', value: 1 }, { label: 'Não', value: 0 }] },
+                        { name: 'edema', label: 'Edema com cacifo (apenas perna sintomática)', type: 'SELECT', options: [{ label: 'Sim (1pt)', value: 1 }, { label: 'Não', value: 0 }] },
+                        { name: 'collateral', label: 'Veias superficiais colaterais (não varicosas)', type: 'SELECT', options: [{ label: 'Sim (1pt)', value: 1 }, { label: 'Não', value: 0 }] },
+                        { name: 'previous', label: 'TVP prévia documentada', type: 'SELECT', options: [{ label: 'Sim (1pt)', value: 1 }, { label: 'Não', value: 0 }] },
+                        { name: 'alternative', label: 'Diagnóstico alternativo tão ou mais provável', type: 'SELECT', options: [{ label: 'Sim (-2pt)', value: -2 }, { label: 'Não', value: 0 }] }
+                    ]
+                },
+                {
+                    name: 'Wells Score (TEP)',
+                    description: 'Probabilidade clínica de Tromboembolismo Pulmonar.',
+                    category: 'Pneumologia',
+                    expression: 'dvt_signs + alternative + fc + immobilization + previous_vte + hemoptysis + cancer',
+                    variables: [
+                        { name: 'dvt_signs', label: 'Sinais clínicos de TVP', type: 'SELECT', options: [{ label: 'Sim (3pt)', value: 3 }, { label: 'Não', value: 0 }] },
+                        { name: 'alternative', label: 'Diagnóstico alternativo menos provável que TEP', type: 'SELECT', options: [{ label: 'Sim (3pt)', value: 3 }, { label: 'Não', value: 0 }] },
+                        { name: 'fc', label: 'FC > 100 bpm', type: 'SELECT', options: [{ label: 'Sim (1.5pt)', value: 1.5 }, { label: 'Não', value: 0 }] },
+                        { name: 'immobilization', label: 'Imobilização > 3 dias ou cirurgia < 4 sem', type: 'SELECT', options: [{ label: 'Sim (1.5pt)', value: 1.5 }, { label: 'Não', value: 0 }] },
+                        { name: 'previous_vte', label: 'TVP/TEP prévio', type: 'SELECT', options: [{ label: 'Sim (1.5pt)', value: 1.5 }, { label: 'Não', value: 0 }] },
+                        { name: 'hemoptysis', label: 'Hemoptise', type: 'SELECT', options: [{ label: 'Sim (1pt)', value: 1 }, { label: 'Não', value: 0 }] },
+                        { name: 'cancer', label: 'Câncer (em tto ou últimos 6m)', type: 'SELECT', options: [{ label: 'Sim (1pt)', value: 1 }, { label: 'Não', value: 0 }] }
+                    ]
+                },
+                {
+                    name: 'MELD Score (Hepatologia)',
+                    description: 'Model for End-Stage Liver Disease - prognóstico em cirrose.',
+                    category: 'Hepatologia',
+                    expression: '10 * (0.957 * Math.log(creatinine) + 0.378 * Math.log(bilirubin) + 1.12 * Math.log(inr) + 0.643)',
+                    variables: [
+                        { name: 'creatinine', label: 'Creatinina', unit: 'mg/dL', type: 'NUMBER' },
+                        { name: 'bilirubin', label: 'Bilirrubina Total', unit: 'mg/dL', type: 'NUMBER' },
+                        { name: 'inr', label: 'INR', unit: '', type: 'NUMBER' }
+                    ]
+                },
+                {
+                    name: 'HAS-BLED (Risco de Sangramento)',
+                    description: 'Risco de sangramento maior em pacientes anticoagulados.',
+                    category: 'Cardiologia',
+                    expression: 'hypertension + renal + liver + stroke + bleeding + labile + age + drugs + alcohol',
+                    variables: [
+                        { name: 'hypertension', label: 'Hipertensão (PAS > 160)', type: 'SELECT', options: [{ label: 'Sim (1pt)', value: 1 }, { label: 'Não', value: 0 }] },
+                        { name: 'renal', label: 'Insuficiência Renal (diálise, Cr>2.6)', type: 'SELECT', options: [{ label: 'Sim (1pt)', value: 1 }, { label: 'Não', value: 0 }] },
+                        { name: 'liver', label: 'Insuficiência Hepática', type: 'SELECT', options: [{ label: 'Sim (1pt)', value: 1 }, { label: 'Não', value: 0 }] },
+                        { name: 'stroke', label: 'AVC prévio', type: 'SELECT', options: [{ label: 'Sim (1pt)', value: 1 }, { label: 'Não', value: 0 }] },
+                        { name: 'bleeding', label: 'História de sangramento', type: 'SELECT', options: [{ label: 'Sim (1pt)', value: 1 }, { label: 'Não', value: 0 }] },
+                        { name: 'labile', label: 'INR lábil (< 60% no alvo)', type: 'SELECT', options: [{ label: 'Sim (1pt)', value: 1 }, { label: 'Não', value: 0 }] },
+                        { name: 'age', label: 'Idade > 65 anos', type: 'SELECT', options: [{ label: 'Sim (1pt)', value: 1 }, { label: 'Não', value: 0 }] },
+                        { name: 'drugs', label: 'Uso de AINEs/antiplaquetários', type: 'SELECT', options: [{ label: 'Sim (1pt)', value: 1 }, { label: 'Não', value: 0 }] },
+                        { name: 'alcohol', label: 'Uso abusivo de álcool', type: 'SELECT', options: [{ label: 'Sim (1pt)', value: 1 }, { label: 'Não', value: 0 }] }
+                    ]
+                },
+                {
+                    name: 'Correção de Sódio (Hiperglicemia)',
+                    description: 'Correção do sódio sérico para hiperglicemia.',
+                    category: 'Emergência',
+                    expression: 'na + 0.016 * (glucose - 100)',
+                    variables: [
+                        { name: 'na', label: 'Sódio Sérico', unit: 'mEq/L', type: 'NUMBER' },
+                        { name: 'glucose', label: 'Glicemia', unit: 'mg/dL', type: 'NUMBER' }
+                    ]
+                },
+                {
+                    name: 'Cálcio Corrigido (Albumina)',
+                    description: 'Correção do cálcio sérico para hipoalbuminemia.',
+                    category: 'Medicina Interna',
+                    expression: 'calcium + 0.8 * (4 - albumin)',
+                    variables: [
+                        { name: 'calcium', label: 'Cálcio Sérico', unit: 'mg/dL', type: 'NUMBER' },
+                        { name: 'albumin', label: 'Albumina', unit: 'g/dL', type: 'NUMBER' }
+                    ]
+                },
+                {
+                    name: 'MDRD (TFG Estimada)',
+                    description: 'Estimativa da Taxa de Filtração Glomerular pela fórmula MDRD.',
+                    category: 'Nefrologia',
+                    expression: '175 * Math.pow(creatinine, -1.154) * Math.pow(age, -0.203) * sex_factor * race_factor',
+                    variables: [
+                        { name: 'creatinine', label: 'Creatinina', unit: 'mg/dL', type: 'NUMBER' },
+                        { name: 'age', label: 'Idade', unit: 'anos', type: 'NUMBER' },
+                        { name: 'sex_factor', label: 'Sexo', type: 'SELECT', options: [{ label: 'Masculino', value: 1 }, { label: 'Feminino', value: 0.742 }] },
+                        { name: 'race_factor', label: 'Raça Negra', type: 'SELECT', options: [{ label: 'Sim', value: 1.212 }, { label: 'Não', value: 1 }] }
+                    ]
+                },
+                {
+                    name: 'Dose Pediátrica por Peso',
+                    description: 'Cálculo de dose de medicamento por peso corporal.',
+                    category: 'Pediatria',
+                    expression: 'weight * dose_per_kg',
+                    variables: [
+                        { name: 'weight', label: 'Peso', unit: 'kg', type: 'NUMBER' },
+                        { name: 'dose_per_kg', label: 'Dose por kg', unit: 'mg/kg', type: 'NUMBER' }
+                    ]
+                },
+                {
+                    name: 'Osmolaridade Sérica',
+                    description: 'Cálculo da osmolaridade sérica.',
+                    category: 'Emergência',
+                    expression: '2 * na + glucose / 18 + bun / 2.8',
+                    variables: [
+                        { name: 'na', label: 'Sódio', unit: 'mEq/L', type: 'NUMBER' },
+                        { name: 'glucose', label: 'Glicose', unit: 'mg/dL', type: 'NUMBER' },
+                        { name: 'bun', label: 'Ureia (BUN)', unit: 'mg/dL', type: 'NUMBER' }
+                    ]
+                },
+                {
+                    name: 'Déficit de Bicarbonato',
+                    description: 'Quantidade de bicarbonato a repor em acidose metabólica.',
+                    category: 'Emergência',
+                    expression: '0.3 * weight * (24 - hco3)',
+                    variables: [
+                        { name: 'weight', label: 'Peso', unit: 'kg', type: 'NUMBER' },
+                        { name: 'hco3', label: 'HCO3 atual', unit: 'mEq/L', type: 'NUMBER' }
+                    ]
                 }
             ];
 
