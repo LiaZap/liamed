@@ -17,6 +17,13 @@ export const logAction = async (params: AuditLogParams) => {
     try {
         const { userId, userName, action, resource, resourceId, details, req } = params;
 
+        // Verify user exists before creating audit log to prevent FK constraint errors
+        const userExists = await prisma.user.findUnique({ where: { id: userId }, select: { id: true } });
+        if (!userExists) {
+            console.warn(`[AUDIT] Skipped: User ${userId} does not exist in database`);
+            return;
+        }
+
         let ipAddress = 'unknown';
         let userAgent = 'unknown';
 
@@ -32,7 +39,7 @@ export const logAction = async (params: AuditLogParams) => {
                 action,
                 resource,
                 resourceId,
-                details: details ? JSON.parse(JSON.stringify(details)) : undefined, // Ensure it's JSON serializable
+                details: details ? JSON.parse(JSON.stringify(details)) : undefined,
                 ipAddress,
                 userAgent
             }
