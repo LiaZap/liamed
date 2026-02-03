@@ -118,11 +118,14 @@ export default function Plans() {
 
   // Determine user's current plan (normalize to lowercase for comparison)
   const currentUserPlan = user?.plan?.toLowerCase() || null;
-  const currentPlanStatus = user?.planStatus || 'ACTIVE';
-  const hasPlan = currentUserPlan && currentUserPlan !== 'essential' && currentPlanStatus === 'ACTIVE';
+  const currentPlanStatus = user?.planStatus?.toUpperCase() || 'ACTIVE';
+  const hasPlan = currentUserPlan && currentUserPlan !== 'essential' && ['ACTIVE', 'TRIALING'].includes(currentPlanStatus);
 
   // Get current plan details for display
   const currentPlanDetails = PLANS.find(p => p.id === currentUserPlan);
+
+  // Debug log - can be removed after testing
+  console.log('Plan Debug:', { userPlan: user?.plan, currentUserPlan, currentPlanStatus, hasPlan, currentPlanDetails });
 
   const handleSubscribe = async (planName: string) => {
     try {
