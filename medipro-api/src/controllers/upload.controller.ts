@@ -7,9 +7,8 @@ export const uploadFile = (req: Request, res: Response) => {
 
   // Construct standard URL (assumes server serves /uploads)
   // In production with S3 this would be different, but for local/VM fs:
-  const protocol = req.protocol;
-  const host = req.get('host');
-  const fileUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+  // Return relative path so frontend uses its own domain/proxy handling correctly
+  const fileUrl = `/uploads/${req.file.filename}`;
 
   return res.json({
     message: 'Upload realizado com sucesso!',

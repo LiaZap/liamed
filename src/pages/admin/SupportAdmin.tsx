@@ -81,6 +81,7 @@ export default function SupportAdmin() {
   const [broadcastTitle, setBroadcastTitle] = useState("");
   const [broadcastMessage, setBroadcastMessage] = useState("");
   const [broadcastImageUrl, setBroadcastImageUrl] = useState(""); // New state
+  const [broadcastLink, setBroadcastLink] = useState(""); // Link state
   const [targetRole, setTargetRole] = useState("TODOS");
   const [targetSpecialty, setTargetSpecialty] = useState("TODAS");
 
@@ -119,7 +120,8 @@ export default function SupportAdmin() {
         imageUrl: broadcastImageUrl || undefined, // Send image URL
         role: targetRole === "TODOS" ? undefined : targetRole,
         specialty: targetSpecialty === "TODAS" ? undefined : targetSpecialty,
-        type: "INFO"
+        type: "INFO",
+        link: broadcastLink || undefined // Send link
       });
 
       toast.success("Comunicado enviado com sucesso!");
@@ -127,6 +129,7 @@ export default function SupportAdmin() {
       setBroadcastTitle("");
       setBroadcastMessage("");
       setBroadcastImageUrl("");
+      setBroadcastLink("");
       setTargetRole("TODOS");
       setTargetSpecialty("TODAS");
     } catch (error) {
@@ -558,6 +561,15 @@ export default function SupportAdmin() {
                   value={broadcastMessage}
                   onChange={e => setBroadcastMessage(e.target.value)}
                   placeholder="Digite sua mensagem para todos..."
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Link do Botão (Opcional)</label>
+                <Input 
+                  value={broadcastLink} 
+                  onChange={e => setBroadcastLink(e.target.value)} 
+                  placeholder="https://... ou /pagina-interna"
                 />
               </div>
 
