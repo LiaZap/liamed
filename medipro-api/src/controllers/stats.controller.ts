@@ -216,9 +216,7 @@ export const getStats = async (req: AuthRequest, res: Response) => {
                 novosPacientes: newPatientsMap.get(dateStr) || 0
             });
         }
-    } catch (error) {
-           console.error("New Patients Calculation Error", error);
-    }
+
 
 
         const stats = {
