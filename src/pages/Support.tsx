@@ -9,7 +9,6 @@ import {
   Headphones, 
   Send, 
   Plus, 
-  MessageCircle, 
   Clock, 
   CheckCircle2,
   ArrowLeft,
