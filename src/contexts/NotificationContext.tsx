@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from './AuthContext';
+import api from '@/services/api';
 // import { v4 as uuidv4 } from 'uuid'; // Unused
 
 // Helper for ID generator if uuid is missing, though recommended to install
@@ -85,6 +86,44 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     const clearAll = () => {
         setNotifications([]);
     };
+
+    // Poll for unread support tickets
+    useEffect(() => {
+        if (!user) return;
+
+        const checkSupportTickets = async () => {
+            try {
+                const response = await api.get('/support/tickets');
+                const tickets = response.data;
+                
+                tickets.forEach((ticket: any) => {
+                    if (ticket.unreadCount > 0) {
+                        // Check if we already have an unread notification for this ticket
+                        // We use the link to identify the ticket-specific notification
+                        const hasNotification = notifications.some(
+                            n => !n.read && n.link === '/suporte' && n.message.includes(ticket.subject)
+                        );
+
+                        if (!hasNotification) {
+                            addNotification({
+                                type: 'info',
+                                title: 'Nova mensagem no suporte',
+                                message: `Você tem ${ticket.unreadCount} nova(s) resposta(s) no ticket: ${ticket.subject}`,
+                                link: '/suporte'
+                            });
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error("Failed to check support tickets", error);
+            }
+        };
+
+        checkSupportTickets(); // Check immediately
+        const interval = setInterval(checkSupportTickets, 10000); // Check every 10s (more frequent than 30s for better responsiveness)
+
+        return () => clearInterval(interval);
+    }, [user, notifications]); // Depend on notifications to know if we already have one
 
     return (
         <NotificationContext.Provider value={{
