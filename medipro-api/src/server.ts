@@ -12,7 +12,7 @@ dotenv.config();
 // Rate Limiters
 const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+    limit: 2000, // Limit each IP to 2000 requests per `window` (much higher for dashboard polling)
     standardHeaders: 'draft-7',
     legacyHeaders: false,
     message: 'Too many requests from this IP, please try again after 15 minutes'
