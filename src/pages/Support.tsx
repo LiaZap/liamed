@@ -1,3 +1,10 @@
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import api from "@/services/api";
@@ -117,10 +124,15 @@ export default function Support() {
       return;
     }
 
+    if (!newTicketSubject) {
+      toast.error("Selecione um assunto");
+      return;
+    }
+
     setSending(true);
     try {
       const response = await api.post("/support/tickets", {
-        subject: newTicketSubject || "Dúvida Geral",
+        subject: newTicketSubject,
         message: newTicketMessage
       });
       
@@ -158,9 +170,9 @@ export default function Support() {
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      if (showNewTicket) {
-        createTicket();
-      } else {
+      // Only send message on Enter if not in new ticket form (textarea usually allows newlines)
+      // or if it's the message input in chat
+      if (!showNewTicket) {
         sendMessage();
       }
     }
@@ -185,8 +197,7 @@ export default function Support() {
     return format(msgDate, "dd/MM", { locale: ptBR });
   };
 
-  // Ticket List View
-  const TicketList = () => (
+  const renderTicketList = () => (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Meus Tickets</h2>
@@ -253,8 +264,7 @@ export default function Support() {
     </div>
   );
 
-  // New Ticket Form
-  const NewTicketForm = () => (
+  const renderNewTicketForm = () => (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="sm" onClick={() => setShowNewTicket(false)}>
@@ -266,12 +276,19 @@ export default function Support() {
       <Card>
         <CardContent className="p-4 space-y-4">
           <div>
-            <label className="text-sm font-medium mb-1 block">Assunto (opcional)</label>
-            <Input
-              placeholder="Ex: Dúvida sobre calculadora, Problema com assinatura..."
-              value={newTicketSubject}
-              onChange={(e) => setNewTicketSubject(e.target.value)}
-            />
+            <label className="text-sm font-medium mb-1 block">Assunto</label>
+            <Select value={newTicketSubject} onValueChange={setNewTicketSubject}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione um assunto" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Dúvida Técnica">Dúvida Técnica</SelectItem>
+                <SelectItem value="Financeiro">Financeiro</SelectItem>
+                <SelectItem value="Sugestão">Sugestão</SelectItem>
+                <SelectItem value="Reportar Erro">Reportar Erro</SelectItem>
+                <SelectItem value="Outros">Outros</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <label className="text-sm font-medium mb-1 block">Mensagem</label>
@@ -280,13 +297,13 @@ export default function Support() {
               placeholder="Descreva sua dúvida ou problema..."
               value={newTicketMessage}
               onChange={(e) => setNewTicketMessage(e.target.value)}
-              onKeyDown={handleKeyPress}
+              // Removed onKeyDown to allow new lines freely in textarea
             />
           </div>
           <Button 
             className="w-full" 
             onClick={createTicket}
-            disabled={!newTicketMessage.trim() || sending}
+            disabled={!newTicketMessage.trim() || !newTicketSubject || sending}
           >
             {sending ? "Enviando..." : "Enviar Ticket"}
           </Button>
@@ -295,8 +312,7 @@ export default function Support() {
     </div>
   );
 
-  // Chat View
-  const ChatView = () => (
+  const renderChatView = () => (
     <div className="flex flex-col h-[calc(100vh-200px)]">
       {/* Header */}
       <div className="flex items-center gap-2 pb-4 border-b">
@@ -389,11 +405,11 @@ export default function Support() {
               <Clock className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : selectedTicket ? (
-            <ChatView />
+            renderChatView()
           ) : showNewTicket ? (
-            <NewTicketForm />
+            renderNewTicketForm()
           ) : (
-            <TicketList />
+            renderTicketList()
           )}
         </CardContent>
       </Card>
