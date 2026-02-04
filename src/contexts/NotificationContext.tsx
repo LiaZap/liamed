@@ -171,6 +171,10 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         }
     };
 
+    const clearAll = () => {
+        setNotifications([]);
+    };
+
     return (
         <NotificationContext.Provider value={{
             notifications,
