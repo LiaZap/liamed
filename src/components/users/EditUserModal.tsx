@@ -49,7 +49,7 @@ export function EditUserModal({
   const [isActive, setIsActive] = useState(true);
   const [endpointId, setEndpointId] = useState("none");
   const [specialty, setSpecialty] = useState("");
-  const [plan, setPlan] = useState("ESSENTIAL");
+  const [plan, setPlan] = useState("essential");
   const [planStatus, setPlanStatus] = useState("ACTIVE");
   
   const [endpoints, setEndpoints] = useState<any[]>([]);
@@ -76,7 +76,7 @@ export function EditUserModal({
         setPromptText(user.customPrompt || "");
         setEndpointId(user.endpointId || "none");
         setSpecialty(user.specialty || "");
-        setPlan(user.plan || "ESSENTIAL");
+        setPlan(user.plan || "essential");
         setPlanStatus(user.planStatus || "ACTIVE");
         setPassword(""); // Limpar senha ao editar para evitar envio acidental de dados antigos
       } else {
@@ -88,7 +88,7 @@ export function EditUserModal({
         setIsActive(true);
         setEndpointId("none");
         setSpecialty("");
-        setPlan("ESSENTIAL");
+        setPlan("essential");
         setPlanStatus("ACTIVE");
         setPromptText(
           `# Prompt para Geração de Evolução Médica no Formato SOAP...`,
@@ -201,9 +201,9 @@ export function EditUserModal({
                                 <SelectValue placeholder="Selecione o plano" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="ESSENTIAL">Essential (Gratuito/Básico)</SelectItem>
-                                <SelectItem value="PRO">Pro (Pago)</SelectItem>
-                                <SelectItem value="PREMIUM">Premium (Ilimitado)</SelectItem>
+                                <SelectItem value="essential">Essential (Gratuito/Básico)</SelectItem>
+                                <SelectItem value="pro">Pro (Otimização Clínica)</SelectItem>
+                                <SelectItem value="premium">Premium (Completo + Carreira)</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
