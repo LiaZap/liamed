@@ -88,6 +88,17 @@ export default function Support() {
     loadTickets();
   }, []);
 
+  // Polling for real-time updates
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (selectedTicket) {
+      interval = setInterval(() => {
+        loadTicketDetails(selectedTicket.id, true);
+      }, 3000);
+    }
+    return () => clearInterval(interval);
+  }, [selectedTicket?.id]);
+
   useEffect(() => {
     scrollToBottom();
   }, [selectedTicket?.messages]);
@@ -96,25 +107,27 @@ export default function Support() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const loadTickets = async () => {
+  const loadTickets = async (silent = false) => {
     try {
       const response = await api.get("/support/tickets");
       setTickets(response.data);
     } catch (error) {
-      toast.error("Erro ao carregar tickets");
+      if (!silent) toast.error("Erro ao carregar tickets");
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
-  const loadTicketDetails = async (ticketId: string) => {
+  const loadTicketDetails = async (ticketId: string, silent = false) => {
     try {
       const response = await api.get(`/support/tickets/${ticketId}`);
+      // Only scroll if new message count is different or first load (handled by useEffect deps)
+      // But we simply update state here.
       setSelectedTicket(response.data);
-      // Refresh ticket list to update unread count
-      loadTickets();
+      // Refresh ticket list to update unread count silently
+      loadTickets(true);
     } catch (error) {
-      toast.error("Erro ao carregar mensagens");
+      if (!silent) toast.error("Erro ao carregar mensagens");
     }
   };
 
