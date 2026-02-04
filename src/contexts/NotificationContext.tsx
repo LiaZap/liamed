@@ -71,59 +71,105 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         setNotifications(prev => [newNotification, ...prev]);
     };
 
-    const markAsRead = (id: string) => {
-        setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
-    };
-
-    const markAllAsRead = () => {
-        setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-    };
-
-    const deleteNotification = (id: string) => {
-        setNotifications(prev => prev.filter(n => n.id !== id));
-    };
-
-    const clearAll = () => {
-        setNotifications([]);
-    };
-
-    // Poll for unread support tickets
-    useEffect(() => {
+    // Poll for notifications and unread support tickets
+    const refreshNotifications = async () => {
         if (!user) return;
 
-        const checkSupportTickets = async () => {
-            try {
-                const response = await api.get('/support/tickets');
-                const tickets = response.data;
-                
-                tickets.forEach((ticket: any) => {
-                    if (ticket.unreadCount > 0) {
-                        // Check if we already have an unread notification for this ticket
-                        // We use the link to identify the ticket-specific notification
-                        const hasNotification = notifications.some(
-                            n => !n.read && n.link === '/suporte' && n.message.includes(ticket.subject)
-                        );
+        try {
+            const [ticketsResponse, notificationsResponse] = await Promise.all([
+                api.get('/support/tickets'),
+                api.get('/notifications')
+            ]);
 
-                        if (!hasNotification) {
-                            addNotification({
-                                type: 'info',
-                                title: 'Nova mensagem no suporte',
-                                message: `Você tem ${ticket.unreadCount} nova(s) resposta(s) no ticket: ${ticket.subject}`,
-                                link: '/suporte'
-                            });
-                        }
-                    }
-                });
-            } catch (error) {
-                console.error("Failed to check support tickets", error);
-            }
-        };
+            const tickets = ticketsResponse.data;
+            const apiNotifications = notificationsResponse.data;
 
-        checkSupportTickets(); // Check immediately
-        const interval = setInterval(checkSupportTickets, 10000); // Check every 10s (more frequent than 30s for better responsiveness)
+            // Convert API notifications
+            const formattedApiNotifications: Notification[] = apiNotifications.map((n: any) => ({
+                id: n.id,
+                type: n.type.toLowerCase(),
+                title: n.title,
+                message: n.message,
+                read: n.read,
+                createdAt: n.createdAt,
+                link: n.link
+            }));
+
+            // Generate ticket notifications
+            const ticketNotifications: Notification[] = [];
+            tickets.forEach((ticket: any) => {
+                if (ticket.unreadCount > 0) {
+                   ticketNotifications.push({
+                        id: `ticket-${ticket.id}`, // Virtual ID
+                        type: 'info',
+                        title: 'Nova mensagem no suporte',
+                        message: `Você tem ${ticket.unreadCount} nova(s) resposta(s) no ticket: ${ticket.subject}`,
+                        read: false,
+                        createdAt: ticket.updatedAt || new Date().toISOString(),
+                        link: '/suporte'
+                   });
+                }
+            });
+
+            // Combine and sort by date desc
+            const allNotifications = [...formattedApiNotifications, ...ticketNotifications].sort(
+                (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
+
+            setNotifications(allNotifications);
+
+        } catch (error) {
+            console.error("Failed to refresh notifications", error);
+        }
+    };
+
+    useEffect(() => {
+        refreshNotifications(); // Check immediately
+        const interval = setInterval(refreshNotifications, 10000); // Check every 10s
 
         return () => clearInterval(interval);
-    }, [user, notifications]); // Depend on notifications to know if we already have one
+    }, [user]);
+
+    const markAsRead = async (id: string) => {
+        // If it's a virtual ticket notification, we don't mark as read via API here
+        // (It gets cleared when user visits support page and unread count goes to 0)
+        if (id.startsWith('ticket-')) {
+             setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+             return;
+        }
+
+        try {
+            await api.patch(`/notifications/${id}/read`);
+            setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+        } catch (error) {
+            console.error("Failed to mark notification as read", error);
+        }
+    };
+
+    const markAllAsRead = async () => {
+        // Optimistic update
+        setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+        
+        // Only mark real notifications as read on backend
+        // Virtual ones are handled by UI interactions mostly
+        notifications.filter(n => !n.id.startsWith('ticket-')).forEach(n => {
+             api.patch(`/notifications/${n.id}/read`).catch(console.error);
+        });
+    };
+
+    const deleteNotification = async (id: string) => {
+         if (id.startsWith('ticket-')) {
+             setNotifications(prev => prev.filter(n => n.id !== id));
+             return;
+        }
+
+        try {
+            await api.delete(`/notifications/${id}`);
+            setNotifications(prev => prev.filter(n => n.id !== id));
+        } catch (error) {
+             console.error("Failed to delete notification", error);
+        }
+    };
 
     return (
         <NotificationContext.Provider value={{

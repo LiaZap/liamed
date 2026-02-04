@@ -75,6 +75,42 @@ export default function SupportAdmin() {
   const [statusFilter, setStatusFilter] = useState("ALL");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Broadcast State
+  const [showBroadcastModal, setShowBroadcastModal] = useState(false);
+  const [broadcastTitle, setBroadcastTitle] = useState("");
+  const [broadcastMessage, setBroadcastMessage] = useState("");
+  const [targetRole, setTargetRole] = useState("TODOS");
+  const [targetSpecialty, setTargetSpecialty] = useState("TODAS");
+
+  const handleBroadcast = async () => {
+    if (!broadcastTitle.trim() || !broadcastMessage.trim()) {
+      toast.error("Preencha título e mensagem");
+      return;
+    }
+
+    setSending(true);
+    try {
+      await api.post('/notifications/broadcast', {
+        title: broadcastTitle,
+        message: broadcastMessage,
+        role: targetRole === "TODOS" ? undefined : targetRole,
+        specialty: targetSpecialty === "TODAS" ? undefined : targetSpecialty,
+        type: "INFO" 
+      });
+
+      toast.success("Comunicado enviado com sucesso!");
+      setShowBroadcastModal(false);
+      setBroadcastTitle("");
+      setBroadcastMessage("");
+      setTargetRole("TODOS");
+      setTargetSpecialty("TODAS");
+    } catch (error) {
+      toast.error("Erro ao enviar comunicado");
+    } finally {
+      setSending(false);
+    }
+  };
+
   // Auto-refresh tickets
   useEffect(() => {
     loadTickets();
@@ -177,9 +213,85 @@ export default function SupportAdmin() {
           Central de Suporte
         </h1>
         <div className="flex items-center gap-4">
-           {/* Status statistics could go here */}
+          <Button onClick={() => setShowBroadcastModal(true)}>
+            <Send className="h-4 w-4 mr-2" />
+            Enviar Comunicado
+          </Button>
         </div>
       </div>
+
+      {showBroadcastModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <Card className="w-[500px] max-h-[90vh] overflow-y-auto">
+            <CardContent className="p-6 space-y-4">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-bold">Enviar Comunicado</h2>
+                <Button variant="ghost" size="sm" onClick={() => setShowBroadcastModal(false)}>✕</Button>
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Título</label>
+                <Input 
+                  value={broadcastTitle} 
+                  onChange={e => setBroadcastTitle(e.target.value)} 
+                  placeholder="Ex: Atualização do Sistema"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Mensagem</label>
+                <textarea 
+                  className="w-full min-h-[100px] p-3 border rounded-md"
+                  value={broadcastMessage}
+                  onChange={e => setBroadcastMessage(e.target.value)}
+                  placeholder="Digite sua mensagem para todos..."
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Destinatário</label>
+                  <Select value={targetRole} onValueChange={setTargetRole}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="TODOS">Todos os Usuários</SelectItem>
+                      <SelectItem value="MEDICO">Apenas Médicos</SelectItem>
+                      <SelectItem value="GESTOR">Apenas Gestores</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Especialidade (Opcional)</label>
+                   <Select value={targetSpecialty} onValueChange={setTargetSpecialty}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Todas" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[200px]">
+                      <SelectItem value="TODAS">Todas</SelectItem>
+                      {[
+                        "Cardiologia", "Dermatologia", "Ginecologia", "Ortopedia", 
+                        "Pediatria", "Psiquiatria", "Neurologia", "Clínica Geral"
+                      ].map(spec => (
+                        <SelectItem key={spec} value={spec}>{spec}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setShowBroadcastModal(false)}>Cancelar</Button>
+                <Button onClick={handleBroadcast} disabled={sending}>
+                  {sending ? "Enviando..." : "Enviar para Todos"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       <div className="flex gap-6 flex-1 h-full min-h-0">
         {/* Sidebar List */}
