@@ -55,7 +55,7 @@ export const deleteNotification = async (req: AuthRequest, res: Response) => {
 // Admin Broadcast
 export const broadcastNotification = async (req: AuthRequest, res: Response) => {
   try {
-    const { title, message, link, type, role, specialty } = req.body;
+    const { title, message, link, type, role, specialty, imageUrl } = req.body;
 
     if (!title || !message) {
       return res.status(400).json({ error: 'Title and message are required' });
@@ -88,6 +88,7 @@ export const broadcastNotification = async (req: AuthRequest, res: Response) => 
       title,
       message,
       link: link || '#',
+      imageUrl: imageUrl || null,
       type: type || 'INFO', // Uppercase enum
       read: false
     }));

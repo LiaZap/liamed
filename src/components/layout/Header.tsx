@@ -10,7 +10,7 @@ import {
 import { useState } from "react"
 import { useTheme } from "@/contexts/ThemeContext"
 import { useAuth } from "@/contexts/AuthContext"
-import { useNotifications, type NotificationType } from "@/contexts/NotificationContext"
+import { useNotifications, type NotificationType, type Notification } from "@/contexts/NotificationContext"
 import { useTranslation } from "react-i18next"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -19,6 +19,13 @@ import { ptBR } from "date-fns/locale"
 import { cn } from "@/lib/utils"
 import LogoLiamed from "@/assets/logo-liamed.png"
 import LogoLiamedWhite from "@/assets/logo-liamed-white.png"
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from "@/components/ui/dialog"
 
 interface HeaderProps {
     currentPath: NavItem
@@ -41,15 +48,24 @@ export function Header({ currentPath, onNavigate }: HeaderProps) {
     const { user, logout } = useAuth()
     const { notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification } = useNotifications()
     const [isNotificationOpen, setIsNotificationOpen] = useState(false)
+    const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
 
     // Derived state
 
 
-    const handleNotificationClick = (id: string, link?: string) => {
-        markAsRead(id);
-        if (link) {
-            // Logic to navigate if needed, for SPA usually history.push or state change
-            if (link === '/notificacoes' || link === '/usuarios' || link === '/diagnostico' || link === '/consultas' || link === '/configuracoes') {
+    const handleNotificationClick = (notification: Notification) => {
+        markAsRead(notification.id);
+        
+        // If it has an image, open the modal
+        if (notification.imageUrl) {
+            setSelectedNotification(notification);
+            setIsNotificationOpen(false);
+            return;
+        }
+
+        // Standard navigation
+        if (notification.link) {
+            if (notification.link === '/notificacoes' || notification.link === '/usuarios' || notification.link === '/diagnostico' || notification.link === '/consultas' || notification.link === '/configuracoes') {
                 // Map link to NavItem
                 const mapPath: Record<string, NavItem> = {
                     '/notificacoes': 'Notificações',
@@ -58,8 +74,10 @@ export function Header({ currentPath, onNavigate }: HeaderProps) {
                     '/consultas': 'Consultas',
                     '/configuracoes': 'Configurações'
                 }
-                const navItem = mapPath[link];
+                const navItem = mapPath[notification.link];
                 if (navItem) onNavigate(navItem);
+            } else if (notification.link.startsWith('http')) {
+                window.open(notification.link, '_blank');
             }
             setIsNotificationOpen(false);
         }
@@ -189,7 +207,7 @@ export function Header({ currentPath, onNavigate }: HeaderProps) {
                                                 "relative flex items-start gap-3 p-4 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer group",
                                                 !notification.read && "bg-blue-50/50 dark:bg-slate-800/30"
                                             )}
-                                            onClick={() => handleNotificationClick(notification.id, notification.link)}
+                                            onClick={() => handleNotificationClick(notification)}
                                         >
                                             {!notification.read && (
                                                 <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-slate-900 dark:bg-slate-100" />
@@ -304,6 +322,57 @@ export function Header({ currentPath, onNavigate }: HeaderProps) {
                     </PopoverContent>
                 </Popover>
             </div>
+
+            <Dialog open={!!selectedNotification} onOpenChange={(open) => !open && setSelectedNotification(null)}>
+                <DialogContent className="sm:max-w-[500px]">
+                    <DialogHeader>
+                        <DialogTitle>{selectedNotification?.title}</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        {selectedNotification?.imageUrl && (
+                            <div className="relative aspect-video w-full overflow-hidden rounded-lg border">
+                                <img 
+                                    src={selectedNotification.imageUrl} 
+                                    alt="Notification" 
+                                    className="object-cover w-full h-full"
+                                />
+                            </div>
+                        )}
+                        <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                            {selectedNotification?.message}
+                        </p>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setSelectedNotification(null)}>
+                            Fechar
+                        </Button>
+                        {selectedNotification?.link && selectedNotification.link !== '#' && (
+                            <Button onClick={() => {
+                                if (selectedNotification.link!.startsWith('http')) {
+                                    window.open(selectedNotification.link, '_blank');
+                                } else {
+                                    // Internal navigation handled via simplified redirect or just close
+                                    // For now just allow closing, as internal nav logic inside click handler is cleaner
+                                    // We could force re-trigger navigation but simple is better
+                                    
+                                     const mapPath: Record<string, NavItem> = {
+                                        '/notificacoes': 'Notificações',
+                                        '/usuarios': 'Usuários',
+                                        '/diagnostico': 'Diagnóstico',
+                                        '/consultas': 'Consultas',
+                                        '/configuracoes': 'Configurações'
+                                    }
+                                    const navItem = mapPath[selectedNotification.link];
+                                    if (navItem) onNavigate(navItem);
+                                }
+                                setSelectedNotification(null);
+                            }}>
+                                Acessar Link
+                            </Button>
+                        )}
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </header>
     )
 }

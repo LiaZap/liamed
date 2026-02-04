@@ -79,6 +79,7 @@ export default function SupportAdmin() {
   const [showBroadcastModal, setShowBroadcastModal] = useState(false);
   const [broadcastTitle, setBroadcastTitle] = useState("");
   const [broadcastMessage, setBroadcastMessage] = useState("");
+  const [broadcastImageUrl, setBroadcastImageUrl] = useState(""); // New state
   const [targetRole, setTargetRole] = useState("TODOS");
   const [targetSpecialty, setTargetSpecialty] = useState("TODAS");
 
@@ -93,18 +94,21 @@ export default function SupportAdmin() {
       await api.post('/notifications/broadcast', {
         title: broadcastTitle,
         message: broadcastMessage,
+        imageUrl: broadcastImageUrl || undefined, // Send image URL
         role: targetRole === "TODOS" ? undefined : targetRole,
         specialty: targetSpecialty === "TODAS" ? undefined : targetSpecialty,
-        type: "INFO" 
+        type: "INFO"
       });
 
       toast.success("Comunicado enviado com sucesso!");
       setShowBroadcastModal(false);
       setBroadcastTitle("");
       setBroadcastMessage("");
+      setBroadcastImageUrl("");
       setTargetRole("TODOS");
       setTargetSpecialty("TODAS");
     } catch (error) {
+      console.error(error);
       toast.error("Erro ao enviar comunicado");
     } finally {
       setSending(false);
@@ -470,6 +474,90 @@ export default function SupportAdmin() {
           )}
         </Card>
       </div>
+
+      {showBroadcastModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <Card className="w-[500px] max-h-[90vh] overflow-y-auto">
+            <CardContent className="p-6 space-y-4">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-bold">Enviar Comunicado</h2>
+                <Button variant="ghost" size="sm" onClick={() => setShowBroadcastModal(false)}>✕</Button>
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Título</label>
+                <Input 
+                  value={broadcastTitle} 
+                  onChange={e => setBroadcastTitle(e.target.value)} 
+                  placeholder="Ex: Atualização do Sistema"
+                />
+              </div>
+
+               <div className="space-y-2">
+                <label className="text-sm font-medium">Link da Imagem (Opcional)</label>
+                <Input 
+                  value={broadcastImageUrl} 
+                  onChange={e => setBroadcastImageUrl(e.target.value)} 
+                  placeholder="https://exemplo.com/imagem.jpg"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Mensagem</label>
+                <textarea 
+                  className="w-full min-h-[100px] p-3 border rounded-md"
+                  value={broadcastMessage}
+                  onChange={e => setBroadcastMessage(e.target.value)}
+                  placeholder="Digite sua mensagem para todos..."
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Destinatário</label>
+                  <Select value={targetRole} onValueChange={setTargetRole}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="TODOS">Todos os Usuários</SelectItem>
+                      <SelectItem value="MEDICO">Apenas Médicos</SelectItem>
+                      <SelectItem value="GESTOR">Apenas Gestores</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Especialidade (Opcional)</label>
+                   <Select value={targetSpecialty} onValueChange={setTargetSpecialty}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Todas" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[200px]">
+                      <SelectItem value="TODAS">Todas</SelectItem>
+                      <SelectItem value="Cardiologia">Cardiologia</SelectItem>
+                      <SelectItem value="Dermatologia">Dermatologia</SelectItem>
+                      <SelectItem value="Ginecologia">Ginecologia</SelectItem>
+                      <SelectItem value="Ortopedia">Ortopedia</SelectItem>
+                      <SelectItem value="Pediatria">Pediatria</SelectItem>
+                      <SelectItem value="Psiquiatria">Psiquiatria</SelectItem>
+                      <SelectItem value="Neurologia">Neurologia</SelectItem>
+                      <SelectItem value="Clínica Geral">Clínica Geral</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setShowBroadcastModal(false)}>Cancelar</Button>
+                <Button onClick={handleBroadcast} disabled={sending}>
+                  {sending ? "Enviando..." : "Enviar para Todos"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

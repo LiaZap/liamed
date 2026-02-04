@@ -16,6 +16,7 @@ export interface Notification {
     read: boolean;
     createdAt: string; // ISO string for storage safety
     link?: string;
+    imageUrl?: string;
 }
 
 interface NotificationContexttype {
@@ -92,7 +93,8 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
                 message: n.message,
                 read: n.read,
                 createdAt: n.createdAt,
-                link: n.link
+                link: n.link,
+                imageUrl: n.imageUrl
             }));
 
             // Generate ticket notifications
