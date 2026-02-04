@@ -29,3 +29,13 @@ export const isAdmin = (req: AuthRequest, res: Response, next: NextFunction) => 
         res.status(403).json({ error: 'Acesso negado. Requer privilégios de administrador.' });
     }
 };
+
+export const authorizeRole = (roles: string[]) => {
+    return (req: AuthRequest, res: Response, next: NextFunction) => {
+        if (req.user && roles.includes(req.user.role)) {
+            next();
+        } else {
+            res.status(403).json({ error: `Acesso negado. Requer um dos seguintes papéis: ${roles.join(', ')}` });
+        }
+    };
+};

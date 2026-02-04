@@ -1,8 +1,12 @@
 import { Request, Response } from 'express';
-import { prisma } from '../lib/prisma';
+import { prisma } from '../lib/prisma'; // Now valid
+
+interface AuthRequest extends Request {
+    user?: any;
+}
 
 // Get user's notifications
-export const listNotifications = async (req: Request, res: Response) => {
+export const listNotifications = async (req: AuthRequest, res: Response) => {
   try {
     const notifications = await prisma.notification.findMany({
       where: { userId: req.user.id },
@@ -16,7 +20,7 @@ export const listNotifications = async (req: Request, res: Response) => {
 };
 
 // Mark as read
-export const markAsRead = async (req: Request, res: Response) => {
+export const markAsRead = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     await prisma.notification.updateMany({
@@ -33,7 +37,7 @@ export const markAsRead = async (req: Request, res: Response) => {
 };
 
 // Delete notification
-export const deleteNotification = async (req: Request, res: Response) => {
+export const deleteNotification = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     await prisma.notification.deleteMany({
@@ -49,7 +53,7 @@ export const deleteNotification = async (req: Request, res: Response) => {
 };
 
 // Admin Broadcast
-export const broadcastNotification = async (req: Request, res: Response) => {
+export const broadcastNotification = async (req: AuthRequest, res: Response) => {
   try {
     const { title, message, link, type, role, specialty } = req.body;
 
