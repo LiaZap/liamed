@@ -216,6 +216,9 @@ export const getStats = async (req: AuthRequest, res: Response) => {
                 novosPacientes: newPatientsMap.get(dateStr) || 0
             });
         }
+    } catch (error) {
+           console.error("New Patients Calculation Error", error);
+    }
 
 
         const stats = {
@@ -225,10 +228,10 @@ export const getStats = async (req: AuthRequest, res: Response) => {
             consults: consultsCount,
             diagnoses: diagnosesCount,
             revenue: consultsCount * 250,
-            avgTime: 28, // Updated to match UI image example (28 mins)
-            occupancyRate, // Admin only
-            satisfactionIndex, // Admin only
-            teamPerformance, // Admin only
+            avgTime: 28,
+            occupancyRate,
+            satisfactionIndex,
+            teamPerformance,
             recentConsults,
             evolution,
             newPatientsEvolution,
