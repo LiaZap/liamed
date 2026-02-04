@@ -11,7 +11,8 @@ import {
   MessageCircle, 
   Clock, 
   CheckCircle2,
-  Search
+  Search,
+  X
 } from "lucide-react";
 import {
   Select,
@@ -82,6 +83,27 @@ export default function SupportAdmin() {
   const [broadcastImageUrl, setBroadcastImageUrl] = useState(""); // New state
   const [targetRole, setTargetRole] = useState("TODOS");
   const [targetSpecialty, setTargetSpecialty] = useState("TODAS");
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+          const response = await api.post('/upload', formData, {
+              headers: {
+                  'Content-Type': 'multipart/form-data'
+              }
+          });
+          setBroadcastImageUrl(response.data.url);
+          toast.success("Imagem carregada com sucesso!");
+      } catch (error) {
+          console.error('Upload failed:', error);
+          toast.error("Erro ao fazer upload da imagem.");
+      }
+  };
 
   const handleBroadcast = async () => {
     if (!broadcastTitle.trim() || !broadcastMessage.trim()) {
@@ -494,11 +516,38 @@ export default function SupportAdmin() {
               </div>
 
                <div className="space-y-2">
-                <label className="text-sm font-medium">Link da Imagem (Opcional)</label>
+                <label className="text-sm font-medium">Imagem do Comunicado (Opcional)</label>
+                <div className="flex gap-4 items-start">
+                    <Input 
+                      type="file" 
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="cursor-pointer"
+                    />
+                    {broadcastImageUrl && (
+                        <div className="relative h-20 w-32 border rounded-md overflow-hidden bg-slate-100 dark:bg-slate-800">
+                             <img 
+                                src={broadcastImageUrl} 
+                                alt="Preview" 
+                                className="h-full w-full object-cover"
+                             />
+                             <Button
+                                variant="destructive"
+                                size="icon"
+                                className="absolute top-1 right-1 h-6 w-6 rounded-full opacity-0 hover:opacity-100 transition-opacity"
+                                onClick={() => setBroadcastImageUrl("")}
+                             >
+                                <X className="h-3 w-3" />
+                             </Button>
+                        </div>
+                    )}
+                </div>
+                {/* Fallback manual input if needed, or just keep it simple with upload only */}
                 <Input 
                   value={broadcastImageUrl} 
                   onChange={e => setBroadcastImageUrl(e.target.value)} 
-                  placeholder="https://exemplo.com/imagem.jpg"
+                  placeholder="Ou cole o URL da imagem aqui..."
+                  className="mt-2 text-xs"
                 />
               </div>
 

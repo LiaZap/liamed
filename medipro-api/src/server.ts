@@ -40,6 +40,7 @@ import demoRoutes from './routes/demo.routes';
 import clinicRoutes from './routes/clinic.routes';
 import supportRoutes from './routes/support.routes';
 import notificationRoutes from './routes/notification.routes';
+import uploadRoutes from './routes/upload.routes';
 import swaggerUi from 'swagger-ui-express';
 import { specs } from './config/swagger';
 import path from 'path';
@@ -80,6 +81,7 @@ app.use('/api/demo', demoRoutes);
 app.use('/api/clinics', clinicRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Documentation - Protected in production
 if (process.env.NODE_ENV !== 'production') {
