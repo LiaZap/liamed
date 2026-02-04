@@ -74,6 +74,7 @@ export function Sidebar({
       key: "Dashboard",
       href: "#",
     },
+    { icon: Headphones, label: "Suporte", key: "Suporte", href: "#" },
     {
       icon: Building2,
       label: "Visão da Clínica",
@@ -150,7 +151,6 @@ export function Sidebar({
       href: "#",
     },
     { icon: Briefcase, label: "Vagas", key: "Vagas", href: "#" },
-    { icon: Headphones, label: "Suporte", key: "Suporte", href: "#" },
     {
       icon: Server,
       label: t("health.title"),
