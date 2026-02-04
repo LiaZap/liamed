@@ -362,7 +362,7 @@ export function Header({ currentPath, onNavigate }: HeaderProps) {
                                         '/consultas': 'Consultas',
                                         '/configuracoes': 'Configurações'
                                     }
-                                    const navItem = mapPath[selectedNotification.link];
+                                    const navItem = mapPath[selectedNotification.link!];
                                     if (navItem) onNavigate(navItem);
                                 }
                                 setSelectedNotification(null);
