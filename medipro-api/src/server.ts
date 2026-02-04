@@ -62,6 +62,7 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
+app.set('trust proxy', 1); // Trust first proxy (nginx/cloudflare)
 app.use(globalLimiter); // Apply global rate limit
 
 // Routes API
