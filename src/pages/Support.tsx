@@ -64,7 +64,7 @@ import SupportAdmin from "./admin/SupportAdmin";
 export default function Support() {
   const { user } = useAuth();
 
-  if (user?.role === "ADMIN" || user?.role === "GESTOR") {
+  if (user?.role === "ADMIN") {
     return <SupportAdmin />;
   }
   const [tickets, setTickets] = useState<Ticket[]>([]);
