@@ -412,11 +412,39 @@ export const listUsers = async (req: AuthRequest, res: Response) => {
         endpointId: true,
         customPrompt: true,
         lastLogin: true,
+        subscriptions: {
+            where: { status: { in: ['ACTIVE', 'TRIALING'] } },
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+            include: { plan: true }
+        }
       },
       orderBy: { name: "asc" },
     });
 
-    res.json(users);
+    // Flatten results to include plan info
+    const usersWithPlan = users.map(user => {
+        let plan = 'Essential';
+        let planStatus = 'ACTIVE';
+
+        if (user.subscriptions && user.subscriptions.length > 0) {
+            const sub = user.subscriptions[0];
+            if (sub.plan) {
+                // Normalize to Title Case (e.g. Pro, Premium)
+                plan = sub.plan.name.charAt(0).toUpperCase() + sub.plan.name.slice(1).toLowerCase();
+            }
+            planStatus = sub.status;
+        }
+
+        const { subscriptions, ...userData } = user;
+        return {
+            ...userData,
+            plan,
+            planStatus
+        };
+    });
+
+    res.json(usersWithPlan);
   } catch (error) {
     res.status(500).json({ error: "Erro ao listar usuários." });
   }

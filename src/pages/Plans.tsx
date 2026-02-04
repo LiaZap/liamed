@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Check, X, Plus, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -101,12 +101,7 @@ const INVOICES = [
   { id: "INV-003", date: "2025-10-01", amount: 49.9, status: "PAID" },
 ];
 
-const SUBSCRIPTIONS = [
-  { id: "SUB-001", user: "Dr. Silva", plan: "Pro", status: "ACTIVE" },
-  { id: "SUB-002", user: "Dra. Ana", plan: "Premium", status: "ACTIVE" },
-  { id: "SUB-003", user: "Dr. Pedro", plan: "Essential", status: "Past Due" },
-  { id: "SUB-004", user: "Clínica Vida", plan: "Pro", status: "Canceled" },
-];
+
 
 export default function Plans() {
   const { t } = useTranslation();
@@ -115,6 +110,28 @@ export default function Plans() {
     "monthly",
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [userSubscriptions, setUserSubscriptions] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (user?.role === 'ADMIN') {
+        const fetchUsers = async () => {
+            try {
+                const response = await api.get('/users');
+                // Map users to subscription format
+                const subs = response.data.map((u: any) => ({
+                    id: u.id,
+                    user: u.name,
+                    plan: u.plan || 'Essential',
+                    status: (u.planStatus === 'ACTIVE' || u.planStatus === 'TRIALING') ? 'ACTIVE' : (u.planStatus || 'ACTIVE')
+                })).filter((u:any) => u.plan !== 'Essential'); // Optional: Filter out free users if desired, or keep all
+                setUserSubscriptions(subs);
+            } catch (error) {
+                console.error('Failed to fetch subscriptions', error);
+            }
+        };
+        fetchUsers();
+    }
+  }, [user]);
 
   // Determine user's current plan (normalize to lowercase for comparison)
   const currentUserPlan = user?.plan?.toLowerCase() || null;
@@ -228,7 +245,12 @@ export default function Plans() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {SUBSCRIPTIONS.map((sub) => (
+                  {userSubscriptions.length === 0 ? (
+                    <TableRow>
+                        <TableCell colSpan={4} className="text-center py-4 text-muted-foreground">Nenhuma assinatura ativa encontrada.</TableCell>
+                    </TableRow>
+                  ) : (
+                    userSubscriptions.map((sub) => (
                     <TableRow key={sub.id} className="dark:border-slate-800">
                       <TableCell className="font-medium">{sub.user}</TableCell>
                       <TableCell>
