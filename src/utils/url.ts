@@ -5,15 +5,12 @@ export const getImageUrl = (path: string | null | undefined): string | undefined
     
     let apiUrl = import.meta.env.VITE_API_URL || 'https://liamed-api.leyiy3.easypanel.host';
     
-    // Remove /api suffix if present, as uploads are served from root
+    // Normalize URL: Remove trailing slashes and /api suffix to get the root domain
+    apiUrl = apiUrl.replace(/\/+$/, ''); // Remove trailing slashes first
     if (apiUrl.endsWith('/api')) {
-        apiUrl = apiUrl.slice(0, -4);
+        apiUrl = apiUrl.slice(0, -4); // Remove /api
     }
-    
-    // Remove trailing slash
-    if (apiUrl.endsWith('/')) {
-        apiUrl = apiUrl.slice(0, -1);
-    }
+    apiUrl = apiUrl.replace(/\/+$/, ''); // Remove any remaining trailing slash
     
     // Ensure path starts with /
     const cleanPath = path.startsWith('/') ? path : `/${path}`;
