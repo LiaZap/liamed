@@ -49,7 +49,15 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 
 // Middlewares
-app.use(helmet());
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: {
+        directives: {
+            ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+            "img-src": ["'self'", "data:", "blob:", "*"],
+        },
+    },
+}));
 // CORS: Production uses only FRONTEND_URL, dev allows localhost
 const isProduction = process.env.NODE_ENV === 'production';
 const allowedOrigins = isProduction 
