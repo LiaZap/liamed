@@ -190,7 +190,9 @@ export const getStats = async (req: AuthRequest, res: Response) => {
                     name: doc.name,
                     specialty: "Clínico Geral", // Mock, needs field in DB or relation
                     consults: consultCount,
-                    rating: (4 + Math.random()).toFixed(1), // Mock rating
+                    consults: consultCount,
+                    rating: (4 + (doc.name.length % 10) / 10).toFixed(1), // Deterministic rating based on name
+                    status: doc.status
                     status: doc.status
                 };
             }));

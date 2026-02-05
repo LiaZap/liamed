@@ -311,7 +311,10 @@ export default function ClinicDashboard() {
                                     </div>
                                     <div className="text-right">
                                         <p className="font-bold text-slate-900 dark:text-slate-100">{doctor.consults}</p>
-                                        <p className="text-xs text-muted-foreground">consultas</p>
+                                        <div className="flex items-center justify-end gap-1 text-yellow-500">
+                                            <Star className="h-3 w-3 fill-current" />
+                                            <span className="text-xs font-medium">{doctor.rating}</span>
+                                        </div>
                                     </div>
                                 </div>
                             ))}
