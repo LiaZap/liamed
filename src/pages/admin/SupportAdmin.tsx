@@ -164,7 +164,7 @@ export default function SupportAdmin() {
 
       try {
           await api.delete('/notifications/broadcast', {
-              data: {
+              params: {
                   title: broadcast.title,
                   message: broadcast.message
               }

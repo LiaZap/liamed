@@ -141,7 +141,9 @@ export const listSentBroadcasts = async (req: AuthRequest, res: Response) => {
 // Delete a broadcast (all notifications with same title/message)
 export const deleteBroadcast = async (req: AuthRequest, res: Response) => {
   try {
-    const { title, message } = req.body;
+    // Try getting from query first (safer for DELETE), then body
+    const title = (req.query.title as string) || (req.body.title as string);
+    const message = (req.query.message as string) || (req.body.message as string);
 
     console.log('Attempting to delete broadcast:', { title, message });
 
@@ -158,16 +160,7 @@ export const deleteBroadcast = async (req: AuthRequest, res: Response) => {
 
     console.log('Deleted broadcast count:', result.count);
 
-    if (result.count === 0) {
-        // Maybe try fuzzy match or check if it exists?
-        // verification debug
-        const exists = await prisma.notification.findFirst({
-            where: { title }
-        });
-        console.log('Verification - found any by title?:', exists ? 'yes' : 'no');
-    }
-
-    res.json({ success: true, count: result.count });
+    res.json({ success: true, count: result.count, message: `Deleted ${result.count} notifications` });
   } catch (error) {
     console.error('Delete broadcast error:', error);
     res.status(500).json({ error: 'Failed to delete broadcast' });
