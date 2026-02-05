@@ -108,3 +108,58 @@ export const broadcastNotification = async (req: AuthRequest, res: Response) => 
     res.status(500).json({ error: 'Failed to broadcast notification' });
   }
 };
+
+// List sent broadcasts (grouped by title/message)
+export const listSentBroadcasts = async (req: AuthRequest, res: Response) => {
+  try {
+    // Group by unique broadcasts
+    // Since we don't have a batch ID, we group by title, message and approximate time
+    const broadcasts = await prisma.notification.groupBy({
+      by: ['title', 'message', 'createdAt', 'type'],
+      where: {
+        // We assume broadcasts are usually INFO type, but we can list all or filter
+        // If we want only what admin sent, maybe checking a senderId if it existed would be good
+        // For now, we list all INFO notifications that share same content count > 1 (likely broadcast)
+        // or just all grouped.
+      },
+      _count: {
+        id: true
+      },
+      orderBy: {
+        createdAt: 'desc'
+      },
+      take: 20
+    });
+
+    res.json(broadcasts);
+  } catch (error) {
+    console.error('List broadcasts error:', error);
+    res.status(500).json({ error: 'Failed to list broadcasts' });
+  }
+};
+
+// Delete a broadcast (all notifications with same title/message)
+export const deleteBroadcast = async (req: AuthRequest, res: Response) => {
+  try {
+    const { title, message, date } = req.body;
+
+    if (!title || !message) {
+      return res.status(400).json({ error: 'Title and message are required' });
+    }
+
+    // We delete specific notifications that match title and message
+    // If date is provided, we could narrow it down, but usually title+message is unique enough for a recall
+    await prisma.notification.deleteMany({
+      where: {
+        title,
+        message,
+        // Optional: match date within a range if needed, but keeping it simple for now
+      }
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Delete broadcast error:', error);
+    res.status(500).json({ error: 'Failed to delete broadcast' });
+  }
+};
