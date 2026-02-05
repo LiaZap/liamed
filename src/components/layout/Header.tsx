@@ -19,6 +19,7 @@ import { ptBR } from "date-fns/locale"
 import { cn } from "@/lib/utils"
 import LogoLiamed from "@/assets/logo-liamed.png"
 import LogoLiamedWhite from "@/assets/logo-liamed-white.png"
+import { getImageUrl } from "@/utils/url"
 import {
     Dialog,
     DialogContent,
@@ -332,7 +333,7 @@ export function Header({ currentPath, onNavigate }: HeaderProps) {
                         {selectedNotification?.imageUrl && (
                             <div className="relative aspect-video w-full overflow-hidden rounded-lg border">
                                 <img 
-                                    src={selectedNotification.imageUrl} 
+                                    src={getImageUrl(selectedNotification.imageUrl)} 
                                     alt="Notification" 
                                     className="object-cover w-full h-full"
                                 />

@@ -24,6 +24,7 @@ import {
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { getImageUrl } from "@/utils/url";
 
 interface Ticket {
   id: string;
@@ -530,7 +531,7 @@ export default function SupportAdmin() {
                     {broadcastImageUrl && (
                         <div className="relative h-20 w-32 border rounded-md overflow-hidden bg-slate-100 dark:bg-slate-800">
                              <img 
-                                src={broadcastImageUrl} 
+                                src={getImageUrl(broadcastImageUrl)} 
                                 alt="Preview" 
                                 className="h-full w-full object-cover"
                              />
