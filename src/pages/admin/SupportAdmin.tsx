@@ -12,7 +12,8 @@ import {
   Clock, 
   CheckCircle2,
   Search,
-  X
+  X,
+  Trash2 // Imported Trash2 for delete icon
 } from "lucide-react";
 import {
   Select,
@@ -21,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; // Imported Tabs
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -81,10 +83,13 @@ export default function SupportAdmin() {
   const [showBroadcastModal, setShowBroadcastModal] = useState(false);
   const [broadcastTitle, setBroadcastTitle] = useState("");
   const [broadcastMessage, setBroadcastMessage] = useState("");
-  const [broadcastImageUrl, setBroadcastImageUrl] = useState(""); // New state
-  const [broadcastLink, setBroadcastLink] = useState(""); // Link state
+  const [broadcastImageUrl, setBroadcastImageUrl] = useState(""); 
+  const [broadcastLink, setBroadcastLink] = useState(""); 
   const [targetRole, setTargetRole] = useState("TODOS");
   const [targetSpecialty, setTargetSpecialty] = useState("TODAS");
+  
+  // Sent Broadcasts List State
+  const [broadcasts, setBroadcasts] = useState<any[]>([]);
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
@@ -119,11 +124,11 @@ export default function SupportAdmin() {
       await api.post('/notifications/broadcast', {
         title: broadcastTitle,
         message: broadcastMessage,
-        imageUrl: broadcastImageUrl || undefined, // Send image URL
+        imageUrl: broadcastImageUrl || undefined, 
         role: targetRole === "TODOS" ? undefined : targetRole,
         specialty: targetSpecialty === "TODAS" ? undefined : targetSpecialty,
         type: "INFO",
-        link: broadcastLink || undefined // Send link
+        link: broadcastLink || undefined 
       });
 
       toast.success("Comunicado enviado com sucesso!");
@@ -134,6 +139,7 @@ export default function SupportAdmin() {
       setBroadcastLink("");
       setTargetRole("TODOS");
       setTargetSpecialty("TODAS");
+      loadBroadcasts(); // Refresh list after sending
     } catch (error) {
       console.error(error);
       toast.error("Erro ao enviar comunicado");
@@ -142,12 +148,47 @@ export default function SupportAdmin() {
     }
   };
 
+  // Load sent broadcasts
+  const loadBroadcasts = async () => {
+    try {
+        const response = await api.get('/notifications/broadcasts');
+        setBroadcasts(response.data);
+    } catch (error) {
+        console.error("Erro ao carregar comunicados:", error);
+    }
+  };
+
+  // Delete broadcast
+  const deleteBroadcast = async (broadcast: any) => {
+      if (!confirm("Tem certeza que deseja apagar este comunicado para TODOS os usuários?")) return;
+
+      try {
+          await api.delete('/notifications/broadcast', {
+              data: {
+                  title: broadcast.title,
+                  message: broadcast.message
+              }
+          });
+          toast.success("Comunicado apagado com sucesso");
+          loadBroadcasts();
+      } catch (error) {
+          toast.error("Erro ao apagar comunicado");
+      }
+  };
+
   // Auto-refresh tickets
   useEffect(() => {
     loadTickets();
     const interval = setInterval(loadTickets, 30000); // 30s poll
     return () => clearInterval(interval);
   }, [statusFilter]);
+
+  // Load broadcasts on mount if admin/gestor
+  useEffect(() => {
+     if (user?.role === 'ADMIN' || user?.role === 'GESTOR') {
+         loadBroadcasts();
+     }
+  }, []);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -241,7 +282,7 @@ export default function SupportAdmin() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <Headphones className="h-6 w-6 text-primary" />
-          Central de Suporte
+          Central de Suporte & Comunicados
         </h1>
         <div className="flex items-center gap-4">
           <Button onClick={() => setShowBroadcastModal(true)}>
@@ -251,257 +292,237 @@ export default function SupportAdmin() {
         </div>
       </div>
 
-      {showBroadcastModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <Card className="w-[500px] max-h-[90vh] overflow-y-auto">
-            <CardContent className="p-6 space-y-4">
-              <div className="flex justify-between items-center">
-                <h2 className="text-xl font-bold">Enviar Comunicado</h2>
-                <Button variant="ghost" size="sm" onClick={() => setShowBroadcastModal(false)}>✕</Button>
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Título</label>
-                <Input 
-                  value={broadcastTitle} 
-                  onChange={e => setBroadcastTitle(e.target.value)} 
-                  placeholder="Ex: Atualização do Sistema"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Mensagem</label>
-                <textarea 
-                  className="w-full min-h-[100px] p-3 border rounded-md"
-                  value={broadcastMessage}
-                  onChange={e => setBroadcastMessage(e.target.value)}
-                  placeholder="Digite sua mensagem para todos..."
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Destinatário</label>
-                  <Select value={targetRole} onValueChange={setTargetRole}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="TODOS">Todos os Usuários</SelectItem>
-                      <SelectItem value="MEDICO">Apenas Médicos</SelectItem>
-                      <SelectItem value="GESTOR">Apenas Gestores</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Especialidade (Opcional)</label>
-                   <Select value={targetSpecialty} onValueChange={setTargetSpecialty}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Todas" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-[200px]">
-                      <SelectItem value="TODAS">Todas</SelectItem>
-                      {[
-                        "Cardiologia", "Dermatologia", "Ginecologia", "Ortopedia", 
-                        "Cardiologia", "Dermatologia", "Ginecologia", "Ortopedia", 
-                        "Pediatria", "Psiquiatria", "Neurologia", "Clínico Geral"
-                      ].map(spec => (
-                        <SelectItem key={spec} value={spec}>{spec}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="pt-2 flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setShowBroadcastModal(false)}>Cancelar</Button>
-                <Button onClick={handleBroadcast} disabled={sending}>
-                  {sending ? "Enviando..." : "Enviar para Todos"}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      <div className="flex gap-6 flex-1 h-full min-h-0">
-        {/* Sidebar List */}
-        <Card className="w-1/3 flex flex-col h-full">
-          <div className="p-4 border-b space-y-4">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Buscar tickets..." className="pl-9" />
-            </div>
-            <div className="flex gap-2 overflow-x-auto pb-1">
-              {['ALL', 'OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'].map((status) => (
-                <Badge
-                  key={status}
-                  variant={statusFilter === status ? "default" : "outline"}
-                  className="cursor-pointer whitespace-nowrap"
-                  onClick={() => setStatusFilter(status)}
-                >
-                  {status === 'ALL' ? 'Todos' : statusLabels[status]}
-                </Badge>
-              ))}
-            </div>
+      <Tabs defaultValue="tickets" className="flex-1 flex flex-col min-h-0">
+          <div className="flex items-center px-1 mb-4">
+            <TabsList>
+                <TabsTrigger value="tickets">Tickets de Suporte</TabsTrigger>
+                <TabsTrigger value="broadcasts" onClick={loadBroadcasts}>Comunicados Enviados</TabsTrigger>
+            </TabsList>
           </div>
 
-          <CardContent className="flex-1 overflow-y-auto p-0">
-            {loading ? (
-              <div className="flex justify-center p-8">
-                <Clock className="h-6 w-6 animate-spin text-muted-foreground" />
-              </div>
-            ) : tickets.length === 0 ? (
-              <div className="p-8 text-center text-muted-foreground">
-                Nenhum ticket encontrado
-              </div>
-            ) : (
-              <div className="divide-y">
-                {tickets.map((ticket) => (
-                  <div
-                    key={ticket.id}
-                    onClick={() => loadTicketDetails(ticket.id)}
-                    className={`p-4 cursor-pointer transition-colors hover:bg-muted/50 ${
-                      selectedTicket?.id === ticket.id ? "bg-muted" : ""
-                    }`}
-                  >
-                    <div className="flex justify-between items-start mb-1">
-                      <span className="font-semibold line-clamp-1">{ticket.user?.name}</span>
-                      <Badge className={`${statusColors[ticket.status]} text-[10px] px-1 py-0`}>
-                        {statusLabels[ticket.status]}
-                      </Badge>
+          <TabsContent value="tickets" className="flex-1 flex gap-6 min-h-0 m-0 h-full">
+              {/* Existing Support Ticket UI - Sidebar List */}
+              <div className="flex gap-6 flex-1 h-full min-h-0 w-full">
+                <Card className="w-1/3 flex flex-col h-full">
+                  <div className="p-4 border-b space-y-4">
+                    <div className="relative">
+                      <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <Input placeholder="Buscar tickets..." className="pl-9" />
                     </div>
-                    <p className="text-sm font-medium text-foreground/90 line-clamp-1">
-                      {ticket.subject}
-                    </p>
-                    <div className="flex justify-between items-center mt-2">
-                      <p className="text-xs text-muted-foreground line-clamp-1 max-w-[70%]">
-                        {ticket.messages[0]?.content}
-                      </p>
-                      {ticket.unreadCount > 0 && (
-                        <Badge variant="destructive" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px]">
-                          {ticket.unreadCount}
+                    <div className="flex gap-2 overflow-x-auto pb-1">
+                      {['ALL', 'OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'].map((status) => (
+                        <Badge
+                          key={status}
+                          variant={statusFilter === status ? "default" : "outline"}
+                          className="cursor-pointer whitespace-nowrap"
+                          onClick={() => setStatusFilter(status)}
+                        >
+                          {status === 'ALL' ? 'Todos' : statusLabels[status]}
                         </Badge>
-                      )}
+                      ))}
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
 
-        {/* Chat Area */}
-        <Card className="flex-1 flex flex-col h-full">
-          {selectedTicket ? (
-            <>
-              {/* Chat Header */}
-              <div className="p-4 border-b flex items-center justify-between bg-muted/30">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                    {selectedTicket.user.name.substring(0, 2).toUpperCase()}
-                  </div>
-                  <div>
-                    <h3 className="font-semibold">{selectedTicket.user.name}</h3>
-                    <p className="text-xs text-muted-foreground">
-                      {selectedTicket.user.email} • {selectedTicket.user.specialty || "Sem especialidade"}
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <Select
-                    value={selectedTicket.status}
-                    onValueChange={updateStatus}
-                  >
-                    <SelectTrigger className="w-[140px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="OPEN">Aberto</SelectItem>
-                      <SelectItem value="IN_PROGRESS">Em Andamento</SelectItem>
-                      <SelectItem value="RESOLVED">Resolvido</SelectItem>
-                      <SelectItem value="CLOSED">Fechado</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              {/* Messages */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50 dark:bg-slate-900/20">
-                <div className="text-center my-4">
-                  <span className="text-xs text-muted-foreground bg-slate-200 dark:bg-slate-800 px-3 py-1 rounded-full">
-                    Ticket criado: {formatDate(selectedTicket.messages[0]?.createdAt)} • Assunto: {selectedTicket.subject}
-                  </span>
-                </div>
-
-                {selectedTicket.messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex ${
-                      message.isFromAdmin ? "justify-end" : "justify-start"
-                    }`}
-                  >
-                    <div className={`flex flex-col max-w-[70%] ${message.isFromAdmin ? "items-end" : "items-start"}`}>
-                      <div
-                        className={`rounded-lg p-3 shadow-sm ${
-                          message.isFromAdmin
-                            ? "bg-blue-600 text-white rounded-br-none"
-                            : "bg-white dark:bg-slate-800 border rounded-bl-none"
-                        }`}
-                      >
-                        <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                  <CardContent className="flex-1 overflow-y-auto p-0">
+                    {loading ? (
+                      <div className="flex justify-center p-8">
+                        <Clock className="h-6 w-6 animate-spin text-muted-foreground" />
                       </div>
-                      <span className="text-[10px] text-muted-foreground mt-1">
-                        {message.isFromAdmin ? "Você" : message.sender.name} • {format(new Date(message.createdAt), "HH:mm")}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-                <div ref={messagesEndRef} />
-              </div>
+                    ) : tickets.length === 0 ? (
+                      <div className="p-8 text-center text-muted-foreground">
+                        Nenhum ticket encontrado
+                      </div>
+                    ) : (
+                      <div className="divide-y text-left">
+                        {tickets.map((ticket) => (
+                          <div
+                            key={ticket.id}
+                            onClick={() => loadTicketDetails(ticket.id)}
+                            className={`p-4 cursor-pointer transition-colors hover:bg-muted/50 ${
+                              selectedTicket?.id === ticket.id ? "bg-muted" : ""
+                            }`}
+                          >
+                            <div className="flex justify-between items-start mb-1">
+                              <span className="font-semibold line-clamp-1">{ticket.user?.name}</span>
+                              <Badge className={`${statusColors[ticket.status]} text-[10px] px-1 py-0`}>
+                                {statusLabels[ticket.status]}
+                              </Badge>
+                            </div>
+                            <p className="text-sm font-medium text-foreground/90 line-clamp-1">
+                              {ticket.subject}
+                            </p>
+                            <div className="flex justify-between items-center mt-2">
+                              <p className="text-xs text-muted-foreground line-clamp-1 max-w-[70%]">
+                                {ticket.messages[0]?.content}
+                              </p>
+                              {ticket.unreadCount > 0 && (
+                                <Badge variant="destructive" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px]">
+                                  {ticket.unreadCount}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
 
-              {/* Input Area */}
-              <div className="p-4 border-t bg-background">
-                {selectedTicket.status === "CLOSED" ? (
-                  <div className="bg-slate-100 dark:bg-slate-800 p-3 rounded-lg text-center text-sm text-muted-foreground flex items-center justify-center gap-2">
-                    <CheckCircle2 className="h-4 w-4" />
-                    Este ticket está encerrado e não aceita novas respostas.
-                    <Button variant="link" size="sm" onClick={() => updateStatus("IN_PROGRESS")}>
-                      Reabrir ticket
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Digite sua resposta..."
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                      onKeyDown={handleKeyPress}
-                      disabled={sending}
-                      className="flex-1"
-                    />
-                    <Button 
-                      onClick={sendMessage} 
-                      disabled={!newMessage.trim() || sending}
-                      size="icon"
-                    >
-                      <Send className="h-4 w-4" />
-                    </Button>
-                  </div>
-                )}
+                {/* Chat Area */}
+                <Card className="flex-1 flex flex-col h-full">
+                  {selectedTicket ? (
+                    <>
+                      {/* Chat Header */}
+                      <div className="p-4 border-b flex items-center justify-between bg-muted/30">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                            {selectedTicket.user.name.substring(0, 2).toUpperCase()}
+                          </div>
+                          <div>
+                            <h3 className="font-semibold">{selectedTicket.user.name}</h3>
+                            <p className="text-xs text-muted-foreground">
+                              {selectedTicket.user.email} • {selectedTicket.user.specialty || "Sem especialidade"}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                          <Select
+                            value={selectedTicket.status}
+                            onValueChange={updateStatus}
+                          >
+                            <SelectTrigger className="w-[140px]">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="OPEN">Aberto</SelectItem>
+                              <SelectItem value="IN_PROGRESS">Em Andamento</SelectItem>
+                              <SelectItem value="RESOLVED">Resolvido</SelectItem>
+                              <SelectItem value="CLOSED">Fechado</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      {/* Messages */}
+                      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50 dark:bg-slate-900/20">
+                        <div className="text-center my-4">
+                          <span className="text-xs text-muted-foreground bg-slate-200 dark:bg-slate-800 px-3 py-1 rounded-full">
+                            Ticket criado: {formatDate(selectedTicket.messages[0]?.createdAt)} • Assunto: {selectedTicket.subject}
+                          </span>
+                        </div>
+
+                        {selectedTicket.messages.map((message) => (
+                          <div
+                            key={message.id}
+                            className={`flex ${
+                              message.isFromAdmin ? "justify-end" : "justify-start"
+                            }`}
+                          >
+                            <div className={`flex flex-col max-w-[70%] ${message.isFromAdmin ? "items-end" : "items-start"}`}>
+                              <div
+                                className={`rounded-lg p-3 shadow-sm ${
+                                  message.isFromAdmin
+                                    ? "bg-blue-600 text-white rounded-br-none"
+                                    : "bg-white dark:bg-slate-800 border rounded-bl-none"
+                                }`}
+                              >
+                                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                              </div>
+                              <span className="text-[10px] text-muted-foreground mt-1">
+                                {message.isFromAdmin ? "Você" : message.sender.name} • {format(new Date(message.createdAt), "HH:mm")}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                        <div ref={messagesEndRef} />
+                      </div>
+
+                      {/* Input Area */}
+                      <div className="p-4 border-t bg-background">
+                        {selectedTicket.status === "CLOSED" ? (
+                          <div className="bg-slate-100 dark:bg-slate-800 p-3 rounded-lg text-center text-sm text-muted-foreground flex items-center justify-center gap-2">
+                            <CheckCircle2 className="h-4 w-4" />
+                            Este ticket está encerrado e não aceita novas respostas.
+                            <Button variant="link" size="sm" onClick={() => updateStatus("IN_PROGRESS")}>
+                              Reabrir ticket
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="flex gap-2">
+                            <Input
+                              placeholder="Digite sua resposta..."
+                              value={newMessage}
+                              onChange={(e) => setNewMessage(e.target.value)}
+                              onKeyDown={handleKeyPress}
+                              disabled={sending}
+                              className="flex-1"
+                            />
+                            <Button 
+                              onClick={sendMessage} 
+                              disabled={!newMessage.trim() || sending}
+                              size="icon"
+                            >
+                              <Send className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground p-8">
+                      <MessageCircle className="h-16 w-16 mb-4 opacity-20" />
+                      <h3 className="text-lg font-medium">Selecione um ticket</h3>
+                      <p>Escolha uma conversa na lista para ver os detalhes e responder.</p>
+                    </div>
+                  )}
+                </Card>
               </div>
-            </>
-          ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground p-8">
-              <MessageCircle className="h-16 w-16 mb-4 opacity-20" />
-              <h3 className="text-lg font-medium">Selecione um ticket</h3>
-              <p>Escolha uma conversa na lista para ver os detalhes e responder.</p>
-            </div>
-          )}
-        </Card>
-      </div>
+          </TabsContent>
+
+          {/* Broadcasts Tab Content */}
+          <TabsContent value="broadcasts" className="flex-1 m-0">
+             <Card className="h-full">
+                <CardContent className="p-6">
+                    <h2 className="text-xl font-bold mb-4">Histórico de Comunicados Enviados</h2>
+                    {broadcasts.length === 0 ? (
+                        <div className="text-center py-12 text-muted-foreground">
+                            Nenhum comunicado enviado recentemente.
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {broadcasts.map((broadcast, index) => (
+                                <div key={index} className="flex items-start justify-between p-4 border rounded-lg bg-slate-50 dark:bg-slate-900/50">
+                                    <div className="space-y-1">
+                                        <div className="flex items-center gap-2">
+                                            <h3 className="font-semibold">{broadcast.title}</h3>
+                                            <span className="text-xs text-muted-foreground">
+                                                {format(new Date(broadcast.createdAt), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                                            </span>
+                                        </div>
+                                        <p className="text-sm text-muted-foreground">{broadcast.message}</p>
+                                        <div className="flex gap-2 mt-2">
+                                            <Badge variant="outline" className="text-xs">
+                                                Enviado para: {broadcast._count.id} usuários
+                                            </Badge>
+                                        </div>
+                                    </div>
+                                    <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                        onClick={() => deleteBroadcast(broadcast)}
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </CardContent>
+             </Card>
+          </TabsContent>
+      </Tabs>
 
       {showBroadcastModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -599,14 +620,12 @@ export default function SupportAdmin() {
                     </SelectTrigger>
                     <SelectContent className="max-h-[200px]">
                       <SelectItem value="TODAS">Todas</SelectItem>
-                      <SelectItem value="Cardiologia">Cardiologia</SelectItem>
-                      <SelectItem value="Dermatologia">Dermatologia</SelectItem>
-                      <SelectItem value="Ginecologia">Ginecologia</SelectItem>
-                      <SelectItem value="Ortopedia">Ortopedia</SelectItem>
-                      <SelectItem value="Pediatria">Pediatria</SelectItem>
-                      <SelectItem value="Psiquiatria">Psiquiatria</SelectItem>
-                      <SelectItem value="Neurologia">Neurologia</SelectItem>
-                      <SelectItem value="Clínica Geral">Clínica Geral</SelectItem>
+                      {[
+                        "Cardiologia", "Dermatologia", "Ginecologia", "Ortopedia", 
+                        "Pediatria", "Psiquiatria", "Neurologia", "Clínico Geral"
+                      ].map(spec => (
+                        <SelectItem key={spec} value={spec}>{spec}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
