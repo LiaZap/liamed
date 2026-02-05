@@ -113,16 +113,21 @@ export default function Login() {
                     </div>
                 </CardContent>
                 <CardFooter className="flex flex-col gap-2 border-t p-4 dark:border-slate-800">
-                    <p className="text-xs text-muted-foreground text-center dark:text-slate-400">
-                        Ainda não tem uma conta?
-                    </p>
-                    <Link 
-                        to="/register" 
-                        className="text-sm font-medium text-primary hover:underline dark:text-blue-400"
-                    >
-                        Criar conta gratuita →
-                    </Link>
-                </CardFooter>
+                    <p className="px-8 text-center text-sm text-muted-foreground">
+              <Link
+                to="/register"
+                className="hover:text-brand underline underline-offset-4"
+              >
+                Criar conta de Médico
+              </Link>
+              {" · "}
+              <Link
+                to="/register-clinic"
+                className="hover:text-brand underline underline-offset-4"
+              >
+                Cadastrar Clínica
+              </Link>
+            </p>    </CardFooter>
             </Card>
         </div>
     )

@@ -419,7 +419,13 @@ export default function Register() {
                         </p>
                     </form>
 
-                    <div className="text-center pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <div className="text-center pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
+                        <p className="text-sm text-slate-600 dark:text-slate-400">
+                             É gestor de clínica?{" "}
+                            <Link to="/register-clinic" className="font-semibold text-slate-700 dark:text-slate-300 hover:underline">
+                                Cadastre sua Clínica
+                            </Link>
+                        </p>
                         <p className="text-sm text-slate-600 dark:text-slate-400">
                             Já tem uma conta?{" "}
                             <Link to="/login" className="font-semibold text-[#0066CC] hover:underline">

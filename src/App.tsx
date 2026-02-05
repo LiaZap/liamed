@@ -11,6 +11,7 @@ import Prompts from "@/pages/Prompts"
 import Profile from "@/pages/Profile"
 import Login from "@/pages/Login"
 import Register from "@/pages/Register"
+import RegisterGestor from "@/pages/RegisterGestor"
 import ForgotPassword from "@/pages/ForgotPassword"
 import ResetPassword from "@/pages/ResetPassword"
 import Notifications from "@/pages/Notifications"
@@ -84,6 +85,7 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/register-clinic" element={<RegisterGestor />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/*" element={<AuthenticatedApp />} />

@@ -92,8 +92,8 @@ export const login = async (req: Request, res: Response) => {
 // Register new doctor
 export const register = async (req: Request, res: Response) => {
     try {
-        const { name, email, password, specialty, phone, birthDate } = req.body;
-        console.log(`[AUTH] Register attempt for: ${email}`);
+        const { name, email, password, specialty, phone, birthDate, role, clinicName, clinicCnpj, clinicPhone } = req.body;
+        console.log(`[AUTH] Register attempt for: ${email} as ${role || 'MEDICO'}`);
 
         // Validations
         if (!name || !email || !password) {
@@ -129,13 +129,41 @@ export const register = async (req: Request, res: Response) => {
             }
         }
 
+        // Handle Clinic Creation for GESTOR
+        if (role === 'GESTOR') {
+            if (!clinicName) {
+                return res.status(400).json({ error: 'Nome da clínica é obrigatório para cadastro de gestor.' });
+            }
+
+            // Generate simple invite code: FIRST3 + RAND4 (e.g., CLI-5921)
+            const prefix = clinicName.substring(0, 3).toUpperCase().replace(/[^A-Z]/g, 'CLI');
+            const random = Math.floor(1000 + Math.random() * 9000); // 1000-9999
+            const generatedInviteCode = `${prefix}-${random}`;
+
+            try {
+                const newClinic = await prisma.clinic.create({
+                    data: {
+                        name: clinicName,
+                        cnpj: clinicCnpj || null,
+                        phone: clinicPhone || null,
+                        inviteCode: generatedInviteCode
+                    }
+                });
+                clinicId = newClinic.id;
+                console.log(`[AUTH] Created new clinic: ${clinicName} (${generatedInviteCode})`);
+            } catch (err) {
+                console.error("Error creating clinic:", err);
+                return res.status(500).json({ error: 'Erro ao criar clínica. Verifique se o CNPJ já existe.' });
+            }
+        }
+
         // Create user
         const user = await prisma.user.create({
             data: {
                 name,
                 email,
                 password: hashedPassword,
-                role: 'MEDICO',
+                role: role === 'GESTOR' ? 'GESTOR' : 'MEDICO',
                 status: 'ATIVO',
                 specialty: specialty || null,
                 phone: phone || null,
