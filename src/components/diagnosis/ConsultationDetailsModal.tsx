@@ -54,8 +54,8 @@ export function ConsultationDetailsModal({ isOpen, onClose, data }: Consultation
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <DialogContent className="max-w-[850px] w-full p-0 gap-0 overflow-hidden bg-white dark:bg-slate-900 dark:border-slate-800 rounded-xl">
-                {/* Premium Header */}
-                <DialogHeader className="p-0">
+                {/* Premium Header - HIDDEN ON PRINT */}
+                <DialogHeader className="p-0 print:hidden">
                     <div className="bg-gradient-to-r from-[#0066CC] to-[#0088FF] p-6 text-white">
                         <div className="flex items-center gap-4">
                             <div className="h-14 w-14 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
@@ -79,6 +79,26 @@ export function ConsultationDetailsModal({ isOpen, onClose, data }: Consultation
                         </div>
                     </div>
                 </DialogHeader>
+
+                {/* PRINT HEADER - VISIBLE ONLY ON PRINT */}
+                <div className="hidden print:block p-8 pb-4 border-b mb-6">
+                    <div className="flex justify-between items-end">
+                        <div className="flex items-center gap-3">
+                            {/* Logo Placeholder or Text */}
+                            <div className="h-10 w-10 bg-black rounded-md flex items-center justify-center text-white font-bold text-xl">L</div>
+                            <div>
+                                <h1 className="text-2xl font-bold text-black leading-none">LIAMED</h1>
+                                <p className="text-xs text-gray-500 uppercase tracking-wider mt-1">Inteligência Clínica</p>
+                            </div>
+                        </div>
+                        <div className="text-right">
+                            <h2 className="text-xl font-bold text-black">{data?.patientName}</h2>
+                            <p className="text-sm text-gray-500">
+                                {data ? new Date(data.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''}
+                            </p>
+                        </div>
+                    </div>
+                </div>
 
                 {/* Body */}
                 {data && (
@@ -208,8 +228,8 @@ export function ConsultationDetailsModal({ isOpen, onClose, data }: Consultation
                     </div>
                 )}
 
-                {/* Footer */}
-                <DialogFooter className="p-5 border-t dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30">
+                {/* Footer - HIDDEN ON PRINT */}
+                <DialogFooter className="p-5 border-t dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30 print:hidden">
                     <Button
                         className="bg-gradient-to-r from-[#0066CC] to-[#0088FF] hover:from-[#0055AA] hover:to-[#0077EE] text-white min-w-[180px] h-11 rounded-lg font-medium shadow-lg shadow-blue-500/20"
                         onClick={onClose}
