@@ -157,6 +157,13 @@ export default function Protocols() {
                                 </ScrollArea>
                                 
                                 <DialogFooter className="mt-4 pt-2 border-t">
+                                    {selectedProtocol.link && (
+                                      <Button variant="outline" asChild>
+                                        <a href={selectedProtocol.link} target="_blank" rel="noopener noreferrer" className="gap-2">
+                                          Ler na íntegra <ChevronRight className="h-4 w-4" />
+                                        </a>
+                                      </Button>
+                                    )}
                                     <Button onClick={() => setSelectedProtocol(null)}>Fechar</Button>
                                 </DialogFooter>
                             </>

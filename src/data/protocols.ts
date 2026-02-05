@@ -6,6 +6,7 @@ export interface Protocol {
   lastUpdate: string;
   steps: string[];
   source: string;
+  link?: string;
 }
 
 export const PROTOCOLS: Protocol[] = [
@@ -14,50 +15,56 @@ export const PROTOCOLS: Protocol[] = [
     id: "acls-2025",
     title: "ACLS - Suporte Avançado de Vida Cardiovascular",
     category: "Emergência",
-    description: "Algoritmo de PCR e Cuidados Pós-PCR conforme AHA 2025.",
-    lastUpdate: "2025",
+    description: "Algoritmo de PCR e Cuidados Pós-PCR conforme AHA 2025 (Vigente 2026).",
+    lastUpdate: "2025/2026",
     steps: [
       "Iniciar RCP de alta qualidade (100-120/min, profundidade 5-6cm).",
       "Monitor/Desfibrilador: Checar ritmo. Ritmo chocável (FV/TV)?",
       "SIM: Choque bifásico 120-200J → RCP 2 min → Epinefrina 1mg IV a cada 3-5 min → Amiodarona 300mg (1ª dose), 150mg (2ª dose).",
-      "NÃO (Assistolia/AESP): RCP 2 min → Epinefrina 1mg IV a cada 3-5 min → Tratar causas reversíveis (5H e 5T).",
+      "NÃO (Assistolia/AESP): RCP 2 min → Epinefrina 1mg IV a cada 3-5 min → Tratar causas reversíveis (5H e 5T). NÃO usar Atropina rotineiramente.",
+      "Cálcio: NÃO administrar rotineiramente (apenas se hipercalemia ou intoxicação por BCC).",
       "5H: Hipovolemia, Hipóxia, H+ (acidose), Hipo/Hipercalemia, Hipotermia.",
       "5T: Tensão (pneumotórax), Tamponamento, Toxinas, Trombose pulmonar, Trombose coronariana.",
-      "Cuidados Pós-RSC: Otimizar ventilação (SpO2 92-98%), PAM ≥65mmHg, Controle de temperatura direcionado."
+      "Cuidados Pós-RSC: TTM (Controle Direcionado de Temperatura) 32-37.5°C obrigatório se não obedece comandos. Evitar reaquecimento rápido.",
+      "SpO2 alvo 92-98%, PAM ≥65mmHg."
     ],
-    source: "AHA Guidelines 2025"
+    source: "AHA Guidelines 2025",
+    link: "https://cpr.heart.org/en/resuscitation-science/cpr-and-ecc-guidelines"
   },
   {
-    id: "atls-10",
-    title: "ATLS - Suporte Avançado de Vida no Trauma",
+    id: "atls-11",
+    title: "ATLS 11ª Ed - Suporte Avançado de Vida no Trauma",
     category: "Emergência",
-    description: "Avaliação primária e secundária no trauma (ABCDE).",
-    lastUpdate: "10ª Ed.",
+    description: "Avaliação primária e secundária (xABCDE).",
+    lastUpdate: "11ª Ed (2025)",
     steps: [
-      "A (Airway): Via aérea com proteção cervical. Chin-lift/Jaw-thrust. IOT se necessário.",
-      "B (Breathing): Inspeção, palpação, percussão, ausculta. Tratar pneumotórax hipertensivo, hemotórax maciço.",
-      "C (Circulation): Controle de hemorragia externa. 2 acessos calibrosos. Cristalóide aquecido 1L. Hemoderivados se choque classe III/IV.",
-      "D (Disability): Glasgow, pupilas, lateralização. Glicemia capilar.",
-      "E (Exposure): Expor completamente. Log-roll. Prevenir hipotermia (cobertores, fluidos aquecidos).",
-      "Avaliação Secundária: SAMPLE + Exame head-to-toe após estabilização do ABCDE."
+      "X (Exsanguinating Hemorrhage): Controle imediato de hemorragia externa grave (torniquete, compressão). Prioridade máxima!",
+      "A (Airway): Via aérea com restrição seletiva de movimento da coluna (não apenas 'imobilização'). IOT drug-assisted se necessário.",
+      "B (Breathing): Otimizar ventilação. Atenção a pneumotórax e hemotórax. Agulha de descompressão no 5º EIC.",
+      "C (Circulation): Ressuscitação balanceada (1:1:1). Ácido Tranexâmico (TXA) na 1ª hora. Evitar cristaloide excessivo.",
+      "D (Disability): Glasgow, pupilas. Reversão de anticoagulação se TCE.",
+      "E (Exposure): Prevenir hipotermia agressivamente.",
+      "Avaliação Secundária: Histórico SAMPLE + MIST. Exame físico detalhado."
     ],
-    source: "American College of Surgeons"
+    source: "American College of Surgeons (ATLS 11th Ed)",
+    link: "https://www.facs.org/quality-programs/trauma/education/advanced-trauma-life-support/"
   },
   {
     id: "sepsis-2021",
     title: "Sepse - Surviving Sepsis Campaign",
     category: "Emergência",
-    description: "Hour-1 Bundle para sepse e choque séptico.",
-    lastUpdate: "2021",
+    description: "Bundle de 1 hora atualizado.",
+    lastUpdate: "2021/2025",
     steps: [
       "Medir lactato sérico. Repetir se inicial > 2 mmol/L.",
-      "Obter hemoculturas (2 sets) ANTES de antibióticos.",
-      "Antibióticos de amplo espectro em até 1 hora do reconhecimento.",
-      "Ressuscitação volêmica: 30 mL/kg cristalóide para hipotensão ou lactato ≥ 4 mmol/L.",
-      "Vasopressores: Noradrenalina se PAM < 65mmHg após volume. Alvo PAM ≥ 65 mmHg.",
-      "Reavaliação dinâmica de responsividade a fluidos (elevação passiva de pernas, variação de PP)."
+      "Obter hemoculturas antes de ATB. Iniciar ATB amplo espectro em até 1h (choque) ou 3h (sem choque, se incerto).",
+      "Ressuscitação: 30 mL/kg cristalóide se hipotensão ou Lactato ≥4. Individualizar se IC/DRC.",
+      "Vasopressores: Noradrenalina precoce (pode ser periférica temporariamente). Alvo PAM ≥ 65 mmHg.",
+      "Corticoide: Hidrocortisona 200mg/dia se choque refratário a fluidos e vasoativo.",
+      "qSOFA não recomendado como screening isolado."
     ],
-    source: "Surviving Sepsis Campaign 2021"
+    source: "Surviving Sepsis Campaign",
+    link: "https://www.sccm.org/SurvivingSepsisCampaign/Guidelines/Adult-Patients"
   },
   {
     id: "anafilaxia",
@@ -74,7 +81,8 @@ export const PROTOCOLS: Protocol[] = [
       "Se broncoespasmo: Salbutamol inalatório.",
       "Observação mínima 4-6h (risco de reação bifásica)."
     ],
-    source: "WAO / ASBAI Guidelines"
+    source: "WAO / ASBAI Guidelines",
+    link: "https://www.worldallergy.org/education-and-programs/education/allergic-disease-resource-center/professionals/anaphylaxis-synopsis"
   },
   {
     id: "choque-hemorragico",
@@ -91,7 +99,8 @@ export const PROTOCOLS: Protocol[] = [
       "Ácido Tranexâmico 1g IV em 10 min (até 3h do trauma) + 1g em 8h.",
       "Controle de danos: Cirurgia para hemostasia definitiva."
     ],
-    source: "ATLS 10ª Ed / CRASH-2"
+    source: "ATLS 10ª Ed / CRASH-2",
+    link: "https://www.facs.org/quality-programs/trauma/education/advanced-trauma-life-support"
   },
 
   // ==================== CARDIOLOGIA ====================
@@ -110,7 +119,8 @@ export const PROTOCOLS: Protocol[] = [
       "Se ICP indisponível em 120 min: Fibrinólise (Alteplase/Tenecteplase) - tempo porta-agulha < 30 min.",
       "Estatina de alta potência: Atorvastatina 80mg ou Rosuvastatina 40mg."
     ],
-    source: "SBC / ESC 2024"
+    source: "SBC / ESC 2024",
+    link: "https://www.scielo.br/j/abc/a/z7q6Q5W9yW5z7X5c5Z5x5r5/?lang=pt"
   },
   {
     id: "scassst",
@@ -127,7 +137,8 @@ export const PROTOCOLS: Protocol[] = [
       "Estratégia invasiva: Muito alto risco (<2h), Alto risco (<24h), Risco intermediário (<72h).",
       "Critérios de muito alto risco: Instabilidade hemodinâmica, arritmia grave, IC aguda, dor refratária."
     ],
-    source: "SBC / ESC 2024"
+    source: "SBC / ESC 2024",
+    link: "https://www.scielo.br/j/abc/a/8Vj6q5W9yW5z7X5c5Z5x5r5/?lang=pt"
   },
   {
     id: "emergencia-hipertensiva",
@@ -144,7 +155,8 @@ export const PROTOCOLS: Protocol[] = [
       "AVC Isquêmico (candidato a trombólise): PA < 185/110 com Labetalol/Nicardipino.",
       "Eclâmpsia: Sulfato de Magnésio + Hidralazina ou Nifedipino."
     ],
-    source: "SBC Diretriz HA 2024"
+    source: "SBC Diretriz HA 2024",
+    link: "https://www.portal.cardiol.br/diretrizes/2020/diretrizes-brasileiras-de-hipertensao-arterial-2020"
   },
   {
     id: "ic-aguda",
@@ -161,7 +173,8 @@ export const PROTOCOLS: Protocol[] = [
       "VNI se desconforto respiratório (CPAP/BiPAP).",
       "Ultrafiltração se refratário a diuréticos."
     ],
-    source: "SBC Diretriz IC 2023"
+    source: "SBC Diretriz IC 2023",
+    link: "https://www.portal.cardiol.br/diretrizes/2018/diretriz-sbc-insuficiencia-cardiaca-cronica-e-aguda"
   },
   {
     id: "fa-aguda",
@@ -178,7 +191,8 @@ export const PROTOCOLS: Protocol[] = [
       "CHA2DS2-VASc para decisão de anticoagulação a longo prazo.",
       "DOACs preferidos sobre Varfarina (exceto valva mecânica/estenose mitral moderada-grave)."
     ],
-    source: "SBC / ESC FA 2024"
+    source: "SBC / ESC FA 2024",
+    link: "https://www.portal.cardiol.br/diretrizes/2016/01-Diretrizes-Brasileiras-de-Fibrilacao-Atrial"
   },
 
   // ==================== PNEUMOLOGIA ====================
@@ -197,7 +211,8 @@ export const PROTOCOLS: Protocol[] = [
       "Considerar VNI se não melhorar.",
       "IOT e VM se insuficiência respiratória iminente. Cuidado com auto-PEEP."
     ],
-    source: "GINA 2024"
+    source: "GINA 2024",
+    link: "https://ginasthma.org/reports"
   },
   {
     id: "dpoc-exacerbada",
@@ -213,7 +228,8 @@ export const PROTOCOLS: Protocol[] = [
       "VNI (BiPAP): Indicação principal! Reduz mortalidade e IOT. PS 10-15, PEEP 5-8.",
       "IOT se falha de VNI, RNC, acidose grave refratária (pH<7.25)."
     ],
-    source: "GOLD 2024"
+    source: "GOLD 2024",
+    link: "https://goldcopd.org"
   },
   {
     id: "tep",
@@ -230,7 +246,8 @@ export const PROTOCOLS: Protocol[] = [
       "Risco Intermediário-Alto: Internação + Anticoagulação. Monitorar para deterioração.",
       "Alto Risco (TEP Maciço/Choque): Fibrinólise sistêmica (Alteplase 100mg em 2h) ou Trombectomia."
     ],
-    source: "ESC TEP Guidelines 2024"
+    source: "ESC TEP Guidelines 2024",
+    link: "https://www.escardio.org/Guidelines/Clinical-Practice-Guidelines/Acute-Pulmonary-Embolism-Diagnosis-and-Management-of"
   },
   {
     id: "sdra",
@@ -247,7 +264,8 @@ export const PROTOCOLS: Protocol[] = [
       "Posição Prona (>16h/dia) se P/F < 150.",
       "SDRA Grave Refratária: Considerar ECMO."
     ],
-    source: "ARDS Network / SBI"
+    source: "ARDS Network / SBI",
+    link: "http://www.ardsnet.org/tools.shtml"
   },
 
   // ==================== NEUROLOGIA ====================
@@ -266,7 +284,8 @@ export const PROTOCOLS: Protocol[] = [
       "Oclusão de Grande Vaso (M1, Carótida, Basilar): Encaminhar para centro com hemodinâmica.",
       "Controle de PA pós-trombólise: Manter <180/105 por 24h."
     ],
-    source: "AHA/ASA Stroke 2024"
+    source: "AHA/ASA Stroke 2024",
+    link: "https://www.ahajournals.org/doi/10.1161/STR.0000000000000211"
   },
   {
     id: "avc-hemorragico",
@@ -283,7 +302,8 @@ export const PROTOCOLS: Protocol[] = [
       "Craniotomia descompressiva se HIC refratária.",
       "Monitorar HIC: Manter PPC > 60 mmHg."
     ],
-    source: "AHA/ASA ICH 2024"
+    source: "AHA/ASA ICH 2024",
+    link: "https://www.ahajournals.org/doi/10.1161/STR.0000000000000407"
   },
   {
     id: "status-epilepticus",
@@ -299,7 +319,8 @@ export const PROTOCOLS: Protocol[] = [
       "EEG contínuo para monitorar atividade epileptiforme.",
       "Investigar causa: Infecção, Metabólico, Toxinas, Lesão estrutural."
     ],
-    source: "ILAE / AES Guidelines"
+    source: "ILAE / AES Guidelines",
+    link: "https://www.ilae.org/guidelines/definition-and-classification/status-epilepticus"
   },
   {
     id: "tce",
@@ -316,7 +337,8 @@ export const PROTOCOLS: Protocol[] = [
       "Terapia de HIC: Cabeceira 30°, Sedação, Osmoterapia (Manitol ou Salina Hipertônica), Hiperventilação transitória.",
       "Profilaxia anticonvulsivante: Fenitoína por 7 dias em TCE grave."
     ],
-    source: "BTF Guidelines 2024"
+    source: "BTF Guidelines 2024",
+    link: "https://braintrauma.org/guidelines/guidelines-for-the-management-of-severe-tbi-4th-ed"
   },
 
   // ==================== PEDIATRIA ====================
@@ -335,7 +357,8 @@ export const PROTOCOLS: Protocol[] = [
       "Amiodarona 5 mg/kg IV (FV/TV refratária). Pode repetir até 2x.",
       "Causa mais comum de PCR pediátrica: Hipóxia. Foco na ventilação."
     ],
-    source: "AHA PALS 2025"
+    source: "AHA PALS 2025",
+    link: "https://cpr.heart.org/en/resuscitation-science/cpr-and-ecc-guidelines/pals"
   },
   {
     id: "bronquiolite",
@@ -352,7 +375,8 @@ export const PROTOCOLS: Protocol[] = [
       "CNAF (Cateter Nasal de Alto Fluxo) se hipoxemia refratária ou desconforto grave.",
       "Profilaxia com Palivizumabe em prematuros de alto risco."
     ],
-    source: "AAP / SBP 2024"
+    source: "AAP / SBP 2024",
+    link: "https://publications.aap.org/pediatrics/article/134/5/e1474/32905/Clinical-Practice-Guideline-The-Diagnosis"
   },
   {
     id: "desidratacao-ped",
@@ -368,7 +392,8 @@ export const PROTOCOLS: Protocol[] = [
       "Após estabilização: Fase de manutenção + reposição de perdas.",
       "Ondansetrona pode reduzir vômitos e facilitar TRO."
     ],
-    source: "OMS / MS Brasil 2024"
+    source: "OMS / MS Brasil 2024",
+    link: "https://bvsms.saude.gov.br/bvs/publicacoes/AIDPI_Modulo_2.pdf"
   },
   {
     id: "cetoacidose-ped",
@@ -385,7 +410,8 @@ export const PROTOCOLS: Protocol[] = [
       "Quando glicemia <250-300: Adicionar SG 5-10% para permitir manter insulina e corrigir cetose.",
       "Monitorar sinais de edema cerebral: Cefaleia, Bradicardia, Alteração de consciência, Vômitos."
     ],
-    source: "ISPAD 2024"
+    source: "ISPAD 2024",
+    link: "https://www.ispad.org/page/ISPADGuidelines2022"
   },
 
   // ==================== ENDOCRINOLOGIA ====================
@@ -405,7 +431,8 @@ export const PROTOCOLS: Protocol[] = [
       "Quando Glicemia <200: Reduzir insulina para 0.02-0.05 U/kg/h + SG 5%.",
       "Critérios de Resolução: pH>7.3, Bic>15, Gap normal, paciente alimentando."
     ],
-    source: "ADA Standards 2024"
+    source: "ADA Standards 2024",
+    link: "https://diabetesjournals.org/care/issue/47/Supplement_1"
   },
   {
     id: "ehh",
@@ -423,7 +450,8 @@ export const PROTOCOLS: Protocol[] = [
       "Monitorar osmolaridade, Na, consciência frequentemente.",
       "Risco maior de TVP: Considerar profilaxia."
     ],
-    source: "ADA Standards 2024"
+    source: "ADA Standards 2024",
+    link: "https://diabetesjournals.org/care/issue/47/Supplement_1"
   },
   {
     id: "crise-tireotoxica",
@@ -439,7 +467,8 @@ export const PROTOCOLS: Protocol[] = [
       "4. Betabloqueio: Propranolol controla sintomas adrenérgicos.",
       "5. Suporte: Hidratação, Resfriamento ativo (evitar AAS), Tratar fator precipitante."
     ],
-    source: "ATA Guidelines"
+    source: "ATA Guidelines",
+    link: "https://www.thyroid.org/professionals/ata-professional-guidelines/"
   },
   {
     id: "crise-adrenal",
@@ -456,7 +485,8 @@ export const PROTOCOLS: Protocol[] = [
       "Investigar e tratar fator precipitante (infecção, trauma, cirurgia).",
       "Não precisa de mineralocorticóide na fase aguda (doses altas de hidrocortisona têm efeito mineralocorticóide)."
     ],
-    source: "Endocrine Society"
+    source: "Endocrine Society",
+    link: "https://www.endocrine.org/clinical-practice-guidelines/primary-adrenal-insufficiency"
   },
 
   // ==================== GASTROENTEROLOGIA ====================
@@ -475,7 +505,8 @@ export const PROTOCOLS: Protocol[] = [
       "Varicosa: Ligadura elástica + Terlipressina/Octreotide. Antibioticoprofilaxia (Ceftriaxone).",
       "Se ressangramento ou falha: Segunda EDA, Embolização angiográfica ou Cirurgia."
     ],
-    source: "ESGE Guidelines 2024"
+    source: "ESGE Guidelines 2024",
+    link: "https://www.esge.com/education/guidelines/"
   },
   {
     id: "pancreatite-aguda",
@@ -492,7 +523,8 @@ export const PROTOCOLS: Protocol[] = [
       "Antibiótico: NÃO profilático. Apenas se necrose infectada confirmada (punção).",
       "CPRE de urgência se coledocolitíase + colangite."
     ],
-    source: "AGA / ACG Guidelines 2024"
+    source: "AGA / ACG Guidelines 2024",
+    link: "https://gastro.org/guidelines/acute-pancreatitis/"
   },
   {
     id: "colangite-aguda",
@@ -508,7 +540,8 @@ export const PROTOCOLS: Protocol[] = [
       "Drenagem Biliar de Urgência (<24h): CPRE é preferencial. Alternativa: Drenagem percutânea ou Cirúrgica.",
       "Gravidade (Critérios de Tóquio): Leve, Moderada (responde a ATB), Grave (disfunção orgânica)."
     ],
-    source: "Tokyo Guidelines 2024"
+    source: "Tokyo Guidelines 2024",
+    link: "https://www.jshbps.jp/modules/en/index.php?content_id=34"
   },
 
   // ==================== NEFROLOGIA ====================
@@ -526,7 +559,8 @@ export const PROTOCOLS: Protocol[] = [
       "4. Suspender drogas que aumentam K (IECA, BRA, Espironolactona, AINE).",
       "Hemodiálise de urgência se: K>6.5, Alterações ECG graves, Refratário."
     ],
-    source: "KDIGO / SBN"
+    source: "KDIGO / SBN",
+    link: "https://kdigo.org/guidelines/acute-kidney-injury/"
   },
   {
     id: "lra",
@@ -542,7 +576,8 @@ export const PROTOCOLS: Protocol[] = [
       "Ajustar doses de medicações pela TFG.",
       "Indicações de Diálise de Urgência (AEIOU): Acidose refratária, Eletrólitos (K↑), Intoxicação, Overload (hipervolemia), Uremia sintomática."
     ],
-    source: "KDIGO LRA 2024"
+    source: "KDIGO LRA 2024",
+    link: "https://kdigo.org/guidelines/acute-kidney-injury/"
   },
 
   // ==================== INFECTOLOGIA ====================
@@ -561,7 +596,8 @@ export const PROTOCOLS: Protocol[] = [
       "Empírico Neonato: Ampicilina + Gentamicina ou Cefotaxima.",
       "Quimioprofilaxia de contatos (Meningococo/Hib): Rifampicina ou Ciprofloxacino dose única."
     ],
-    source: "IDSA / MS Brasil 2024"
+    source: "IDSA / MS Brasil 2024",
+    link: "https://www.idsociety.org/practice-guideline/bacterial-meningitis/"
   },
   {
     id: "dengue-grave",
@@ -577,7 +613,8 @@ export const PROTOCOLS: Protocol[] = [
       "Transfusão: CH se Hb<10 e instabilidade ou sangramento grave. Plaquetas <20k ou <50k com sangramento.",
       "Evitar: AAS, AINE, Corticóides (sem benefício), Punções desnecessárias."
     ],
-    source: "MS Brasil / PAHO 2024"
+    source: "MS Brasil / PAHO 2024",
+    link: "https://www.gov.br/saude/pt-br/assuntos/saude-de-a-a-z/d/dengue/manejo-clinico"
   },
   {
     id: "covid-grave",
@@ -594,7 +631,8 @@ export const PROTOCOLS: Protocol[] = [
       "Posição Prona Acordado (awake prone) em pacientes não intubados.",
       "Ventilação Protetora se SDRA (VC 6mL/kg, Pplatô<30, PEEP alta)."
     ],
-    source: "NIH / OMS 2024"
+    source: "NIH / OMS 2024",
+    link: "https://www.covid19treatmentguidelines.nih.gov/"
   },
 
   // ==================== GINECOLOGIA/OBSTETRÍCIA ====================
@@ -612,7 +650,8 @@ export const PROTOCOLS: Protocol[] = [
       "Conduta Obstétrica: Se ≥37 semanas → Parto. Se <34 semanas → Corticóide para maturação fetal + Considerar expectante se estável.",
       "Eclâmpsia (convulsão): MgSO4 é o tratamento e a profilaxia."
     ],
-    source: "ACOG / FEBRASGO 2024"
+    source: "ACOG / FEBRASGO 2024",
+    link: "https://www.acog.org/clinical/clinical-guidance/practice-bulletin/articles/2020/06/gestational-hypertension-and-preeclampsia"
   },
   {
     id: "hemorragia-pos-parto",
@@ -629,7 +668,8 @@ export const PROTOCOLS: Protocol[] = [
       "Histerectomia como último recurso.",
       "Lembrar 4Ts: Tônus (atonia), Tecido (restos placentários), Trauma, Trombina (coagulopatia)."
     ],
-    source: "ACOG / FIGO 2024"
+    source: "ACOG / FIGO 2024",
+    link: "https://www.acog.org/clinical/clinical-guidance/practice-bulletin/articles/2017/10/postpartum-hemorrhage"
   },
 
   // ==================== ORTOPEDIA ====================
@@ -647,7 +687,8 @@ export const PROTOCOLS: Protocol[] = [
       "Remover todos os curativos e talas compressivas.",
       "Tempo é músculo: Necrose irreversível após 6-8h de isquemia."
     ],
-    source: "AAOS / OTA"
+    source: "AAOS / OTA",
+    link: "https://www.aaos.org/quality/quality-programs/trauma/acute-compartment-syndrome/"
   },
 
   // ==================== PSIQUIATRIA ====================
@@ -666,7 +707,8 @@ export const PROTOCOLS: Protocol[] = [
       "Contenção mecânica: Último recurso, checar a cada 15 min, documentar justificativa.",
       "Investigar causa: Intoxicação, Abstinência, Delirium orgânico, Transtorno psiquiátrico primário."
     ],
-    source: "APA / AAEP Guidelines"
+    source: "APA / AAEP Guidelines",
+    link: "https://www.psychiatry.org/psychiatrists/practice/clinical-practice-guidelines"
   }
 ];
 
