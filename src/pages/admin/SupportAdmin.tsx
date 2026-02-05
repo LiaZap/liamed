@@ -99,7 +99,8 @@ export default function SupportAdmin() {
                   'Content-Type': 'multipart/form-data'
               }
           });
-          setBroadcastImageUrl(response.data.url);
+          const fullUrl = getImageUrl(response.data.url);
+          setBroadcastImageUrl(fullUrl || response.data.url);
           toast.success("Imagem carregada com sucesso!");
       } catch (error) {
           console.error('Upload failed:', error);
@@ -532,7 +533,7 @@ export default function SupportAdmin() {
                     {broadcastImageUrl && (
                         <div className="relative h-20 w-32 border rounded-md overflow-hidden bg-slate-100 dark:bg-slate-800">
                              <img 
-                                src={getImageUrl(broadcastImageUrl)} 
+                                src={broadcastImageUrl} 
                                 alt="Preview" 
                                 className="h-full w-full object-cover"
                              />
