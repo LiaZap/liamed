@@ -277,7 +277,7 @@ export default function Plans() {
                         </Button>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )))}
                 </TableBody>
               </Table>
             </div>
