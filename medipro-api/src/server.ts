@@ -90,7 +90,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Serve uploads
-app.use('/uploads', express.static(path.resolve(__dirname, '..', 'uploads')));
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // Rota de health check
 app.get('/health', (req, res) => {
