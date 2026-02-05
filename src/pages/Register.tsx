@@ -228,7 +228,7 @@ export default function Register() {
                 {/* Content - Vertically Centered */}
                 <div className="relative z-10 flex-1 flex flex-col justify-center max-w-lg">
                     <h1 className="text-4xl font-semibold tracking-tight leading-tight mb-6">
-                        A inteligência clínica <br/>que o seu consultório merece.
+                        A inteligência clínica <br/>que o seu atendimento merece.
                     </h1>
                     <ul className="space-y-4 text-lg text-blue-100/90">
                         <li className="flex items-center gap-3">
