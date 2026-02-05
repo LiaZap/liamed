@@ -177,7 +177,7 @@ export function ConsultationDetailsModal({ isOpen, onClose, data }: Consultation
                                                     href={href}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 underline font-medium hover:text-blue-800 dark:hover:text-blue-300 break-all"
+                                                    className="inline-flex items-center gap-1 text-blue-700 dark:text-blue-400 underline font-semibold hover:text-blue-900 dark:hover:text-blue-300 break-all"
                                                     {...props}
                                                 >
                                                     {children}
@@ -185,28 +185,28 @@ export function ConsultationDetailsModal({ isOpen, onClose, data }: Consultation
                                                 </a>
                                             ),
                                             p: ({ node, ...props }) => (
-                                                <p {...props} className="my-4 leading-relaxed text-slate-700 dark:text-slate-300" />
+                                                <p {...props} className="my-4 leading-relaxed text-slate-800 dark:text-slate-200" />
                                             ),
                                             strong: ({ node, ...props }) => (
-                                                <strong {...props} className="font-bold text-slate-900 dark:text-slate-100" />
+                                                <strong {...props} className="font-bold text-slate-950 dark:text-white" />
                                             ),
                                             h1: ({ node, ...props }) => (
-                                                <h1 {...props} className="text-xl font-bold text-slate-900 dark:text-slate-100 mt-6 mb-4 pb-2 border-b border-slate-200 dark:border-slate-700" />
+                                                <h1 {...props} className="text-xl font-bold text-slate-950 dark:text-white mt-6 mb-4 pb-2 border-b border-slate-200 dark:border-slate-700" />
                                             ),
                                             h2: ({ node, ...props }) => (
-                                                <h2 {...props} className="text-lg font-bold text-slate-900 dark:text-slate-100 mt-6 mb-3" />
+                                                <h2 {...props} className="text-lg font-bold text-slate-900 dark:text-white mt-6 mb-3" />
                                             ),
                                             h3: ({ node, ...props }) => (
-                                                <h3 {...props} className="text-base font-bold text-slate-800 dark:text-slate-200 mt-5 mb-2" />
+                                                <h3 {...props} className="text-base font-bold text-slate-800 dark:text-slate-100 mt-5 mb-2 uppercase tracking-wide" />
                                             ),
                                             ul: ({ node, ...props }) => (
-                                                <ul {...props} className="my-3 pl-5 space-y-2" />
+                                                <ul {...props} className="my-3 pl-5 space-y-2 list-disc marker:text-slate-500" />
                                             ),
                                             ol: ({ node, ...props }) => (
-                                                <ol {...props} className="my-3 pl-5 space-y-2" />
+                                                <ol {...props} className="my-3 pl-5 space-y-2 list-decimal marker:text-slate-500" />
                                             ),
                                             li: ({ node, ...props }) => (
-                                                <li {...props} className="text-slate-700 dark:text-slate-300 leading-relaxed" />
+                                                <li {...props} className="text-slate-800 dark:text-slate-200 leading-relaxed" />
                                             ),
                                         }}
                                     >
