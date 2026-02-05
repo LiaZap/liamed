@@ -141,23 +141,33 @@ export const listSentBroadcasts = async (req: AuthRequest, res: Response) => {
 // Delete a broadcast (all notifications with same title/message)
 export const deleteBroadcast = async (req: AuthRequest, res: Response) => {
   try {
-    const { title, message, date } = req.body;
+    const { title, message } = req.body;
+
+    console.log('Attempting to delete broadcast:', { title, message });
 
     if (!title || !message) {
       return res.status(400).json({ error: 'Title and message are required' });
     }
 
-    // We delete specific notifications that match title and message
-    // If date is provided, we could narrow it down, but usually title+message is unique enough for a recall
-    await prisma.notification.deleteMany({
+    const result = await prisma.notification.deleteMany({
       where: {
         title,
         message,
-        // Optional: match date within a range if needed, but keeping it simple for now
       }
     });
 
-    res.json({ success: true });
+    console.log('Deleted broadcast count:', result.count);
+
+    if (result.count === 0) {
+        // Maybe try fuzzy match or check if it exists?
+        // verification debug
+        const exists = await prisma.notification.findFirst({
+            where: { title }
+        });
+        console.log('Verification - found any by title?:', exists ? 'yes' : 'no');
+    }
+
+    res.json({ success: true, count: result.count });
   } catch (error) {
     console.error('Delete broadcast error:', error);
     res.status(500).json({ error: 'Failed to delete broadcast' });
