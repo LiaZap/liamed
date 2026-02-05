@@ -15,6 +15,7 @@ export const MEDICAL_SPECIALTIES = [
     "Cirurgia Torácica",
     "Cirurgia Vascular",
     "Clínica Médica",
+    "Clínico Geral",
     "Coloproctologia",
     "Dermatologia",
     "Endocrinologia e Metabologia",

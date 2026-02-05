@@ -303,7 +303,8 @@ export default function SupportAdmin() {
                       <SelectItem value="TODAS">Todas</SelectItem>
                       {[
                         "Cardiologia", "Dermatologia", "Ginecologia", "Ortopedia", 
-                        "Pediatria", "Psiquiatria", "Neurologia", "Clínica Geral"
+                        "Cardiologia", "Dermatologia", "Ginecologia", "Ortopedia", 
+                        "Pediatria", "Psiquiatria", "Neurologia", "Clínico Geral"
                       ].map(spec => (
                         <SelectItem key={spec} value={spec}>{spec}</SelectItem>
                       ))}

@@ -78,6 +78,7 @@ export default function Showcase() {
                                             <SelectItem value="neuro">Neurologia</SelectItem>
                                             <SelectItem value="orto">Ortopedia</SelectItem>
                                             <SelectItem value="ped">Pediatria</SelectItem>
+                                            <SelectItem value="cg">Clínico Geral</SelectItem>
                                         </SelectGroup>
                                     </SelectContent>
                                 </Select>
