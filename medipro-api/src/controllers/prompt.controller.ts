@@ -26,14 +26,22 @@ export const createPrompt = async (req: Request, res: Response) => {
     const { name, category, content, isActive } = req.body;
 
     try {
-        const prompt = await prisma.prompt.create({
-            data: {
-                name,
-                category,
-                content,
-                isActive: isActive ?? true
+            if (isActive) {
+                // Deactivate others in same category
+                await prisma.prompt.updateMany({
+                    where: { category, isActive: true },
+                    data: { isActive: false }
+                });
             }
-        });
+
+            const prompt = await prisma.prompt.create({
+                data: {
+                    name,
+                    category,
+                    content,
+                    isActive: isActive ?? true
+                }
+            });
 
         const authReq = req as AuthRequest;
         if (authReq.user) {
@@ -60,15 +68,27 @@ export const updatePrompt = async (req: Request, res: Response) => {
     const { name, category, content, isActive } = req.body;
 
     try {
-        const prompt = await prisma.prompt.update({
-            where: { id },
-            data: {
-                name,
-                category,
-                content,
-                isActive
+            if (isActive) {
+                // Deactivate others in same category (excluding current if creating new version, but here it's update)
+                await prisma.prompt.updateMany({
+                    where: { 
+                        category, 
+                        isActive: true,
+                        id: { not: id } // Don't deactivate self if already active (redundant but safe)
+                    },
+                    data: { isActive: false }
+                });
             }
-        });
+
+            const prompt = await prisma.prompt.update({
+                where: { id },
+                data: {
+                    name,
+                    category,
+                    content,
+                    isActive
+                }
+            });
 
         const authReq = req as AuthRequest;
         if (authReq.user) {

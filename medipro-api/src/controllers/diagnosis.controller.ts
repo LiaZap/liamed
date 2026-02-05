@@ -141,13 +141,14 @@ export const createDiagnosis = async (req: Request, res: Response) => {
             }
         });
 
-        if (activePrompt) {
-            systemInstruction = activePrompt.content;
-            console.log(`[Diagnosis] Using prompt from table: "${activePrompt.name}"`);
-        } else if (doctor.customPrompt) {
-            // 2. Fallback: User's custom prompt
+        if (doctor.customPrompt) {
+            // 1. Priority: User's custom prompt
             systemInstruction = doctor.customPrompt;
             console.log(`[Diagnosis] Using user's custom prompt`);
+        } else if (activePrompt) {
+            // 2. Fallback: Global active PROMPT from table
+            systemInstruction = activePrompt.content;
+            console.log(`[Diagnosis] Using prompt from table: "${activePrompt.name}"`);
         } else {
             // 3. Default fallback
             systemInstruction = `Você é um assistente médico especialista (IA) do sistema LIAMED. 
