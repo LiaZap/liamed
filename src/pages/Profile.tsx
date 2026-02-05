@@ -25,6 +25,14 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+import { MEDICAL_SPECIALTIES } from "@/constants/specialties"
 import api from "@/services/api"
 import { useAuth } from "@/contexts/AuthContext"
 import { toast } from "sonner"
@@ -49,6 +57,7 @@ export default function Profile({ onNavigate }: ProfileProps) {
     const [editPhone, setEditPhone] = useState("")
     const [editAddress, setEditAddress] = useState("")
     const [editBio, setEditBio] = useState("")
+    const [editSpecialty, setEditSpecialty] = useState("")
     const [saving, setSaving] = useState(false)
 
     // Password Visibility States
@@ -73,6 +82,7 @@ export default function Profile({ onNavigate }: ProfileProps) {
             setEditPhone(response.data.phone || "")
             setEditAddress(response.data.address || "")
             setEditBio(response.data.biography || "")
+            setEditSpecialty(response.data.specialty || "")
         } catch (error) {
             console.error("Failed to fetch profile", error)
             toast.error("Erro ao carregar perfil")
@@ -88,7 +98,8 @@ export default function Profile({ onNavigate }: ProfileProps) {
                 name: editName,
                 phone: editPhone,
                 address: editAddress,
-                biography: editBio
+                biography: editBio,
+                specialty: editSpecialty
             }
             // Use user.id from state or auth context
             const userId = user?.id || authUser?.id
@@ -291,6 +302,24 @@ export default function Profile({ onNavigate }: ProfileProps) {
                             />
                             <p className="text-xs text-right text-muted-foreground">{editBio.length}/500</p>
                         </div>
+
+                        {(displayUser.role === 'MEDICO' || displayUser.specialty) && (
+                            <div className="space-y-2">
+                                <Label className="dark:text-slate-300">Especialidade</Label>
+                                <Select value={editSpecialty} onValueChange={setEditSpecialty}>
+                                    <SelectTrigger className="dark:bg-slate-800 dark:border-slate-700">
+                                        <SelectValue placeholder="Selecione sua especialidade" />
+                                    </SelectTrigger>
+                                    <SelectContent className="max-h-[200px]">
+                                        {MEDICAL_SPECIALTIES.map((spec) => (
+                                            <SelectItem key={spec} value={spec}>
+                                                {spec}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
                     </div>
                     <DialogFooter className="p-6 border-t sm:justify-end gap-2 bg-slate-50/50 dark:bg-slate-900/50 dark:border-slate-800">
                         <Button variant="ghost" onClick={() => setIsEditModalOpen(false)} className="dark:text-slate-400">{t('common.cancel')}</Button>

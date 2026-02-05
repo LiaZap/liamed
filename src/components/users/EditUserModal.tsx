@@ -23,6 +23,7 @@ import { Switch } from "@/components/ui/switch";
 import { Menu } from "lucide-react";
 import { SelectPromptModal } from "./SelectPromptModal";
 import { useAuth } from "@/contexts/AuthContext";
+import { MEDICAL_SPECIALTIES } from "@/constants/specialties";
 
 interface EditUserModalProps {
   isOpen: boolean;
@@ -233,129 +234,11 @@ export function EditUserModal({
                     <SelectValue placeholder="Selecione uma especialidade..." />
                   </SelectTrigger>
                   <SelectContent className="max-h-[300px]">
-                    <SelectItem value="Acupuntura">Acupuntura</SelectItem>
-                    <SelectItem value="Alergia e Imunologia">
-                      Alergia e Imunologia
-                    </SelectItem>
-                    <SelectItem value="Anestesiologia">
-                      Anestesiologia
-                    </SelectItem>
-                    <SelectItem value="Angiologia">Angiologia</SelectItem>
-                    <SelectItem value="Cardiologia">Cardiologia</SelectItem>
-                    <SelectItem value="Cirurgia Cardiovascular">
-                      Cirurgia Cardiovascular
-                    </SelectItem>
-                    <SelectItem value="Cirurgia da Mão">
-                      Cirurgia da Mão
-                    </SelectItem>
-                    <SelectItem value="Cirurgia de Cabeça e Pescoço">
-                      Cirurgia de Cabeça e Pescoço
-                    </SelectItem>
-                    <SelectItem value="Cirurgia do Aparelho Digestivo">
-                      Cirurgia do Aparelho Digestivo
-                    </SelectItem>
-                    <SelectItem value="Cirurgia Geral">
-                      Cirurgia Geral
-                    </SelectItem>
-                    <SelectItem value="Cirurgia Oncológica">
-                      Cirurgia Oncológica
-                    </SelectItem>
-                    <SelectItem value="Cirurgia Pediátrica">
-                      Cirurgia Pediátrica
-                    </SelectItem>
-                    <SelectItem value="Cirurgia Plástica">
-                      Cirurgia Plástica
-                    </SelectItem>
-                    <SelectItem value="Cirurgia Torácica">
-                      Cirurgia Torácica
-                    </SelectItem>
-                    <SelectItem value="Cirurgia Vascular">
-                      Cirurgia Vascular
-                    </SelectItem>
-                    <SelectItem value="Clínica Médica">
-                      Clínica Médica
-                    </SelectItem>
-                    <SelectItem value="Coloproctologia">
-                      Coloproctologia
-                    </SelectItem>
-                    <SelectItem value="Dermatologia">Dermatologia</SelectItem>
-                    <SelectItem value="Endocrinologia e Metabologia">
-                      Endocrinologia e Metabologia
-                    </SelectItem>
-                    <SelectItem value="Endoscopia">Endoscopia</SelectItem>
-                    <SelectItem value="Gastroenterologia">
-                      Gastroenterologia
-                    </SelectItem>
-                    <SelectItem value="Genética Médica">
-                      Genética Médica
-                    </SelectItem>
-                    <SelectItem value="Geriatria">Geriatria</SelectItem>
-                    <SelectItem value="Ginecologia e Obstetrícia">
-                      Ginecologia e Obstetrícia
-                    </SelectItem>
-                    <SelectItem value="Hematologia e Hemoterapia">
-                      Hematologia e Hemoterapia
-                    </SelectItem>
-                    <SelectItem value="Homeopatia">Homeopatia</SelectItem>
-                    <SelectItem value="Infectologia">Infectologia</SelectItem>
-                    <SelectItem value="Mastologia">Mastologia</SelectItem>
-                    <SelectItem value="Medicina de Emergência">
-                      Medicina de Emergência
-                    </SelectItem>
-                    <SelectItem value="Medicina de Família e Comunidade">
-                      Medicina de Família e Comunidade
-                    </SelectItem>
-                    <SelectItem value="Medicina do Trabalho">
-                      Medicina do Trabalho
-                    </SelectItem>
-                    <SelectItem value="Medicina do Tráfego">
-                      Medicina do Tráfego
-                    </SelectItem>
-                    <SelectItem value="Medicina Esportiva">
-                      Medicina Esportiva
-                    </SelectItem>
-                    <SelectItem value="Medicina Física e Reabilitação">
-                      Medicina Física e Reabilitação
-                    </SelectItem>
-                    <SelectItem value="Medicina Intensiva">
-                      Medicina Intensiva
-                    </SelectItem>
-                    <SelectItem value="Medicina Legal e Perícia Médica">
-                      Medicina Legal e Perícia Médica
-                    </SelectItem>
-                    <SelectItem value="Medicina Nuclear">
-                      Medicina Nuclear
-                    </SelectItem>
-                    <SelectItem value="Medicina Preventiva e Social">
-                      Medicina Preventiva e Social
-                    </SelectItem>
-                    <SelectItem value="Nefrologia">Nefrologia</SelectItem>
-                    <SelectItem value="Neurocirurgia">Neurocirurgia</SelectItem>
-                    <SelectItem value="Neurologia">Neurologia</SelectItem>
-                    <SelectItem value="Nutrologia">Nutrologia</SelectItem>
-                    <SelectItem value="Oftalmologia">Oftalmologia</SelectItem>
-                    <SelectItem value="Oncologia Clínica">
-                      Oncologia Clínica
-                    </SelectItem>
-                    <SelectItem value="Ortopedia e Traumatologia">
-                      Ortopedia e Traumatologia
-                    </SelectItem>
-                    <SelectItem value="Otorrinolaringologia">
-                      Otorrinolaringologia
-                    </SelectItem>
-                    <SelectItem value="Patologia">Patologia</SelectItem>
-                    <SelectItem value="Patologia Clínica/Medicina Laboratorial">
-                      Patologia Clínica/Medicina Laboratorial
-                    </SelectItem>
-                    <SelectItem value="Pediatria">Pediatria</SelectItem>
-                    <SelectItem value="Pneumologia">Pneumologia</SelectItem>
-                    <SelectItem value="Psiquiatria">Psiquiatria</SelectItem>
-                    <SelectItem value="Radiologia e Diagnóstico por Imagem">
-                      Radiologia e Diagnóstico por Imagem
-                    </SelectItem>
-                    <SelectItem value="Radioterapia">Radioterapia</SelectItem>
-                    <SelectItem value="Reumatologia">Reumatologia</SelectItem>
-                    <SelectItem value="Urologia">Urologia</SelectItem>
+                    {MEDICAL_SPECIALTIES.map((spec) => (
+                      <SelectItem key={spec} value={spec}>
+                        {spec}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
