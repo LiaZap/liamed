@@ -325,17 +325,17 @@ export function Header({ currentPath, onNavigate }: HeaderProps) {
             </div>
 
             <Dialog open={!!selectedNotification} onOpenChange={(open) => !open && setSelectedNotification(null)}>
-                <DialogContent className="sm:max-w-[500px]">
+                <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>{selectedNotification?.title}</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                         {selectedNotification?.imageUrl && (
-                            <div className="relative aspect-video w-full overflow-hidden rounded-lg border">
+                            <div className="relative w-full overflow-hidden rounded-lg border bg-slate-50 dark:bg-slate-900 flex justify-center">
                                 <img 
                                     src={getImageUrl(selectedNotification.imageUrl)} 
                                     alt="Notification" 
-                                    className="object-cover w-full h-full"
+                                    className="object-contain max-h-[60vh] w-auto h-auto"
                                 />
                             </div>
                         )}
