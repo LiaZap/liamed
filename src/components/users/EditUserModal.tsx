@@ -52,20 +52,26 @@ export function EditUserModal({
   const [specialty, setSpecialty] = useState("");
   const [plan, setPlan] = useState("essential");
   const [planStatus, setPlanStatus] = useState("ACTIVE");
+  const [clinicId, setClinicId] = useState<string | null>(null);
   
   const [endpoints, setEndpoints] = useState<any[]>([]);
+  const [clinics, setClinics] = useState<any[]>([]);
 
   useEffect(() => {
-    const fetchEndpoints = async () => {
+    const fetchResources = async () => {
       try {
-        const response = await api.get("/endpoints");
-        setEndpoints(response.data);
+        const [endpointsRes, clinicsRes] = await Promise.all([
+             api.get("/endpoints"),
+             currentUser?.role === 'ADMIN' ? api.get("/clinics") : Promise.resolve({ data: [] })
+        ]);
+        setEndpoints(endpointsRes.data);
+        if (clinicsRes.data) setClinics(clinicsRes.data);
       } catch (error) {
-        console.error("Failed to fetch endpoints", error);
+        console.error("Failed to fetch resources", error);
       }
     };
-    fetchEndpoints();
-  }, []);
+    fetchResources();
+  }, [currentUser]);
 
   useEffect(() => {
     if (isOpen) {
@@ -79,6 +85,7 @@ export function EditUserModal({
         setSpecialty(user.specialty || "");
         setPlan(user.plan || "essential");
         setPlanStatus(user.planStatus || "ACTIVE");
+        setClinicId(user.clinicId || null);
         setPassword(""); // Limpar senha ao editar para evitar envio acidental de dados antigos
       } else {
         // New User defaults
@@ -91,6 +98,7 @@ export function EditUserModal({
         setSpecialty("");
         setPlan("essential");
         setPlanStatus("ACTIVE");
+        setClinicId(null);
         setPromptText(
           `# Prompt para Geração de Evolução Médica no Formato SOAP...`,
         );
@@ -121,7 +129,8 @@ export function EditUserModal({
         customPrompt: promptText,
         endpointId: endpointId === "none" ? null : endpointId,
         plan,
-        planStatus
+        planStatus,
+        clinicId
       });
     }
   };
@@ -195,33 +204,55 @@ export function EditUserModal({
 
             {/* Plan Management - Only for Admins editing others */}
             {currentUser?.role === 'ADMIN' && (
-                <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-lg border">
-                    <div className="space-y-2">
-                        <Label>Plano de Assinatura</Label>
-                        <Select value={plan} onValueChange={setPlan}>
+                <div className="space-y-4 p-4 bg-slate-50 rounded-lg border">
+                    <h3 className="font-semibold text-sm">Administrativo</h3>
+                    
+                    {/* Clinic Selection */}
+                     <div className="space-y-2">
+                        <Label>Clínica Vinculada</Label>
+                        <Select value={clinicId || "none"} onValueChange={(val) => setClinicId(val === "none" ? null : val)}>
                             <SelectTrigger>
-                                <SelectValue placeholder="Selecione o plano" />
+                                <SelectValue placeholder="Selecione a clínica..." />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="essential">Essential (Gratuito/Básico)</SelectItem>
-                                <SelectItem value="pro">Pro (Otimização Clínica)</SelectItem>
-                                <SelectItem value="premium">Premium (Completo + Carreira)</SelectItem>
+                                <SelectItem value="none">Nenhuma (Autônomo)</SelectItem>
+                                {clinics.map((clinic: any) => (
+                                    <SelectItem key={clinic.id} value={clinic.id}>
+                                        {clinic.name}
+                                    </SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
                     </div>
-                     <div className="space-y-2">
-                        <Label>Status da Assinatura</Label>
-                        <Select value={planStatus} onValueChange={setPlanStatus}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="ACTIVE">Ativo</SelectItem>
-                                <SelectItem value="TRIALING">Em Período de Teste</SelectItem>
-                                <SelectItem value="PAST_DUE">Pagamento Pendente</SelectItem>
-                                <SelectItem value="CANCELED">Cancelado</SelectItem>
-                            </SelectContent>
-                        </Select>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label>Plano</Label>
+                            <Select value={plan} onValueChange={setPlan}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Selecione o plano" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="essential">Essential</SelectItem>
+                                    <SelectItem value="pro">Pro</SelectItem>
+                                    <SelectItem value="premium">Premium</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                         <div className="space-y-2">
+                            <Label>Status</Label>
+                            <Select value={planStatus} onValueChange={setPlanStatus}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="ACTIVE">Ativo</SelectItem>
+                                    <SelectItem value="TRIALING">Em Teste</SelectItem>
+                                    <SelectItem value="PAST_DUE">Pendente</SelectItem>
+                                    <SelectItem value="CANCELED">Cancelado</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
                 </div>
             )}

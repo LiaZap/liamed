@@ -8,18 +8,19 @@ datasource db {
 }
 
 model Clinic {
-  id        String      @id @default(uuid())
-  name      String
-  cnpj      String?     @unique
-  address   String?
-  phone     String?
-  email     String?
-  logo      String?
-  status    Status      @default(ATIVO)
-  createdAt DateTime    @default(now())
-  consults  Consult[]
-  diagnoses Diagnosis[]
-  users     User[]
+  id         String      @id @default(uuid())
+  name       String
+  cnpj       String?     @unique
+  inviteCode String?     @unique // Code for doctors to join automatically
+  address    String?
+  phone      String?
+  email      String?
+  logo       String?
+  status     Status      @default(ATIVO)
+  createdAt  DateTime    @default(now())
+  consults   Consult[]
+  diagnoses  Diagnosis[]
+  users      User[]
 
   @@map("clinics")
 }

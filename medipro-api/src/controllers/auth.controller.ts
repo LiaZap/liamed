@@ -112,6 +112,23 @@ export const register = async (req: Request, res: Response) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        // Verify invite code if provided
+        let clinicId = null;
+        if (req.body.inviteCode) {
+            const clinic = await prisma.clinic.findUnique({
+                where: { inviteCode: req.body.inviteCode }
+            });
+
+            if (clinic) {
+                clinicId = clinic.id;
+                console.log(`[AUTH] User joining clinic: ${clinic.name} (${clinic.id})`);
+            } else {
+                // Should we block or just ignore? User friendly: warn them?
+                // For now, let's treat invalid code as an error to prevent mistakes
+                return res.status(400).json({ error: 'Código de convite da clínica inválido.' });
+            }
+        }
+
         // Create user
         const user = await prisma.user.create({
             data: {
@@ -122,7 +139,8 @@ export const register = async (req: Request, res: Response) => {
                 status: 'ATIVO',
                 specialty: specialty || null,
                 phone: phone || null,
-                birthDate: birthDate ? new Date(birthDate) : null
+                birthDate: birthDate ? new Date(birthDate) : null,
+                clinicId: clinicId // Link to clinic
             }
         });
 

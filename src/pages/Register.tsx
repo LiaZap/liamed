@@ -173,6 +173,7 @@ export default function Register() {
     const [confirmPassword, setConfirmPassword] = useState("")
     const [specialty, setSpecialty] = useState("")
     const [birthDate, setBirthDate] = useState("")
+    const [inviteCode, setInviteCode] = useState("")
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -192,7 +193,8 @@ export default function Register() {
                 specialty,
                 birthDate: birthDate || null,
                 phone: null,
-                role: "MEDICO"
+                role: "MEDICO",
+                inviteCode: inviteCode || undefined
             })
             
             const { token, user } = response.data
@@ -338,6 +340,18 @@ export default function Register() {
                                     onChange={e => setEmail(e.target.value)}
                                     required 
                                 />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="inviteCode">Código da Clínica (Opcional)</Label>
+                                <Input 
+                                    id="inviteCode" 
+                                    placeholder="Ex: CLINICA-123" 
+                                    className="h-11 bg-slate-50 border-slate-200 focus:border-blue-600 focus:ring-blue-600/20 transition-all dark:bg-[#1a1d21] dark:border-slate-800"
+                                    value={inviteCode}
+                                    onChange={e => setInviteCode(e.target.value)}
+                                />
+                                <p className="text-[11px] text-muted-foreground">Se você foi convidado por uma clínica, digite o código aqui.</p>
                             </div>
 
                             <div className="grid gap-2">

@@ -38,6 +38,7 @@ export const createUser = async (req: AuthRequest, res: Response) => {
         endpointId: endpointId || null,
         specialty: specialty || null,
         customPrompt: req.body.customPrompt || null,
+        clinicId: req.body.clinicId || null // Admin can assign clinic
       },
     });
 
@@ -76,7 +77,8 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
       notifyVagasWhatsApp,
       notifyVagasEmail,
       plan,          // New field
-      planStatus     // New field
+      planStatus,     // New field
+      clinicId       // New field
     } = req.body;
     const requestingUserId = req.user.id;
     const requestingUserRole = req.user.role;
@@ -114,6 +116,7 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
       specialty,
       notifyVagasWhatsApp,
       notifyVagasEmail,
+      clinicId
     };
 
     if (password) {
@@ -393,11 +396,19 @@ export const listUsers = async (req: AuthRequest, res: Response) => {
     // Vamos manter visibilidade geral apenas para ADMIN por segurança.
 
     if (userRole !== "ADMIN") {
-      // Opção A: Ver apenas a si mesmo
-      whereClause = { id: req.user.id };
-
-      // Opção B: Ver apenas Pacientes (não temos Role patient, mas podemos filtrar role != ADMIN)
-      // whereClause = { role: 'MEDICO' };
+      if (userRole === "GESTOR") {
+        // GESTOR sees everyone in their clinic
+        if (req.user.clinicId) {
+            console.log(`[USER LIST] Gestor ${req.user.name} listing users for clinic: ${req.user.clinicId}`);
+            whereClause = { clinicId: req.user.clinicId };
+        } else {
+            // Gestor without clinic sees no one (or self?)
+            whereClause = { id: req.user.id };
+        }
+      } else {
+        // MEDICO/others see only themselves
+        whereClause = { id: req.user.id };
+      }
     }
 
     const users = await prisma.user.findMany({
