@@ -135,6 +135,20 @@ export function EditUserModal({
     }
   };
 
+  const handleUpdateInviteCode = async (newCode: string) => {
+      if (!clinicId) return;
+      try {
+          await api.put(`/clinics/${clinicId}`, { inviteCode: newCode });
+          toast.success("Código de convite atualizado!");
+          // Update local state
+          setClinics(clinics.map(c => c.id === clinicId ? { ...c, inviteCode: newCode } : c));
+      } catch (error) {
+          toast.error("Erro ao atualizar código.");
+      }
+  };
+
+  const selectedClinic = clinics.find(c => c.id === clinicId);
+
   return (
     <>
       <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -208,7 +222,7 @@ export function EditUserModal({
                     <h3 className="font-semibold text-sm">Administrativo</h3>
                     
                     {/* Clinic Selection */}
-                     <div className="space-y-2">
+                    <div className="space-y-2">
                         <Label>Clínica Vinculada</Label>
                         <Select value={clinicId || "none"} onValueChange={(val) => setClinicId(val === "none" ? null : val)}>
                             <SelectTrigger>
@@ -223,6 +237,25 @@ export function EditUserModal({
                                 ))}
                             </SelectContent>
                         </Select>
+                        
+                        {/* Inline Invite Code Editor */}
+                        {clinicId && selectedClinic && (
+                            <div className="flex items-end gap-2 mt-2 p-2 bg-blue-50/50 rounded-md border border-blue-100">
+                                <div className="flex-1 space-y-1">
+                                    <Label className="text-xs text-blue-700">Tag da Clínica (Código de Convite)</Label>
+                                    <Input 
+                                        className="h-8 text-xs bg-white" 
+                                        placeholder="Ex: CLINICA-ABC"
+                                        defaultValue={selectedClinic.inviteCode || ""}
+                                        onBlur={(e) => {
+                                            if (e.target.value !== selectedClinic.inviteCode) {
+                                                handleUpdateInviteCode(e.target.value);
+                                            }
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">

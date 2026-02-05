@@ -144,11 +144,11 @@ export const updateClinic = async (req: AuthRequest, res: Response) => {
             return res.status(403).json({ error: 'Sem permissão.' });
         }
 
-        const { name, address, phone, email, logo, status } = req.body;
+        const { name, address, phone, email, logo, status, inviteCode } = req.body;
 
         const clinic = await prisma.clinic.update({
             where: { id },
-            data: { name, address, phone, email, logo, status }
+            data: { name, address, phone, email, logo, status, inviteCode }
         });
 
         await logAction({
