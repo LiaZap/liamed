@@ -106,9 +106,6 @@ const INVOICES = [
 export default function Plans() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">(
-    "monthly",
-  );
   const [isLoading, setIsLoading] = useState(false);
   const [userSubscriptions, setUserSubscriptions] = useState<any[]>([]);
 
@@ -352,38 +349,11 @@ export default function Plans() {
         </Card>
       )}
 
-      {/* Billing Toggle */}
+      {/* Billing Toggle Removed - Annual Only */}
       <div className="flex justify-center">
-        <div className="flex items-center p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
-          <button
-            onClick={() => setBillingCycle("monthly")}
-            className={cn(
-              "px-4 py-2 text-sm font-medium rounded-md transition-all",
-              billingCycle === "monthly"
-                ? "bg-white dark:bg-slate-700 shadow-sm text-primary"
-                : "text-muted-foreground hover:text-slate-900 dark:hover:text-slate-200",
-            )}
-          >
-            {t("plans.monthly")}
-          </button>
-          <button
-            onClick={() => setBillingCycle("yearly")}
-            className={cn(
-              "px-4 py-2 text-sm font-medium rounded-md transition-all",
-              billingCycle === "yearly"
-                ? "bg-white dark:bg-slate-700 shadow-sm text-primary"
-                : "text-muted-foreground hover:text-slate-900 dark:hover:text-slate-200",
-            )}
-          >
-            {t("plans.yearly")}
-            <Badge
-              variant="secondary"
-              className="ml-2 bg-green-100 text-green-700 hover:bg-green-100 border-none text-[10px]"
-            >
-              -20%
-            </Badge>
-          </button>
-        </div>
+         <Badge variant="outline" className="px-4 py-1 text-sm bg-green-50 text-green-700 border-green-200">
+            Plano Anual com 20% de desconto incluso
+         </Badge>
       </div>
 
       {/* Plans Grid */}
@@ -438,18 +408,12 @@ export default function Plans() {
                 <CardDescription>
                   <span className="text-3xl font-bold text-slate-900 dark:text-slate-50">
                     R${" "}
-                    {billingCycle === "monthly"
-                      ? plan.price.toFixed(2).replace(".", ",")
-                      : (plan.price * 10).toFixed(2).replace(".", ",")}
+                    {plan.price.toFixed(2).replace(".", ",")}
                   </span>
-                  <span className="text-muted-foreground">
+                  <span className="text-muted-foreground mr-1">
                     {" "}
                     /{" "}
-                    {t(
-                      billingCycle === "monthly"
-                        ? "plans.month_short"
-                        : "plans.year_short",
-                    )}
+                    {t("plans.year_short")}
                   </span>
                 </CardDescription>
               </CardHeader>
