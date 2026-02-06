@@ -80,6 +80,7 @@ export const listConsults = async (req: AuthRequest, res: Response) => {
                 doctor: consult.doctorName,
                 date: dateStr,
                 time: timeStr,
+                isoDate: consult.date, // Send raw ISO date for client-side timezone handling
                 type: consult.type,
                 status: consult.status === 'AGENDADA' ? 'AGENDADA' : consult.status === 'CONCLUIDA' ? 'CONCLUÍDA' : consult.status // Mapear status se precisar
             };

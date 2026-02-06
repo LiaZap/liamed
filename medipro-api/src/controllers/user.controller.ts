@@ -228,9 +228,6 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
 
 export const deleteUser = async (req: AuthRequest, res: Response) => {
   try {
-    // If query/params has id and user is admin, delete that user.
-    // Otherwise delete self.
-
     let userId = req.user.id;
     const targetId = req.params.id;
 
@@ -241,21 +238,29 @@ export const deleteUser = async (req: AuthRequest, res: Response) => {
       userId = targetId;
     }
 
-    await prisma.user.delete({
-      where: { id: userId },
+    // LGPD: Right to be Forgotten - Manual Cascade Delete
+    // We must delete/anonymize all related data that doesn't cascade automatically
+    await prisma.$transaction(async (tx) => {
+        // 1. Delete Dependencies (Manual Cascade)
+        await tx.auditLog.deleteMany({ where: { userId } });
+        await tx.notification.deleteMany({ where: { userId } });
+        await tx.subscription.deleteMany({ where: { userId } });
+        await tx.supportTicket.deleteMany({ where: { userId } });
+        await tx.supportMessage.deleteMany({ where: { senderId: userId } });
+        await tx.calculationHistory.deleteMany({ where: { userId } });
+        
+        // 2. Delete User (Doctor/Consult/Diagnosis cascade handled by Schema)
+        await tx.user.delete({
+            where: { id: userId },
+        });
     });
 
-    // Audit Log
-    await logAction({
-      userId: req.user.id,
-      userName: req.user.name || "Unknown",
-      action: "DELETE",
-      resource: "USER",
-      resourceId: userId,
-      req,
-    });
+    // Audit Log (Post-deletion using a system account or general log?)
+    // Since user is gone, we can't link it. We just log to console or a system-wide log if exists.
+    // For now, we skip DB audit or use a 'SYSTEM' ID if available.
+    console.log(`[AUDIT] User ${userId} deleted (Right to be Forgotten executed)`);
 
-    res.json({ message: "Conta excluída com sucesso." });
+    res.json({ message: "Conta e dados associados excluídos com sucesso (LGPD)." });
   } catch (error) {
     console.error("Delete user error:", error);
     res.status(500).json({ error: "Erro ao excluir conta." });

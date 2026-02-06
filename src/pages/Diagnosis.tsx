@@ -13,7 +13,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import {
     Search, RefreshCw, ChevronLeft, ChevronRight,
     Mic, FileText, Plus, Send,
-    Bot, Copy, Maximize2, Share2, Printer, Loader2, X, CalendarPlus, Trash2, Clock
+    Bot, Copy, Maximize2, Share2, Loader2, X, Trash2, Clock
 } from "lucide-react"
 import ReactMarkdown from 'react-markdown'
 import { ConsultationDetailsModal } from "@/components/diagnosis/ConsultationDetailsModal"
@@ -370,10 +370,6 @@ export default function Diagnosis() {
         }
     }
 
-    const handlePrint = () => {
-        window.print();
-    }
-
     const handleShare = async () => {
         if (navigator.share && diagnosisResult) {
             try {
@@ -660,11 +656,9 @@ export default function Diagnosis() {
                             {responseState === 'content' && (
                                 <div className="flex gap-1">
                                     <TooltipProvider>
-                                        <Tooltip><TooltipTrigger asChild><Button variant="outline" size="sm" className="h-8 gap-2 mr-2 border-primary/20 text-primary hover:bg-primary/5 dark:border-primary/50 dark:text-primary-foreground" onClick={() => setIsCreateConsultOpen(true)}><CalendarPlus className="h-4 w-4" /> {t('consultations.schedule_return')}</Button></TooltipTrigger><TooltipContent>{t('consultations.schedule_return')}</TooltipContent></Tooltip>
                                         <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={handleCopy}><Copy className="h-4 w-4" /></Button></TooltipTrigger><TooltipContent>{t('diagnosis.tooltips.copy')}</TooltipContent></Tooltip>
                                         <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={handleExpand}><Maximize2 className="h-4 w-4" /></Button></TooltipTrigger><TooltipContent>{t('diagnosis.tooltips.expand')}</TooltipContent></Tooltip>
                                         <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={handleShare}><Share2 className="h-4 w-4" /></Button></TooltipTrigger><TooltipContent>{t('diagnosis.tooltips.share')}</TooltipContent></Tooltip>
-                                        <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={handlePrint}><Printer className="h-4 w-4" /></Button></TooltipTrigger><TooltipContent>{t('diagnosis.tooltips.print')}</TooltipContent></Tooltip>
                                     </TooltipProvider>
                                 </div>
                             )}
@@ -694,7 +688,7 @@ export default function Diagnosis() {
                                             {t('diagnosis.response.preliminary_analysis')}
                                         </h4>
 
-                                        <div className="text-slate-600 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">
+                                        <div className="text-slate-600 dark:text-slate-300 whitespace-pre-wrap leading-relaxed max-h-[500px] overflow-y-auto pr-2">
                                             <ReactMarkdown>{diagnosisResult?.aiResponse || "Sem resposta disponível."}</ReactMarkdown>
                                         </div>
 

@@ -13,6 +13,24 @@ interface AuditLogParams {
     req?: Request;
 }
 
+const redactSensitiveData = (data: any): any => {
+    if (!data) return data;
+    if (typeof data === 'string') return data;
+    
+    const sensitiveKeys = ['password', 'token', 'creditCard', 'cvv'];
+    const redacted = { ...data };
+
+    Object.keys(redacted).forEach(key => {
+        if (sensitiveKeys.some(k => key.toLowerCase().includes(k))) {
+            redacted[key] = '[REDACTED]';
+        } else if (typeof redacted[key] === 'object') {
+            redacted[key] = redactSensitiveData(redacted[key]);
+        }
+    });
+
+    return redacted;
+};
+
 export const logAction = async (params: AuditLogParams) => {
     try {
         const { userId, userName, action, resource, resourceId, details, req } = params;
@@ -32,6 +50,8 @@ export const logAction = async (params: AuditLogParams) => {
             userAgent = req.headers['user-agent'] || 'unknown';
         }
 
+        const safeDetails = redactSensitiveData(details);
+
         await prisma.auditLog.create({
             data: {
                 userId,
@@ -39,7 +59,7 @@ export const logAction = async (params: AuditLogParams) => {
                 action,
                 resource,
                 resourceId,
-                details: details ? JSON.parse(JSON.stringify(details)) : undefined,
+                details: safeDetails ? JSON.parse(JSON.stringify(safeDetails)) : undefined,
                 ipAddress,
                 userAgent
             }

@@ -135,7 +135,7 @@ export default function Consultations() {
             c.id,
             c.patient.name,
             c.doctor,
-            `${c.date} ${c.time}`,
+            c.isoDate ? `${new Date(c.isoDate).toLocaleDateString(t('language') === 'en' ? 'en-US' : 'pt-BR')} ${new Date(c.isoDate).toLocaleTimeString(t('language') === 'en' ? 'en-US' : 'pt-BR', { hour: '2-digit', minute: '2-digit' })}` : `${c.date} ${c.time}`,
             c.type,
             c.status
         ]);
@@ -387,8 +387,12 @@ export default function Consultations() {
                                                 <TableCell className="text-sm font-medium text-slate-600 dark:text-slate-300">{consult.doctor}</TableCell>
                                                 <TableCell>
                                                     <div className="flex flex-col text-sm text-muted-foreground">
-                                                        <span className="flex items-center gap-1 font-medium text-slate-700 dark:text-slate-300">📅 {consult.date}</span>
-                                                        <span className="flex items-center gap-1 text-xs">🕐 {consult.time}</span>
+                                                        <span className="flex items-center gap-1 font-medium text-slate-700 dark:text-slate-300">
+                                                            📅 {consult.isoDate ? new Date(consult.isoDate).toLocaleDateString(t('language') === 'en' ? 'en-US' : 'pt-BR') : consult.date}
+                                                        </span>
+                                                        <span className="flex items-center gap-1 text-xs">
+                                                            🕐 {consult.isoDate ? new Date(consult.isoDate).toLocaleTimeString(t('language') === 'en' ? 'en-US' : 'pt-BR', { hour: '2-digit', minute: '2-digit' }) : consult.time}
+                                                        </span>
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="hidden lg:table-cell">
@@ -476,7 +480,7 @@ export default function Consultations() {
                                     </div>
                                     <div className="flex items-center justify-between pt-2">
                                         <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                            📅 {consult.date} 🕐 {consult.time}
+                                            📅 {consult.isoDate ? new Date(consult.isoDate).toLocaleDateString(t('language') === 'en' ? 'en-US' : 'pt-BR') : consult.date} 🕐 {consult.isoDate ? new Date(consult.isoDate).toLocaleTimeString(t('language') === 'en' ? 'en-US' : 'pt-BR', { hour: '2-digit', minute: '2-digit' }) : consult.time}
                                         </span>
                                         <Badge className={`${consult.status === 'CONCLUÍDA' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' : consult.status === 'CANCELADA' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' : 'bg-yellow-100 text-yellow-800 dark:bg-amber-900/30 dark:text-amber-300'} hover:bg-opacity-80 border-none font-normal text-[11px] uppercase`}>
                                             {consult.status}
