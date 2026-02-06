@@ -19,4 +19,7 @@ router.post('/create-checkout-session', authenticateToken, paymentController.cre
 // Let's proceed with standard routing and assume server.ts can be tweaked if verification fails.
 router.post('/webhook', paymentController.handleWebhook);
 
+// Get Payment History
+router.get('/history', authenticateToken, paymentController.getUserInvoices);
+
 export default router;

@@ -100,6 +100,46 @@ export const paymentController = {
         }
 
         res.json({ received: true });
+    },
+
+    // Get User Invoices
+    getUserInvoices: async (req: Request, res: Response) => {
+        try {
+            const userId = (req as any).user?.id;
+            if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+            const invoices = await prisma.invoice.findMany({
+                where: {
+                    subscription: {
+                        userId: userId
+                    }
+                },
+                orderBy: {
+                    createdAt: 'desc'
+                },
+                include: {
+                    subscription: {
+                        select: {
+                            status: true
+                        }
+                    }
+                }
+            });
+
+            // Map to frontend format
+            const formattedInvoices = invoices.map(inv => ({
+                id: inv.id,
+                date: inv.createdAt, // or inv.paidAt
+                amount: Number(inv.amount),
+                status: inv.status,
+                pdfUrl: inv.pdfUrl
+            }));
+
+            res.json(formattedInvoices);
+        } catch (error) {
+            console.error('Error fetching invoices:', error);
+            res.status(500).json({ error: 'Failed to fetch invoices' });
+        }
     }
 };
 

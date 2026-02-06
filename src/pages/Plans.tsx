@@ -95,19 +95,29 @@ const PLANS = [
   },
 ];
 
-const INVOICES = [
-  { id: "INV-001", date: "2025-12-01", amount: 49.9, status: "PAID" },
-  { id: "INV-002", date: "2025-11-01", amount: 49.9, status: "PAID" },
-  { id: "INV-003", date: "2025-10-01", amount: 49.9, status: "PAID" },
-];
+
 
 
 
 export default function Plans() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
-  const [userSubscriptions, setUserSubscriptions] = useState<any[]>([]);
+  const [invoices, setInvoices] = useState<any[]>([]);
+
+  useEffect(() => {
+    // Fetch payment history for non-admin users
+    if (user && user.role !== 'ADMIN') {
+        const fetchHistory = async () => {
+            try {
+                const response = await api.get('/payments/history');
+                setInvoices(response.data);
+            } catch (error) {
+                console.error("Failed to fetch payment history", error);
+            }
+        };
+        fetchHistory();
+    }
+  }, [user]);
 
   useEffect(() => {
     // Check for payment return query params
@@ -350,7 +360,6 @@ export default function Plans() {
       )}
 
 
-
       {/* Plans Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {PLANS.map((plan) => {
@@ -492,28 +501,46 @@ export default function Plans() {
                 <TableHead className="text-right">
                   {t("plans.column_status")}
                 </TableHead>
+                  <TableHead className="text-right">
+                      PDF
+                  </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {INVOICES.map((invoice) => (
+            {invoices.length === 0 ? (
+                <TableRow>
+                    <TableCell colSpan={5} className="text-center py-4 text-muted-foreground text-sm">Nenhum pagamento encontrado.</TableCell>
+                </TableRow>
+            ) : (
+              invoices.map((invoice) => (
                 <TableRow key={invoice.id} className="dark:border-slate-800">
-                  <TableCell className="font-medium">{invoice.id}</TableCell>
+                  <TableCell className="font-medium text-xs truncate max-w-[100px]" title={invoice.id}>{invoice.id.substring(0, 8)}...</TableCell>
                   <TableCell>
                     {new Date(invoice.date).toLocaleDateString()}
                   </TableCell>
                   <TableCell>
-                    R$ {invoice.amount.toFixed(2).replace(".", ",")}
+                    R$ {Number(invoice.amount || 0).toFixed(2).replace(".", ",")}
                   </TableCell>
                   <TableCell className="text-right">
                     <Badge
                       variant="outline"
-                      className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-900"
+                      className={cn(
+                          "border-green-200",
+                          invoice.status === 'PAID' ? "bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-300" : "bg-slate-100 text-slate-700"
+                      )}
                     >
-                      {invoice.status}
+                      {invoice.status === 'PAID' ? 'Pago' : invoice.status}
                     </Badge>
                   </TableCell>
+                    <TableCell className="text-right">
+                        {invoice.pdfUrl && (
+                            <a href={invoice.pdfUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline text-xs">
+                                Ver PDF
+                            </a>
+                        )}
+                    </TableCell>
                 </TableRow>
-              ))}
+              )))}
             </TableBody>
           </Table>
         </div>
