@@ -349,12 +349,7 @@ export default function Plans() {
         </Card>
       )}
 
-      {/* Billing Toggle Removed - Annual Only */}
-      <div className="flex justify-center">
-         <Badge variant="outline" className="px-4 py-1 text-sm bg-green-50 text-green-700 border-green-200">
-            Plano Anual com 20% de desconto incluso
-         </Badge>
-      </div>
+
 
       {/* Plans Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
