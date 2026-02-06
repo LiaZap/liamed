@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { useState, useEffect } from "react"
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom"
 import DashboardLayout from "@/layouts/DashboardLayout"
 import Dashboard from "@/pages/Dashboard"
 import Diagnosis from "@/pages/Diagnosis"
@@ -32,7 +32,39 @@ import { Loader2 } from "lucide-react"
 
 function AuthenticatedApp() {
   const { isAuthenticated, isLoading } = useAuth()
-  const [currentPath, setCurrentPath] = useState<NavItem>("Dashboard")
+  const location = useLocation()
+  
+  // Initialize with path from URL or default to Dashboard
+  const getPathFromUrl = (pathname: string): NavItem => {
+    const path = pathname.split('/')[1]
+    switch (path) {
+      case 'dashboard': return 'Dashboard'
+      case 'clinica': return 'Clínica'
+      case 'diagnostico': return 'Diagnóstico'
+      case 'usuarios': return 'Usuários'
+      case 'consultas': return 'Consultas'
+      case 'endpoints': return 'Endpoints'
+      case 'configuracoes': return 'Configurações'
+      case 'prompts': return 'Prompts'
+      case 'calculadoras': return 'Calculadoras'
+      case 'health': return 'Health'
+      case 'perfil': return 'Perfil'
+      case 'notificacoes': return 'Notificações'
+      case 'logs': return 'Logs'
+      case 'planos': return 'Planos'
+      case 'vagas': return 'Vagas'
+      case 'protocolos': return 'Protocolos'
+      case 'suporte': return 'Suporte'
+      default: return 'Dashboard'
+    }
+  }
+
+  const [currentPath, setCurrentPath] = useState<NavItem>(() => getPathFromUrl(window.location.pathname))
+
+  // Update state when URL changes
+  useEffect(() => {
+    setCurrentPath(getPathFromUrl(location.pathname))
+  }, [location.pathname])
 
   if (isLoading) {
     return (
