@@ -67,7 +67,17 @@ app.use(cors({
     origin: allowedOrigins,
     credentials: true
 }));
-app.use(express.json());
+// Configurar parsing condicional: JSON global exceto para webhook do Stripe
+app.use((req, res, next) => {
+    if (req.originalUrl === '/api/payments/webhook') {
+        next();
+    } else {
+        express.json()(req, res, next);
+    }
+});
+
+// Parser raw específico para o webhook do Stripe (necessário para assinatura)
+app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 app.set('trust proxy', 1); // Trust first proxy (nginx/cloudflare)

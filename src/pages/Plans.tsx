@@ -113,6 +113,27 @@ export default function Plans() {
   const [userSubscriptions, setUserSubscriptions] = useState<any[]>([]);
 
   useEffect(() => {
+    // Check for payment return query params
+    const query = new URLSearchParams(window.location.search);
+    
+    if (query.get("success")) {
+      toast.success("Pagamento realizado com sucesso!", {
+        description: "Sua assinatura está sendo ativada. Pode levar alguns instantes."
+      });
+      // Clean URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    
+    if (query.get("canceled")) {
+      toast.info("Pagamento cancelado", {
+        description: "A operação foi cancelada. Nenhum valor foi cobrado."
+      });
+        // Clean URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
+
+  useEffect(() => {
     if (user?.role === 'ADMIN') {
         const fetchUsers = async () => {
             try {
