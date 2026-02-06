@@ -30,6 +30,8 @@ export default function RegisterGestor() {
         
         if (!name.trim()) return toast.error("Nome do gestor é obrigatório")
         if (!clinicName.trim()) return toast.error("Nome da clínica é obrigatório")
+        if (!clinicCnpj.trim()) return toast.error("CNPJ da clínica é obrigatório")
+        if (!clinicPhone.trim()) return toast.error("Telefone da clínica é obrigatório")
         if (password.length < 6) return toast.error("Senha muito curta (mínimo 6 caracteres)")
         if (password !== confirmPassword) return toast.error("Senhas não conferem")
         
@@ -151,23 +153,25 @@ export default function RegisterGestor() {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="grid gap-2">
-                                    <Label htmlFor="clinicCnpj">CNPJ (Opcional)</Label>
+                                    <Label htmlFor="clinicCnpj">CNPJ</Label>
                                     <Input 
                                         id="clinicCnpj" 
                                         placeholder="00.000.000/0000-00" 
                                         className="h-11"
                                         value={clinicCnpj}
                                         onChange={e => setClinicCnpj(e.target.value)}
+                                        required
                                     />
                                 </div>
                                 <div className="grid gap-2">
-                                    <Label htmlFor="clinicPhone">Telefone (Opcional)</Label>
+                                    <Label htmlFor="clinicPhone">Telefone</Label>
                                     <Input 
                                         id="clinicPhone" 
                                         placeholder="(00) 00000-0000" 
                                         className="h-11"
                                         value={clinicPhone}
                                         onChange={e => setClinicPhone(e.target.value)}
+                                        required
                                     />
                                 </div>
                             </div>
