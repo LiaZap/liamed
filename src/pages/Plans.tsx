@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Check, X, Plus, Pencil, Trash2 } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -211,11 +211,6 @@ export default function Plans() {
           </TabsList>
 
           <TabsContent value="plans" className="space-y-4">
-            <div className="flex justify-end">
-              <Button className="gap-2">
-                <Plus className="h-4 w-4" /> {t("plans.new_plan_btn")}
-              </Button>
-            </div>
             <div className="border rounded-lg bg-white dark:bg-slate-900 dark:border-slate-800 overflow-hidden">
               <Table>
                 <TableHeader className="bg-slate-50 dark:bg-slate-800/50">
@@ -223,9 +218,6 @@ export default function Plans() {
                     <TableHead>{t("plans.table_plan_name")}</TableHead>
                     <TableHead>{t("plans.table_plan_price")}</TableHead>
                     <TableHead>Peculiaridade</TableHead>
-                    <TableHead className="text-right">
-                      {t("common.actions")}
-                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -234,28 +226,17 @@ export default function Plans() {
                       <TableCell className="font-medium">{plan.name}</TableCell>
                       <TableCell>R$ {plan.price.toFixed(2)}</TableCell>
                       <TableCell>{(plan as any).peculiarity || '-'}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
+            </div>
+            <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-50 border border-amber-200 dark:bg-amber-900/20 dark:border-amber-800">
+              <span className="text-amber-600 dark:text-amber-400 text-sm">⚠️</span>
+              <p className="text-sm text-amber-700 dark:text-amber-300">
+                Para alterar, criar ou excluir planos, acesse o{" "}
+                <a href="https://dashboard.stripe.com/products" target="_blank" rel="noopener noreferrer" className="font-semibold underline hover:text-amber-900 dark:hover:text-amber-100">Painel do Stripe</a>.
+              </p>
             </div>
           </TabsContent>
 
