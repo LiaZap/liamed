@@ -103,6 +103,8 @@ export default function Plans() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const [invoices, setInvoices] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [userSubscriptions, setUserSubscriptions] = useState<any[]>([]);
 
   useEffect(() => {
     // Fetch payment history for non-admin users
