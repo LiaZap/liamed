@@ -329,29 +329,31 @@ export default function Plans() {
                 </div>
               </div>
               <div className="flex flex-col items-end gap-2">
-                <Badge className="bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300">
-                  {currentPlanStatus === 'ACTIVE' ? 'Ativo' : currentPlanStatus === 'TRIALING' ? 'Período de Teste' : currentPlanStatus}
-                </Badge>
-                
-                {/* Trial Days Remaining Display */}
-                {currentPlanStatus === 'TRIALING' && user?.planEndsAt && (
-                   (() => {
+                {/* Status Badge with integrated Trial Logic */}
+                {(() => {
+                  if (currentPlanStatus === 'TRIALING') {
+                    let daysText = '';
+                    if (user?.planEndsAt) {
                       const end = new Date(user.planEndsAt);
                       const now = new Date();
                       const timeDiff = end.getTime() - now.getTime();
-                      const daysRemaining = Math.ceil(timeDiff / (1000 * 3600 * 24));
-                      
-                      return daysRemaining > 0 ? (
-                        <Badge variant="outline" className="border-amber-200 bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800">
-                          Restam {daysRemaining} dias de teste
+                      const daysRemaining = Math.max(0, Math.ceil(timeDiff / (1000 * 3600 * 24)));
+                      daysText = ` - Restam ${daysRemaining} dias`;
+                    }
+                    
+                    return (
+                        <Badge className="bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300">
+                          Período de Teste{daysText}
                         </Badge>
-                      ) : (
-                        <Badge variant="destructive">
-                          Teste expirado
-                        </Badge>
-                      );
-                   })()
-                )}
+                    );
+                  }
+                  
+                  return (
+                    <Badge className="bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300">
+                      {currentPlanStatus === 'ACTIVE' ? 'Ativo' : currentPlanStatus}
+                    </Badge>
+                  );
+                })()}
 
                 <p className="text-2xl font-bold text-slate-900 dark:text-slate-50">
                   R$ {currentPlanDetails.price.toFixed(2).replace(".", ",")}
@@ -474,14 +476,7 @@ export default function Plans() {
       </div>
 
       {/* Trial Banner */}
-      <div className="flex justify-center">
-        <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800">
-          <span className="text-2xl">🎁</span>
-          <span className="text-sm font-medium text-green-800 dark:text-green-300">
-            Todos os planos incluem <strong>15 dias de teste gratuito</strong>
-          </span>
-        </div>
-      </div>
+
 
       {/* Billing Info */}
       <p className="text-center text-xs text-muted-foreground">
