@@ -1,17 +1,17 @@
 import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { api } from '@/services/api';
+// import { useTranslation } from 'react-i18next'; // t unused
+import api from '@/services/api'; 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Plus, Copy, RefreshCw } from 'lucide-react';
+import { Trash2, Copy, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
-import { format } from 'date-fns';
+// import { format } from 'date-fns'; // format unused
 
 export default function AdminPromoCodes() {
-    const { t } = useTranslation();
+    // const { t } = useTranslation(); // t unused
     const [promos, setPromos] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [newCode, setNewCode] = useState('');
