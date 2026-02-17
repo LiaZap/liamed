@@ -462,3 +462,24 @@ model SupportMessage {
   @@index([ticketId])
   @@map("support_messages")
 }
+
+model PromoCode {
+  id          String    @id @default(uuid())
+  code        String    @unique
+  value       Int // e.g. 30 (days)
+  type        PromoType @default(TRIAL_EXTENSION)
+  planId      String? // Optional: Apply to specific plan
+  maxUses     Int? // Optional: Limit total uses
+  currentUses Int       @default(0)
+  expiresAt   DateTime?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("promo_codes")
+}
+
+enum PromoType {
+  TRIAL_EXTENSION
+  DISCOUNT
+}

@@ -349,7 +349,7 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
         specialty: true,
         termsAcceptedAt: true,
         subscriptions: {
-            where: { status: { in: ['ACTIVE', 'TRIALING'] } },
+            // where: { status: { in: ['ACTIVE', 'TRIALING'] } },
             orderBy: { createdAt: 'desc' },
             take: 1,
             include: { plan: true }
@@ -372,6 +372,12 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
             plan = sub.plan.name.toUpperCase();
         }
         planStatus = sub.status;
+    } else {
+        // No subscription record at all -> Default to Essential Active (Free Tier)
+        // OR should we treat as 'NO_PLAN'?
+        // For now, let's assume if they have NO history, they are free tier.
+        plan = 'ESSENTIAL';
+        planStatus = 'ACTIVE';
     }
 
     // Return flattened user object with plan info

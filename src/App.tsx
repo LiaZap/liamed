@@ -23,6 +23,7 @@ import ClinicDashboard from "@/pages/ClinicDashboard"
 import Vagas from "@/pages/Vagas"
 import Protocols from "@/pages/Protocols"
 import Support from "@/pages/Support"
+import AdminPromoCodes from "@/pages/admin/AdminPromoCodes"
 import { type NavItem } from "@/components/layout/Sidebar"
 import { Toaster } from "@/components/ui/sonner"
 import { ThemeProvider } from "@/contexts/ThemeContext"
@@ -55,6 +56,7 @@ function AuthenticatedApp() {
       case 'vagas': return 'Vagas'
       case 'protocolos': return 'Protocolos'
       case 'suporte': return 'Suporte'
+      case 'codigos-promo': return 'Códigos Promocionais'
       default: return 'Dashboard'
     }
   }
@@ -98,6 +100,7 @@ function AuthenticatedApp() {
         {currentPath === "Vagas" && <Vagas />}
         {currentPath === "Protocolos" && <Protocols />}
         {currentPath === "Suporte" && <Support />}
+        {currentPath === "Códigos Promocionais" && <AdminPromoCodes />}
 
         {currentPath === "Others" && (
           <div className="flex items-center justify-center h-[500px] text-muted-foreground">

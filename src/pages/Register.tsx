@@ -173,7 +173,8 @@ export default function Register() {
     const [confirmPassword, setConfirmPassword] = useState("")
     const [specialty, setSpecialty] = useState("")
     const [birthDate, setBirthDate] = useState("")
-    const [inviteCode, setInviteCode] = useState("")
+    const [promoCode, setPromoCode] = useState("")
+    const [clinicCode, setClinicCode] = useState("") // Separate state if we want both. 
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -194,14 +195,15 @@ export default function Register() {
                 birthDate: birthDate || null,
                 phone: null,
                 role: "MEDICO",
-                inviteCode: inviteCode || undefined
+                promoCode: promoCode || undefined,
+                inviteCode: clinicCode || undefined
             })
             
-            const { token, user } = response.data
+            const { token, user, message } = response.data
             await login(token, user)
             
-            toast.success("Conta criada com sucesso!", {
-                description: "Bem-vindo à LIAMED Profissional."
+            toast.success("Conta criada!", {
+                description: message || "Bem-vindo à LIAMED Profissional."
             })
             
             navigate('/dashboard')
@@ -348,8 +350,8 @@ export default function Register() {
                                     id="inviteCode" 
                                     placeholder="Ex: CLINICA-123" 
                                     className="h-11 bg-slate-50 border-slate-200 focus:border-blue-600 focus:ring-blue-600/20 transition-all dark:bg-[#1a1d21] dark:border-slate-800"
-                                    value={inviteCode}
-                                    onChange={e => setInviteCode(e.target.value)}
+                                    value={clinicCode}
+                                    onChange={e => setClinicCode(e.target.value)}
                                 />
                                 <p className="text-[11px] text-muted-foreground">Se você foi convidado por uma clínica, digite o código aqui.</p>
                             </div>
@@ -377,6 +379,26 @@ export default function Register() {
                                     value={birthDate}
                                     onChange={e => setBirthDate(e.target.value)}
                                 />
+                            </div>
+
+                            {/* Promo Code Input */}
+                            <div className="p-4 bg-blue-50/50 dark:bg-blue-900/10 rounded-lg border border-blue-100 dark:border-blue-800">
+                                <Label htmlFor="promoCode" className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
+                                    <Star className="h-4 w-4 fill-blue-600 text-blue-600" />
+                                    Possui um Código Promocional?
+                                </Label>
+                                <div className="mt-2 flex gap-2">
+                                    <Input 
+                                        id="promoCode" 
+                                        placeholder="Ex: PRO30" 
+                                        className="h-10 bg-white border-blue-200 focus:border-blue-600 focus:ring-blue-600/20 transition-all dark:bg-[#1a1d21] dark:border-blue-800 uppercase font-mono"
+                                        value={promoCode} 
+                                        onChange={e => setPromoCode(e.target.value.toUpperCase())} 
+                                    />
+                                </div>
+                                <p className="text-[11px] text-blue-600/80 dark:text-blue-400 mt-2">
+                                    Insira um código válido para ganhar dias de teste grátis no plano PRO.
+                                </p>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

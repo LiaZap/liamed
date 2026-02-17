@@ -17,7 +17,7 @@ export const login = async (req: Request, res: Response) => {
             where: { email },
             include: {
                 subscriptions: {
-                    where: { status: { in: ['ACTIVE', 'TRIALING'] } },
+                    // where: { status: { in: ['ACTIVE', 'TRIALING'] } },
                     orderBy: { createdAt: 'desc' },
                     take: 1,
                     include: { plan: true }
@@ -172,38 +172,72 @@ export const register = async (req: Request, res: Response) => {
             }
         });
 
-        // Create PRO plan trial subscription (15 days)
-        const trialEndDate = new Date();
-        trialEndDate.setDate(trialEndDate.getDate() + 15);
+        // HANDLE PROMO CODE / TRIAL
+        let trialDays = 0;
+        let appliedPromoCode = null;
 
-        // Find or create PRO plan
-        let proPlan = await prisma.plan.findFirst({ where: { name: 'Pro' } });
-        if (!proPlan) {
-            proPlan = await prisma.plan.create({
-                data: {
-                    name: 'Pro',
-                    price: 89.90,
-                    interval: 'MONTHLY',
-                    features: [
-                        'Assistente IA LIAMED',
-                        'Transcrições Ilimitadas',
-                        'Calculadoras Médicas',
-                        'Suporte Prioritário'
-                    ]
-                }
+        if (req.body.promoCode) {
+            const promo = await prisma.promoCode.findUnique({
+                where: { code: req.body.promoCode.toUpperCase() }
             });
+
+            if (promo && promo.isActive) {
+                const now = new Date();
+                const isExpired = promo.expiresAt && promo.expiresAt < now;
+                const isLimitReached = promo.maxUses && promo.currentUses >= promo.maxUses;
+
+                if (!isExpired && !isLimitReached) {
+                    // Valid promo!
+                    if (promo.type === 'TRIAL_EXTENSION') {
+                        trialDays = promo.value;
+                    }
+                    appliedPromoCode = promo.code;
+
+                    // Increment usage
+                    await prisma.promoCode.update({
+                        where: { id: promo.id },
+                        data: { currentUses: { increment: 1 } }
+                    });
+                }
+            }
         }
 
-        // Create trial subscription
-        await prisma.subscription.create({
-            data: {
-                userId: user.id,
-                planId: proPlan.id,
-                status: 'TRIALING',
-                currentPeriodStart: new Date(),
-                currentPeriodEnd: trialEndDate
+        // Only create subscription if trial days were granted via promo code
+        let planStatus = 'INACTIVE';
+        if (trialDays > 0) {
+            const trialEndDate = new Date();
+            trialEndDate.setDate(trialEndDate.getDate() + trialDays);
+
+            // Find or create PRO plan
+            let proPlan = await prisma.plan.findFirst({ where: { name: 'Pro' } });
+            if (!proPlan) {
+                proPlan = await prisma.plan.create({
+                    data: {
+                        name: 'Pro',
+                        price: 89.90,
+                        interval: 'MONTHLY',
+                        features: [
+                            'Assistente IA LIAMED',
+                            'Transcrições Ilimitadas',
+                            'Calculadoras Médicas',
+                            'Suporte Prioritário'
+                        ]
+                    }
+                });
             }
-        });
+
+            // Create trial subscription
+            await prisma.subscription.create({
+                data: {
+                    userId: user.id,
+                    planId: proPlan.id,
+                    status: 'TRIALING',
+                    currentPeriodStart: new Date(),
+                    currentPeriodEnd: trialEndDate
+                }
+            });
+            planStatus = 'TRIALING';
+        }
 
         // Generate JWT token
         const token = jwt.sign(
@@ -229,11 +263,11 @@ export const register = async (req: Request, res: Response) => {
             userName: user.name,
             action: 'REGISTER',
             resource: 'AUTH',
-            details: { email: user.email, specialty, plan: 'PRO_TRIAL' },
+            details: { email: user.email, specialty, promoCode: appliedPromoCode, trialDays },
             req
         });
 
-        console.log(`[AUTH] User registered successfully: ${email} with PRO trial`);
+        console.log(`[AUTH] User registered: ${email}. Promo: ${appliedPromoCode || 'NONE'}. Trial: ${trialDays} days.`);
 
         res.status(201).json({
             token,
@@ -243,10 +277,12 @@ export const register = async (req: Request, res: Response) => {
                 email: user.email,
                 role: user.role,
                 specialty: user.specialty,
-                plan: 'PRO',
-                planStatus: 'TRIALING'
+                plan: trialDays > 0 ? 'PRO' : 'ESSENTIAL', // Assuming Essential is default/fallback
+                planStatus: planStatus
             },
-            message: 'Conta criada com sucesso! Você tem 15 dias de teste do Plano PRO.'
+            message: trialDays > 0 
+                ? `Conta criada com com ${trialDays} dias de teste do Plano PRO!` 
+                : 'Conta criada com sucesso!'
         });
 
     } catch (error) {

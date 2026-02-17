@@ -44,6 +44,7 @@ export type NavItem =
   | "Vagas"
   | "Protocolos"
   | "Suporte"
+  | "Códigos Promocionais"
   | "Others";
 interface SidebarProps {
   className?: string;
@@ -135,6 +136,13 @@ export function Sidebar({
       icon: CreditCard,
       label: t("plans.title"),
       key: "Planos",
+      href: "#",
+      adminOnly: true,
+    },
+    {
+      icon: FileText, // Using FileText for now as valid icon, Tag would be better if imported
+      label: "Códigos Promo",
+      key: "Códigos Promocionais",
       href: "#",
       adminOnly: true,
     },
