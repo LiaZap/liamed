@@ -386,7 +386,8 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
     res.json({
         ...userData,
         plan,
-        planStatus
+        planStatus,
+        planEndsAt: user.subscriptions[0]?.currentPeriodEnd || null
     });
 
   } catch (error) {
@@ -459,10 +460,13 @@ export const listUsers = async (req: AuthRequest, res: Response) => {
         }
 
         const { subscriptions, ...userData } = user;
+        const activeSub = user.subscriptions && user.subscriptions.length > 0 ? user.subscriptions[0] : null;
+
         return {
             ...userData,
             plan,
-            planStatus
+            planStatus,
+            planEndsAt: activeSub ? activeSub.currentPeriodEnd : null
         };
     });
 

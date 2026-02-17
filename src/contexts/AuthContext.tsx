@@ -11,6 +11,7 @@ interface User {
     avatar?: string;
     plan?: 'ESSENTIAL' | 'PRO' | 'PREMIUM' | null;
     planStatus?: 'ACTIVE' | 'TRIALING' | 'PAST_DUE' | 'CANCELED' | null;
+    planEndsAt?: string | null;
     termsAcceptedAt?: string | null;
 }
 

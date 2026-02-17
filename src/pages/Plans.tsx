@@ -332,6 +332,27 @@ export default function Plans() {
                 <Badge className="bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300">
                   {currentPlanStatus === 'ACTIVE' ? 'Ativo' : currentPlanStatus === 'TRIALING' ? 'Período de Teste' : currentPlanStatus}
                 </Badge>
+                
+                {/* Trial Days Remaining Display */}
+                {currentPlanStatus === 'TRIALING' && user?.planEndsAt && (
+                   (() => {
+                      const end = new Date(user.planEndsAt);
+                      const now = new Date();
+                      const timeDiff = end.getTime() - now.getTime();
+                      const daysRemaining = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                      
+                      return daysRemaining > 0 ? (
+                        <Badge variant="outline" className="border-amber-200 bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800">
+                          Restam {daysRemaining} dias de teste
+                        </Badge>
+                      ) : (
+                        <Badge variant="destructive">
+                          Teste expirado
+                        </Badge>
+                      );
+                   })()
+                )}
+
                 <p className="text-2xl font-bold text-slate-900 dark:text-slate-50">
                   R$ {currentPlanDetails.price.toFixed(2).replace(".", ",")}
                   <span className="text-sm font-normal text-muted-foreground">/mês</span>

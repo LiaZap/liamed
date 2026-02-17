@@ -267,6 +267,23 @@ export const register = async (req: Request, res: Response) => {
             req
         });
 
+        // Explicit Log for Promo Code Usage (easier detection)
+        if (appliedPromoCode) {
+            await logAction({
+                userId: user.id,
+                userName: user.name,
+                action: 'USE_PROMO_CODE',
+                resource: 'PROMO',
+                details: { 
+                    code: appliedPromoCode, 
+                    trialDays, 
+                    type: 'TRIAL_EXTENSION',
+                    email: user.email
+                },
+                req
+            });
+        }
+
         console.log(`[AUTH] User registered: ${email}. Promo: ${appliedPromoCode || 'NONE'}. Trial: ${trialDays} days.`);
 
         res.status(201).json({
