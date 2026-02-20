@@ -174,7 +174,16 @@ export default function Register() {
     const [specialty, setSpecialty] = useState("")
     const [birthDate, setBirthDate] = useState("")
     const [promoCode, setPromoCode] = useState("")
-    const [clinicCode, setClinicCode] = useState("") // Separate state if we want both. 
+
+    const [clinicCode, setClinicCode] = useState("")
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const inviteParam = params.get('invite');
+        if (inviteParam) {
+            setClinicCode(inviteParam);
+        }
+    }, [])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()

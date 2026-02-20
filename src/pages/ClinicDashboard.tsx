@@ -77,7 +77,23 @@ export default function ClinicDashboard() {
                         </p>
                     </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                    {stats.clinic?.inviteCode && (
+                        <Button 
+                            variant="secondary" 
+                            className="bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/40 border border-blue-200 dark:border-blue-800"
+                            onClick={() => {
+                                const url = `${window.location.origin}/register?invite=${stats.clinic.inviteCode}`;
+                                navigator.clipboard.writeText(url);
+                                toast.success("Link copiado!", {
+                                    description: "Envie este link para os médicos se cadastrariem na sua clínica."
+                                });
+                            }}
+                        >
+                            <Users className="h-4 w-4 mr-2" />
+                            Copiar Link de Convite
+                        </Button>
+                    )}
                     <Select value={period} onValueChange={setPeriod}>
                         <SelectTrigger className="w-[140px] dark:bg-slate-800 dark:border-slate-700">
                             <SelectValue placeholder="Período" />

@@ -222,6 +222,16 @@ export const getStats = async (req: AuthRequest, res: Response) => {
 
 
 
+        // --- Clinic Info for Gestor ---
+        let clinicInfo = null;
+        if (userRole === 'GESTOR' && userClinicId) {
+            const clinic = await prisma.clinic.findUnique({
+                where: { id: userClinicId },
+                select: { name: true, inviteCode: true }
+            });
+            if (clinic) clinicInfo = clinic;
+        }
+
         const stats = {
             users: usersCount,
             totalPatients,
@@ -237,6 +247,7 @@ export const getStats = async (req: AuthRequest, res: Response) => {
             evolution,
             newPatientsEvolution,
             medicalTeam,
+            clinic: clinicInfo,
             performance: {
                 occupancyRate: 85,
                 avgTime: 28,
