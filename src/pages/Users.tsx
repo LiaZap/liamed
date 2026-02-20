@@ -32,7 +32,7 @@ import { useTranslation } from "react-i18next"
 interface User {
     id: string
     name: string
-    role: "MÉDICO" | "ADMIN" | "RECEPCIONISTA"
+    role: "MÉDICO" | "ADMIN"
     status: "ATIVO" | "INATIVO"
     email: string
     lastAccess: string
@@ -179,7 +179,6 @@ export default function UsersPage() {
                             <SelectItem value="all">Todos</SelectItem>
                             <SelectItem value="medico">Médico</SelectItem>
                             <SelectItem value="admin">Admin</SelectItem>
-                            <SelectItem value="recepcionista">Recepcionista</SelectItem>
                         </SelectContent>
                     </Select>
                     <div className="flex gap-2">

@@ -10,8 +10,11 @@ interface AuthRequest extends Request {
 export const getStats = async (req: AuthRequest, res: Response) => {
     try {
         const userId = req.user.id;
-        const userRole = req.user.role;
-        const userClinicId = req.user.clinicId;
+        const dbUser = await prisma.user.findUnique({ where: { id: userId } });
+        if (!dbUser) { return res.status(404).json({ error: 'User not found' }); }
+
+        const userRole = dbUser.role;
+        const userClinicId = dbUser.clinicId;
 
         let whereClause: any = {};
         let diagnosisWhereClause: any = {};
