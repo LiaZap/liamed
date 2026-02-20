@@ -102,9 +102,12 @@ const PLANS = [
 export default function Plans() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const [invoices, setInvoices] = useState<any[]>([]);
+  interface Invoice { id: string; date: string; amount: number; status: string; pdfUrl?: string; }
+  interface UserSub { id: string; user: string; plan: string; status: string; }
+
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [userSubscriptions, setUserSubscriptions] = useState<any[]>([]);
+  const [userSubscriptions, setUserSubscriptions] = useState<UserSub[]>([]);
 
   useEffect(() => {
     // Fetch payment history for non-admin users
@@ -148,12 +151,12 @@ export default function Plans() {
             try {
                 const response = await api.get('/users');
                 // Map users to subscription format
-                const subs = response.data.map((u: any) => ({
+                const subs = response.data.map((u: { id: string; name: string; plan?: string; planStatus?: string }) => ({
                     id: u.id,
                     user: u.name,
                     plan: u.plan || 'Essential',
                     status: (u.planStatus === 'ACTIVE' || u.planStatus === 'TRIALING') ? 'ACTIVE' : (u.planStatus || 'ACTIVE')
-                })).filter((u:any) => u.plan !== 'Essential'); // Optional: Filter out free users if desired, or keep all
+                })).filter((u: { plan?: string }) => u.plan !== 'Essential'); // Optional: Filter out free users if desired, or keep all
                 setUserSubscriptions(subs);
             } catch (error) {
                 console.error('Failed to fetch subscriptions', error);
@@ -227,7 +230,7 @@ export default function Plans() {
                     <TableRow key={plan.id} className="dark:border-slate-800">
                       <TableCell className="font-medium">{plan.name}</TableCell>
                       <TableCell>R$ {plan.price.toFixed(2)}</TableCell>
-                      <TableCell>{(plan as any).peculiarity || '-'}</TableCell>
+                      <TableCell>{(plan as Record<string, unknown>).peculiarity as string || '-'}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -324,7 +327,7 @@ export default function Plans() {
                     {currentPlanDetails.name}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    {(currentPlanDetails as any).peculiarity}
+                    {(currentPlanDetails as Record<string, unknown>).peculiarity as string}
                   </p>
                 </div>
               </div>
@@ -382,7 +385,7 @@ export default function Plans() {
                 isCurrentPlan
                   ? "border-green-500 shadow-md ring-2 ring-green-500/30"
                   : "",
-                (plan as any).recommended && !isCurrentPlan
+                (plan as unknown as { recommended?: boolean }).recommended && !isCurrentPlan
                   ? "border-primary/50 shadow-lg ring-2 ring-primary/30"
                   : "",
               )}
@@ -404,15 +407,15 @@ export default function Plans() {
                   <CardTitle className="text-xl font-bold dark:text-slate-50">
                     {plan.name}
                   </CardTitle>
-                  {(plan as any).peculiarity && (
+                  {(plan as unknown as { peculiarity?: string }).peculiarity && (
                     <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                      {(plan as any).peculiarity}
+                      {(plan as unknown as { peculiarity?: string }).peculiarity as string}
                     </Badge>
                   )}
                 </div>
-                {(plan as any).description && (
+                {(plan as unknown as { description?: string }).description && (
                   <p className="text-xs text-muted-foreground mb-3">
-                    {(plan as any).description}
+                    {(plan as unknown as { description?: string }).description as string}
                   </p>
                 )}
                 <CardDescription>

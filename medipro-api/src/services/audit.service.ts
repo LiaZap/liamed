@@ -9,10 +9,12 @@ interface AuditLogParams {
     action: string;
     resource: string;
     resourceId?: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     details?: any;
     req?: Request;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const redactSensitiveData = (data: any): any => {
     if (!data) return data;
     if (typeof data === 'string') return data;

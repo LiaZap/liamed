@@ -6,6 +6,7 @@ const prisma = new PrismaClient();
 import { logAction } from '../services/audit.service';
 
 interface AuthRequest extends Request {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     user?: any;
 }
 
@@ -18,7 +19,8 @@ export const listConsults = async (req: AuthRequest, res: Response) => {
         // Filters
         const { status, type, search } = req.query;
 
-        let whereClause: any = {};
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const whereClause: any = {};
 
         // 1. Restriction by Role
         if (userRole === 'ADMIN') {
@@ -130,6 +132,7 @@ export const createConsult = async (req: AuthRequest, res: Response) => {
         });
 
         res.status(201).json(newConsult);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
         res.status(500).json({ error: 'Erro ao criar consulta.' });
     }
@@ -141,7 +144,8 @@ export const getConsultStats = async (req: AuthRequest, res: Response) => {
         const userRole = req.user.role;
         const userClinicId = req.user.clinicId;
 
-        let whereClause: any = {};
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const whereClause: any = {};
         if (userRole === 'ADMIN') {
             // Admin sees everything
         } else if (userRole === 'GESTOR' && userClinicId) {

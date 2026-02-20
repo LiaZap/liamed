@@ -10,6 +10,7 @@ async function main() {
     where: { inviteCode }
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const clinic = await prisma.clinic.create({
     data: {
       name: 'Clínica de Teste Automatizado',

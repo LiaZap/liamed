@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma'; // Now valid
 
 interface AuthRequest extends Request {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     user?: any;
 }
 
@@ -14,6 +15,7 @@ export const listNotifications = async (req: AuthRequest, res: Response) => {
       take: 50 // Limit to last 50
     });
     res.json(notifications);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     res.status(500).json({ error: 'Failed to list notifications' });
   }
@@ -31,6 +33,7 @@ export const markAsRead = async (req: AuthRequest, res: Response) => {
       data: { read: true }
     });
     res.json({ success: true });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     res.status(500).json({ error: 'Failed to mark as read' });
   }
@@ -47,6 +50,7 @@ export const deleteNotification = async (req: AuthRequest, res: Response) => {
       }
     });
     res.json({ success: true });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete notification' });
   }
@@ -62,6 +66,7 @@ export const broadcastNotification = async (req: AuthRequest, res: Response) => 
     }
 
     // Build filter for users
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const userFilter: any = { status: 'ATIVO' };
     
     if (role && role !== 'TODOS') {

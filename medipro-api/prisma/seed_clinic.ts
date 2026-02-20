@@ -73,7 +73,9 @@ async function seedDemoClinic() {
     for (let i = 0; i < 10; i++) {
         const randomDoctor = createdDoctors[Math.floor(Math.random() * createdDoctors.length)];
         const randomPatient = patients[Math.floor(Math.random() * patients.length)];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const randomType = consultTypes[Math.floor(Math.random() * consultTypes.length)] as any;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const randomStatus = consultStatuses[Math.floor(Math.random() * consultStatuses.length)] as any;
 
         // Random date in the last 30 days

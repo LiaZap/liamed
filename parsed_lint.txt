@@ -1,0 +1,251 @@
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/medipro-api/audit_system.ts ---
+  4:12 [ERROR] @typescript-eslint/no-explicit-any
+  7:25 [ERROR] @typescript-eslint/no-require-imports
+  8:10 [ERROR] @typescript-eslint/no-unused-vars
+  47:17 [ERROR] @typescript-eslint/no-explicit-any
+  74:17 [ERROR] @typescript-eslint/no-explicit-any
+  90:26 [ERROR] @typescript-eslint/no-require-imports
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/medipro-api/prisma/add_demo_consults.ts ---
+  51:97 [ERROR] @typescript-eslint/no-explicit-any
+  52:105 [ERROR] @typescript-eslint/no-explicit-any
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/medipro-api/prisma/populate_demo.ts ---
+  102:77 [ERROR] @typescript-eslint/no-explicit-any
+  103:85 [ERROR] @typescript-eslint/no-explicit-any
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/medipro-api/prisma/seed-consults.ts ---
+  61:36 [ERROR] @typescript-eslint/no-explicit-any
+  62:40 [ERROR] @typescript-eslint/no-explicit-any
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/medipro-api/prisma/seed-invite.ts ---
+  13:9 [ERROR] @typescript-eslint/no-unused-vars
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/medipro-api/prisma/seed.ts ---
+  144:11 [ERROR] @typescript-eslint/no-unused-vars
+  155:11 [ERROR] @typescript-eslint/no-unused-vars
+  166:11 [ERROR] @typescript-eslint/no-unused-vars
+  177:11 [ERROR] @typescript-eslint/no-unused-vars
+  188:11 [ERROR] @typescript-eslint/no-unused-vars
+  284:56 [ERROR] @typescript-eslint/no-explicit-any
+  314:11 [ERROR] @typescript-eslint/no-unused-vars
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/medipro-api/prisma/seed_calculators.ts ---
+  5:36 [ERROR] @typescript-eslint/no-explicit-any
+  11:9 [ERROR] @typescript-eslint/ban-ts-comment
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/medipro-api/prisma/seed_clinic.ts ---
+  76:93 [ERROR] @typescript-eslint/no-explicit-any
+  77:101 [ERROR] @typescript-eslint/no-explicit-any
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/medipro-api/src/controllers/audit.controller.ts ---
+  13:22 [ERROR] @typescript-eslint/no-explicit-any
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/medipro-api/src/controllers/auth.controller.ts ---
+  45:66 [ERROR] @typescript-eslint/no-explicit-any
+  262:66 [ERROR] @typescript-eslint/no-explicit-any
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/medipro-api/src/controllers/calculator.controller.ts ---
+  28:36 [ERROR] @typescript-eslint/no-explicit-any
+  71:47 [ERROR] @typescript-eslint/no-explicit-any
+  87:36 [ERROR] @typescript-eslint/no-explicit-any
+  449:64 [ERROR] @typescript-eslint/no-explicit-any
+  474:36 [ERROR] @typescript-eslint/no-explicit-any
+  680:127 [ERROR] @typescript-eslint/no-explicit-any
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/medipro-api/src/controllers/clinic.controller.ts ---
+  8:12 [ERROR] @typescript-eslint/no-explicit-any
+  125:21 [ERROR] @typescript-eslint/no-explicit-any
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/medipro-api/src/controllers/consult.controller.ts ---
+  9:12 [ERROR] @typescript-eslint/no-explicit-any
+  21:28 [ERROR] @typescript-eslint/no-explicit-any
+  133:14 [ERROR] @typescript-eslint/no-unused-vars
+  144:28 [ERROR] @typescript-eslint/no-explicit-any
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/medipro-api/src/controllers/demo.controller.ts ---
+  100:63 [ERROR] @typescript-eslint/no-explicit-any
+  101:68 [ERROR] @typescript-eslint/no-explicit-any
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/medipro-api/src/controllers/diagnosis.controller.ts ---
+  5:18 [ERROR] @typescript-eslint/no-require-imports
+  13:34 [ERROR] @typescript-eslint/no-explicit-any
+  14:34 [ERROR] @typescript-eslint/no-explicit-any
+  21:28 [ERROR] @typescript-eslint/no-explicit-any
+  65:34 [ERROR] @typescript-eslint/no-explicit-any
+  88:33 [ERROR] @typescript-eslint/no-explicit-any
+  122:38 [ERROR] @typescript-eslint/no-explicit-any
+  201:27 [ERROR] @typescript-eslint/no-explicit-any
+  219:27 [ERROR] @typescript-eslint/no-explicit-any
+  254:37 [ERROR] @typescript-eslint/no-explicit-any
+  255:40 [ERROR] @typescript-eslint/no-explicit-any
+  287:34 [ERROR] @typescript-eslint/no-explicit-any
+  288:34 [ERROR] @typescript-eslint/no-explicit-any
+  309:29 [ERROR] @typescript-eslint/no-explicit-any
+  310:31 [ERROR] @typescript-eslint/no-explicit-any
+  326:66 [ERROR] @typescript-eslint/no-explicit-any
+  326:127 [ERROR] @typescript-eslint/no-explicit-any
+  330:20 [ERROR] @typescript-eslint/no-explicit-any
+  358:15 [ERROR] @typescript-eslint/no-explicit-any
+  368:58 [ERROR] @typescript-eslint/no-explicit-any
+  368:89 [ERROR] @typescript-eslint/no-explicit-any
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/medipro-api/src/controllers/endpoint.controller.ts ---
+  7:12 [ERROR] @typescript-eslint/no-explicit-any
+  16:14 [ERROR] @typescript-eslint/no-unused-vars
+  48:21 [ERROR] @typescript-eslint/no-explicit-any
+  59:14 [ERROR] @typescript-eslint/no-unused-vars
+  73:14 [ERROR] @typescript-eslint/no-unused-vars
+  86:24 [ERROR] @typescript-eslint/no-explicit-any
+  121:29 [ERROR] @typescript-eslint/no-explicit-any
+  167:21 [ERROR] @typescript-eslint/no-explicit-any
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/medipro-api/src/controllers/notification.controller.ts ---
+  5:12 [ERROR] @typescript-eslint/no-explicit-any
+  17:12 [ERROR] @typescript-eslint/no-unused-vars
+  34:12 [ERROR] @typescript-eslint/no-unused-vars
+  50:12 [ERROR] @typescript-eslint/no-unused-vars
+  65:23 [ERROR] @typescript-eslint/no-explicit-any
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/medipro-api/src/controllers/payment.controller.ts ---
+  23:36 [ERROR] @typescript-eslint/no-explicit-any
+  24:19 [ERROR] @typescript-eslint/no-unused-vars
+  24:39 [ERROR] @typescript-eslint/no-explicit-any
+  82:23 [ERROR] @typescript-eslint/no-explicit-any
+  90:17 [ERROR] no-case-declarations
+  95:17 [ERROR] no-case-declarations
+  95:54 [ERROR] @typescript-eslint/no-explicit-any
+  108:36 [ERROR] @typescript-eslint/no-explicit-any
+  171:43 [ERROR] @typescript-eslint/no-explicit-any
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/medipro-api/src/controllers/prompt.controller.ts ---
+  6:12 [ERROR] @typescript-eslint/no-explicit-any
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/medipro-api/src/controllers/setting.controller.ts ---
+  8:12 [ERROR] @typescript-eslint/no-explicit-any
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/medipro-api/src/controllers/stats.controller.ts ---
+  7:12 [ERROR] @typescript-eslint/no-explicit-any
+  19:26 [ERROR] @typescript-eslint/no-explicit-any
+  20:35 [ERROR] @typescript-eslint/no-explicit-any
+  21:30 [ERROR] @typescript-eslint/no-explicit-any
+  37:15 [ERROR] @typescript-eslint/no-unused-vars
+  159:30 [ERROR] @typescript-eslint/no-explicit-any
+  183:77 [ERROR] @typescript-eslint/no-explicit-any
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/medipro-api/src/controllers/support.controller.ts ---
+  10:32 [ERROR] @typescript-eslint/no-explicit-any
+  11:34 [ERROR] @typescript-eslint/no-explicit-any
+  14:28 [ERROR] @typescript-eslint/no-explicit-any
+  67:32 [ERROR] @typescript-eslint/no-explicit-any
+  93:31 [ERROR] @typescript-eslint/no-explicit-any
+  110:32 [ERROR] @typescript-eslint/no-explicit-any
+  111:34 [ERROR] @typescript-eslint/no-explicit-any
+  165:32 [ERROR] @typescript-eslint/no-explicit-any
+  166:34 [ERROR] @typescript-eslint/no-explicit-any
+  223:34 [ERROR] @typescript-eslint/no-explicit-any
+  235:27 [ERROR] @typescript-eslint/no-explicit-any
+  246:29 [ERROR] @typescript-eslint/no-explicit-any
+  247:31 [ERROR] @typescript-eslint/no-explicit-any
+  264:32 [ERROR] @typescript-eslint/no-explicit-any
+  265:34 [ERROR] @typescript-eslint/no-explicit-any
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/medipro-api/src/controllers/user.controller.ts ---
+  57:12 [ERROR] @typescript-eslint/no-unused-vars
+  106:17 [ERROR] @typescript-eslint/no-explicit-any
+  199:42 [ERROR] @typescript-eslint/no-explicit-any
+  325:10 [ERROR] @typescript-eslint/no-explicit-any
+  384:13 [ERROR] @typescript-eslint/no-unused-vars
+  462:17 [ERROR] @typescript-eslint/no-unused-vars
+  474:12 [ERROR] @typescript-eslint/no-unused-vars
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/medipro-api/src/controllers/vacancy.controller.ts ---
+  7:12 [ERROR] @typescript-eslint/no-explicit-any
+  59:28 [ERROR] @typescript-eslint/no-explicit-any
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/medipro-api/src/fetch_prices.ts ---
+  30:25 [ERROR] @typescript-eslint/no-explicit-any
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/medipro-api/src/middleware/auth.middleware.ts ---
+  5:12 [ERROR] @typescript-eslint/no-explicit-any
+  20:14 [ERROR] @typescript-eslint/no-unused-vars
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/medipro-api/src/routes/payment.routes.ts ---
+  4:8 [ERROR] @typescript-eslint/no-unused-vars
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/medipro-api/src/server.ts ---
+  149:25 [ERROR] @typescript-eslint/no-explicit-any
+  166:15 [ERROR] @typescript-eslint/no-explicit-any
+  166:65 [ERROR] @typescript-eslint/no-unused-vars
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/medipro-api/src/services/audit.service.ts ---
+  12:15 [ERROR] @typescript-eslint/no-explicit-any
+  16:36 [ERROR] @typescript-eslint/no-explicit-any
+  16:42 [ERROR] @typescript-eslint/no-explicit-any
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/medipro-api/test-api.ts ---
+  26:21 [ERROR] @typescript-eslint/no-explicit-any
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/src/components/PlanGate.tsx ---
+  2:1 [WARN ] null
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/src/components/diagnosis/ConsultationDetailsModal.tsx ---
+  43:73 [ERROR] @typescript-eslint/no-explicit-any
+  175:51 [ERROR] @typescript-eslint/no-unused-vars
+  187:51 [ERROR] @typescript-eslint/no-unused-vars
+  190:56 [ERROR] @typescript-eslint/no-unused-vars
+  193:52 [ERROR] @typescript-eslint/no-unused-vars
+  196:52 [ERROR] @typescript-eslint/no-unused-vars
+  199:52 [ERROR] @typescript-eslint/no-unused-vars
+  202:52 [ERROR] @typescript-eslint/no-unused-vars
+  205:52 [ERROR] @typescript-eslint/no-unused-vars
+  208:52 [ERROR] @typescript-eslint/no-unused-vars
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/src/components/endpoints/EditEndpointModal.tsx ---
+  19:16 [ERROR] @typescript-eslint/no-explicit-any
+  20:20 [ERROR] @typescript-eslint/no-explicit-any
+  21:21 [ERROR] @typescript-eslint/no-explicit-any
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/src/components/layout/Sidebar.tsx ---
+  64:11 [ERROR] @typescript-eslint/no-explicit-any
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/src/components/ui/badge.tsx ---
+  2:1 [WARN ] null
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/src/components/ui/button.tsx ---
+  2:1 [WARN ] null
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/src/components/ui/input.tsx ---
+  1:1 [WARN ] null
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/src/components/ui/textarea.tsx ---
+  1:1 [WARN ] null
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/src/components/users/EditUserModal.tsx ---
+  42:10 [ERROR] @typescript-eslint/no-explicit-any
+  43:23 [ERROR] @typescript-eslint/no-explicit-any
+  69:46 [ERROR] @typescript-eslint/no-explicit-any
+  70:42 [ERROR] @typescript-eslint/no-explicit-any
+  91:64 [ERROR] @typescript-eslint/no-explicit-any
+  95:66 [ERROR] @typescript-eslint/no-explicit-any
+  156:7 [ERROR] @typescript-eslint/ban-ts-comment
+  180:16 [ERROR] @typescript-eslint/no-unused-vars
+  267:55 [ERROR] @typescript-eslint/no-explicit-any
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/src/contexts/AuthContext.tsx ---
+  64:36 [ERROR] @typescript-eslint/no-explicit-any
+  134:14 [ERROR] react-refresh/only-export-components
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/src/contexts/NotificationContext.tsx ---
+  90:88 [ERROR] @typescript-eslint/no-explicit-any
+  103:38 [ERROR] @typescript-eslint/no-explicit-any
+  134:8 [WARN ] react-hooks/exhaustive-deps
+  196:14 [ERROR] react-refresh/only-export-components
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/src/contexts/ThemeContext.tsx ---
+  2:1 [WARN ] null
+
+--- C:/Users/Paulo/.gemini/antigravity/playground/LIAMED/src/pages/AuditLogs.tsx ---
+  1:1 [WARN ] null
+  2:1 [WARN ] null

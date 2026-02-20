@@ -99,7 +99,9 @@ async function populateClinicData() {
 
         for (let i = 0; i < numConsults; i++) {
             const patient = patients[Math.floor(Math.random() * patients.length)];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const type = types[Math.floor(Math.random() * types.length)] as any;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const status = statuses[Math.floor(Math.random() * statuses.length)] as any;
 
             const daysAgo = Math.floor(Math.random() * 30);

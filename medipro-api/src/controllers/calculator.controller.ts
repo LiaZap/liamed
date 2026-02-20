@@ -25,6 +25,7 @@ export const calculatorController = {
     calculate: async (req: Request, res: Response) => {
         try {
             const { formulaId, inputs } = req.body;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const userId = (req as any).user?.id;
 
             const formula = await prisma.calculatorFormula.findUnique({
@@ -68,6 +69,7 @@ export const calculatorController = {
                     data: {
                         userId,
                         formulaId,
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         inputs: safeInputs as any,
                         result
                     }
@@ -84,6 +86,7 @@ export const calculatorController = {
     // Get History for User
     getHistory: async (req: Request, res: Response) => {
         try {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const userId = (req as any).user?.id;
             if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
@@ -446,6 +449,7 @@ export const calculatorController = {
                             category: data.category,
                             expression: data.expression,
                             variables: {
+                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                 create: data.variables.map((v: any) => ({
                                     name: v.name,
                                     label: v.label,
@@ -471,6 +475,7 @@ export const calculatorController = {
     analyzeGasometry: async (req: Request, res: Response) => {
         try {
             const { ph, pco2, hco3, na, cl, albumin } = req.body;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const userId = (req as any).user?.id;
 
             // Validate inputs
@@ -677,6 +682,7 @@ export const calculatorController = {
                         data: {
                             userId,
                             formulaId: formula.id,
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             inputs: { ph: phVal, pco2: pco2Val, hco3: hco3Val, na: naVal, cl: clVal, albumin: albuminVal } as any,
                             result: phVal // Store pH as the main result
                         }

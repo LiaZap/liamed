@@ -10,6 +10,7 @@ export const getLogs = async (req: Request, res: Response) => {
         const skip = (Number(page) - 1) * Number(limit);
         const take = Number(limit);
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const where: any = {};
 
         if (search) {

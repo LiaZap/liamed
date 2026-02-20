@@ -141,6 +141,7 @@ async function main() {
 
 
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const consult2 = await prisma.consult.create({
         data: {
             patientName: 'Maria Santos',
@@ -152,6 +153,7 @@ async function main() {
         }
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const consult3 = await prisma.consult.create({
         data: {
             patientName: 'Pedro Almeida',
@@ -163,6 +165,7 @@ async function main() {
         }
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const consult4 = await prisma.consult.create({
         data: {
             patientName: 'Ana Oliveira',
@@ -174,6 +177,7 @@ async function main() {
         }
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const consult5 = await prisma.consult.create({
         data: {
             patientName: 'Carlos Souza',
@@ -185,6 +189,7 @@ async function main() {
         }
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const consult6 = await prisma.consult.create({
         data: {
             patientName: 'Lucia Ferreira',
@@ -281,6 +286,7 @@ Use sempre a estrutura:
     ];
 
     for (const setting of settings) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await prisma.setting.create({ data: setting as any });
     }
 
@@ -311,6 +317,7 @@ Use sempre a estrutura:
     console.log('🧮 Criando calculadoras médicas...');
 
     // IMC
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const imc = await prisma.calculatorFormula.create({
         data: {
             name: 'IMC (Índice de Massa Corporal)',

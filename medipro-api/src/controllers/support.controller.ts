@@ -7,10 +7,13 @@ const prisma = new PrismaClient();
 // Get tickets (user sees their own, admin sees all)
 export const getTickets = async (req: Request, res: Response) => {
     try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const userId = (req as any).user.id;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const userRole = (req as any).user.role;
         const { status } = req.query;
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const whereClause: any = {};
         
         // Non-admin users can only see their own tickets
@@ -64,6 +67,7 @@ export const getTickets = async (req: Request, res: Response) => {
 // Create new ticket
 export const createTicket = async (req: Request, res: Response) => {
     try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const userId = (req as any).user.id;
         const { subject, message } = req.body;
 
@@ -90,6 +94,7 @@ export const createTicket = async (req: Request, res: Response) => {
 
         await logAction({
             userId,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             userName: (req as any).user.name,
             action: 'CREATE',
             resource: 'SUPPORT_TICKET',
@@ -107,7 +112,9 @@ export const createTicket = async (req: Request, res: Response) => {
 // Get ticket details with messages
 export const getTicketDetails = async (req: Request, res: Response) => {
     try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const userId = (req as any).user.id;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const userRole = (req as any).user.role;
         const { id } = req.params;
 
@@ -162,7 +169,9 @@ export const getTicketDetails = async (req: Request, res: Response) => {
 // Send message to ticket
 export const sendMessage = async (req: Request, res: Response) => {
     try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const userId = (req as any).user.id;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const userRole = (req as any).user.role;
         const { id } = req.params;
         const { content } = req.body;
@@ -220,6 +229,7 @@ export const sendMessage = async (req: Request, res: Response) => {
 // Update ticket status (admin only)
 export const updateTicketStatus = async (req: Request, res: Response) => {
     try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const userRole = (req as any).user.role;
         const { id } = req.params;
         const { status } = req.body;
@@ -232,6 +242,7 @@ export const updateTicketStatus = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'Status inválido' });
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const updateData: any = { status };
         if (status === 'CLOSED' || status === 'RESOLVED') {
             updateData.closedAt = new Date();
@@ -243,7 +254,9 @@ export const updateTicketStatus = async (req: Request, res: Response) => {
         });
 
         await logAction({
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             userId: (req as any).user.id,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             userName: (req as any).user.name,
             action: 'UPDATE',
             resource: 'SUPPORT_TICKET',
@@ -261,7 +274,9 @@ export const updateTicketStatus = async (req: Request, res: Response) => {
 // Get unread count (for notification badge)
 export const getUnreadCount = async (req: Request, res: Response) => {
     try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const userId = (req as any).user.id;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const userRole = (req as any).user.role;
 
         let count: number;

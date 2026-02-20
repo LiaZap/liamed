@@ -4,7 +4,7 @@ type SoundType = 'success' | 'error' | 'notification' | 'complete';
 
 export function playSound(type: SoundType = 'success') {
     try {
-        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const audioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
 
         switch (type) {
             case 'success':

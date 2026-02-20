@@ -26,7 +26,25 @@ export default function ClinicDashboard() {
 
     const [loading, setLoading] = useState(true)
     const [period, setPeriod] = useState('7')
-    const [stats, setStats] = useState<any>({
+    interface ClinicStats {
+        users: number;
+        totalPatients: number;
+        consults: number;
+        diagnoses: number;
+        todayConsults: number;
+        teamPerformance?: { id: string; name: string; consults: number; specialty?: string; rating?: number; revenue?: number; }[];
+        evolution?: { name: string; consultas: number; }[];
+        occupancyRate?: number;
+        satisfactionIndex?: number;
+        activeDoctors?: number;
+        revenue?: number;
+        inviteCode?: string;
+        clinic?: { name: string; inviteCode?: string; };
+        dailyStats?: { date: string; consults: number; newPatients: number; }[];
+        topDoctors?: { id: string; name: string; specialty: string; consults: number; rating: number; revenue: number; }[];
+        recentDoctors?: { name: string; status: string; joinedAt: string; plan: string; }[];
+    }
+    const [stats, setStats] = useState<ClinicStats>({
         users: 0,
         totalPatients: 0,
         consults: 0,
@@ -53,11 +71,12 @@ export default function ClinicDashboard() {
 
     useEffect(() => {
         fetchStats()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [period])
 
     // Top 3 doctors
     const topDoctors = [...(stats.teamPerformance || [])]
-        .sort((a: any, b: any) => b.consults - a.consults)
+        .sort((a: { consults: number }, b: { consults: number }) => b.consults - a.consults)
         .slice(0, 3)
 
     return (
@@ -65,7 +84,7 @@ export default function ClinicDashboard() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg">
+                    <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg">
                         <Building2 className="h-6 w-6 text-white" />
                     </div>
                     <div>
@@ -83,7 +102,7 @@ export default function ClinicDashboard() {
                             variant="secondary" 
                             className="bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/40 border border-blue-200 dark:border-blue-800"
                             onClick={() => {
-                                const url = `${window.location.origin}/register?invite=${stats.clinic.inviteCode}`;
+                                const url = `${window.location.origin}/register?invite=${stats.clinic?.inviteCode}`;
                                 navigator.clipboard.writeText(url);
                                 toast.success("Link copiado!", {
                                     description: "Envie este link para os médicos se cadastrariem na sua clínica."
@@ -127,7 +146,7 @@ export default function ClinicDashboard() {
                         <Card className="shadow-sm hover:translate-y-[-2px] hover:shadow-md transition-all duration-300 dark:bg-[#222428] dark:border-slate-800 animate-fade-in-up">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium text-muted-foreground">Total Médicos</CardTitle>
-                                <Stethoscope className="h-4 w-4 text-purple-600" />
+                                <Stethoscope className="h-4 w-4 text-cyan-600" />
                             </CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold text-slate-900 dark:text-slate-50">
@@ -215,7 +234,7 @@ export default function ClinicDashboard() {
                             </div>
                         ) : (
                             <div className="space-y-4">
-                                {topDoctors.map((doctor: any, index: number) => (
+                                {topDoctors.map((doctor: { id: string; name: string; consults: number; specialty?: string; rating?: number; revenue?: number; }, index: number) => (
                                     <div key={doctor.id} className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700">
                                         <div className={`
                                             h-10 w-10 rounded-full flex items-center justify-center text-white font-bold text-sm
@@ -311,7 +330,7 @@ export default function ClinicDashboard() {
                         </div>
                     ) : (
                         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                            {(stats.teamPerformance || []).map((doctor: any, index: number) => (
+                            {(stats.teamPerformance || []).map((doctor: { id: string; name: string; consults: number; specialty?: string; rating?: number; revenue?: number; }, index: number) => (
                                 <div
                                     key={doctor.id}
                                     className="p-4 border rounded-lg flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors border-slate-100 dark:border-slate-700"

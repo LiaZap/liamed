@@ -42,6 +42,7 @@ export const login = async (req: Request, res: Response) => {
                 name: user.name
             },
             process.env.JWT_SECRET as string,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             { expiresIn: (process.env.JWT_EXPIRES_IN || '7d') as any }
         );
 
@@ -157,6 +158,15 @@ export const register = async (req: Request, res: Response) => {
             }
         }
 
+        // Fetch defaults for AI Endpoint and Prompt
+        const defaultEndpoint = await prisma.aiEndpoint.findFirst({
+            where: { name: { contains: 'GPT-4' } }
+        }) || await prisma.aiEndpoint.findFirst();
+
+        const defaultPrompt = await prisma.prompt.findFirst({
+            where: { isActive: true }
+        });
+
         // Create user
         const user = await prisma.user.create({
             data: {
@@ -168,7 +178,9 @@ export const register = async (req: Request, res: Response) => {
                 specialty: specialty || null,
                 phone: phone || null,
                 birthDate: birthDate ? new Date(birthDate) : null,
-                clinicId: clinicId // Link to clinic
+                clinicId: clinicId, // Link to clinic
+                endpointId: defaultEndpoint?.id || null, // Default AI Endpoint
+                customPrompt: defaultPrompt?.content || null // Default AI Prompt
             }
         });
 
@@ -248,6 +260,7 @@ export const register = async (req: Request, res: Response) => {
                 name: user.name
             },
             process.env.JWT_SECRET as string,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             { expiresIn: (process.env.JWT_EXPIRES_IN || '7d') as any }
         );
 

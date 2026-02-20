@@ -3,12 +3,12 @@ import autoTable from 'jspdf-autotable';
 
 // --- CSV Export ---
 
-export const exportToCSV = (data: any[], headers: string[], filename: string) => {
+export const exportToCSV = (data: (string | number | boolean | null)[][], headers: string[], filename: string) => {
     // 1. Create CSV Header Row
     const csvContent = "data:text/csv;charset=utf-8,"
         + headers.join(",") + "\n"
         + data.map(row => {
-            return row.map((field: any) => {
+            return row.map((field) => {
                 // Escape quotes and wrap in quotes if necessary
                 if (typeof field === 'string') {
                     return `"${field.replace(/"/g, '""')}"`;
@@ -30,7 +30,7 @@ export const exportToCSV = (data: any[], headers: string[], filename: string) =>
 // --- PDF Export ---
 
 export const exportToPDF = (
-    data: any[],
+    data: (string | number | boolean | null)[][],
     headers: string[],
     title: string,
     filename: string

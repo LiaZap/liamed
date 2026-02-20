@@ -33,16 +33,27 @@ const TRANSCRIPTION_LIMITS = {
     PREMIUM: null  // Ilimitado
 }
 
+interface DiagnosisItem {
+    id: string;
+    patientName: string;
+    createdAt: string;
+    userPrompt: string;
+    aiResponse?: string;
+    complementaryData?: string;
+    status: string;
+    model: string;
+}
+
 export default function Diagnosis() {
     const { t } = useTranslation();
     const { plan } = useUserPlan()
     const [responseState, setResponseState] = useState<'empty' | 'loading' | 'content'>('empty')
     const [isModalOpen, setIsModalOpen] = useState(false)
-    const [selectedHistoryItem, setSelectedHistoryItem] = useState<any>(null)
+    const [selectedHistoryItem, setSelectedHistoryItem] = useState<DiagnosisItem | null>(null)
     const [isCreateConsultOpen, setIsCreateConsultOpen] = useState(false)
 
     const [patientName, setPatientName] = useState('')
-    const [diagnosisResult, setDiagnosisResult] = useState<any>(null)
+    const [diagnosisResult, setDiagnosisResult] = useState<DiagnosisItem | null>(null)
 
     // New States
     const [symptoms, setSymptoms] = useState('')
@@ -57,7 +68,7 @@ export default function Diagnosis() {
     const recordingTimerRef = useRef<NodeJS.Timeout | null>(null)
     const transcriptionLimit = TRANSCRIPTION_LIMITS[plan] // em minutos
 
-    const [history, setHistory] = useState<any[]>([])
+    const [history, setHistory] = useState<DiagnosisItem[]>([])
     const [historyLoading, setHistoryLoading] = useState(true)
     const [page, setPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
@@ -89,33 +100,35 @@ export default function Diagnosis() {
             fetchHistory(1, searchTerm)
         }, 300)
         return () => clearTimeout(timer)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchTerm])
 
     useEffect(() => {
         // Initial load only when searchTerm is empty (debounce handles search)
         if (!searchTerm) fetchHistory()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     // Web Speech API State
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [recognition, setRecognition] = useState<any>(null)
 
     useEffect(() => {
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
             const recognitionInstance = new SpeechRecognition()
             recognitionInstance.continuous = true
             recognitionInstance.interimResults = true
             recognitionInstance.lang = t('language') === 'en' ? 'en-US' : 'pt-BR'
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             recognitionInstance.onresult = (event: any) => {
-                let interimTranscript = ''
                 let finalTranscript = ''
 
                 for (let i = event.resultIndex; i < event.results.length; ++i) {
                     if (event.results[i].isFinal) {
                         finalTranscript += event.results[i][0].transcript
-                    } else {
-                        interimTranscript += event.results[i][0].transcript
                     }
                 }
 
@@ -133,6 +146,7 @@ export default function Diagnosis() {
                 }
             }
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             recognitionInstance.onerror = (event: any) => {
                 console.error("Speech recognition error", event.error)
                 // Don't stop recording on "no-speech" error which is common in continuous mode
@@ -341,7 +355,7 @@ export default function Diagnosis() {
         }
     }
 
-    const handleHistoryClick = (item: any) => {
+    const handleHistoryClick = (item: DiagnosisItem) => {
         setSelectedHistoryItem(item)
         setIsModalOpen(true)
     }
@@ -361,7 +375,7 @@ export default function Diagnosis() {
     }
 
     const handleCopy = () => {
-        const textToCopy = diagnosisResult?.aiResponse || "";
+        const textToCopy = (diagnosisResult?.aiResponse as string) || "";
         if (textToCopy) {
             navigator.clipboard.writeText(textToCopy);
             toast.success(t('diagnosis.toasts.copy_success'), {
@@ -375,7 +389,7 @@ export default function Diagnosis() {
             try {
                 await navigator.share({
                     title: `Diagnóstico - ${patientName}`,
-                    text: diagnosisResult.aiResponse,
+                    text: diagnosisResult.aiResponse as string,
                 });
             } catch (err) {
                 console.error("Share failed", err);
@@ -388,7 +402,7 @@ export default function Diagnosis() {
     const handleExpand = () => {
         if (diagnosisResult) {
             setSelectedHistoryItem({
-                ...diagnosisResult,
+                ...(diagnosisResult as DiagnosisItem),
                 patientName: patientName,
                 userPrompt: symptoms,
                 complementaryData: complementaryData,
@@ -420,7 +434,7 @@ export default function Diagnosis() {
             <ConsultationDetailsModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                data={selectedHistoryItem}
+                data={selectedHistoryItem ? { ...selectedHistoryItem, aiResponse: selectedHistoryItem.aiResponse || '' } : null}
             />
             <div className="flex flex-col lg:flex-row h-[calc(100vh-120px)] gap-6">
                 {/* ... (Left Column - History) ... */}

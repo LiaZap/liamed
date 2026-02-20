@@ -67,7 +67,7 @@ export default function Notifications() {
                             onChange={(e) => setSearch(e.target.value)}
                         />
                     </div>
-                    <Tabs value={filter} onValueChange={(v) => setFilter(v as any)} className="w-full sm:w-auto">
+                    <Tabs value={filter} onValueChange={(v) => setFilter(v as 'all' | 'unread' | 'info' | 'success' | 'warning' | 'error')} className="w-full sm:w-auto">
                         <TabsList className="grid w-full grid-cols-3 sm:w-auto bg-slate-100 dark:bg-slate-800">
                             <TabsTrigger value="all">Todas</TabsTrigger>
                             <TabsTrigger value="unread">Não lidas</TabsTrigger>

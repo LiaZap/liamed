@@ -97,7 +97,9 @@ export const demoController = {
                         doctorId: assignedDoctor.id,
                         doctorName: assignedDoctor.name,
                         date: date,
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         type: randomElement(CONSULT_TYPES) as any,
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         status: randomElement(CONSULT_STATUSES) as any
                     }
                 });

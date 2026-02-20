@@ -3,12 +3,13 @@ import api from '@/services/api';
 import { jwtDecode } from 'jwt-decode';
 import { TermsModal } from '@/components/TermsModal';
 
-interface User {
+export interface User {
     id: string;
     name: string;
     email: string;
     role: string;
     avatar?: string;
+    specialty?: string | null;
     plan?: 'ESSENTIAL' | 'PRO' | 'PREMIUM' | null;
     planStatus?: 'ACTIVE' | 'TRIALING' | 'PAST_DUE' | 'CANCELED' | null;
     planEndsAt?: string | null;
@@ -47,13 +48,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const logout = () => {
+        localStorage.removeItem('medipro-token');
+        setUser(null);
+        setShowTermsModal(false);
+        window.location.href = '/';
+    };
+
     useEffect(() => {
         const loadUser = async () => {
             const token = localStorage.getItem('medipro-token');
             if (token) {
                 try {
                     // Decodificar token para verificar validade básica
-                    const decoded: any = jwtDecode(token);
+                     
+                    const decoded = jwtDecode<any>(token); // eslint-disable-line @typescript-eslint/no-explicit-any
                     const currentTime = Date.now() / 1000;
 
                     if (decoded.exp < currentTime) {
@@ -103,12 +112,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
-    const logout = () => {
-        localStorage.removeItem('medipro-token');
-        setUser(null);
-        setShowTermsModal(false);
-        window.location.href = '/';
-    };
+
 
     const handleTermsAccepted = () => {
         setShowTermsModal(false);
@@ -128,6 +132,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
 }
 
+ 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (context === undefined) {

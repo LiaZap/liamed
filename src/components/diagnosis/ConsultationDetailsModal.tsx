@@ -40,7 +40,8 @@ export function ConsultationDetailsModal({ isOpen, onClose, data }: Consultation
     }
 
     const getStatusConfig = (status: string) => {
-        const configs: Record<string, { bg: string; text: string; icon: any }> = {
+         
+        const configs: Record<string, { bg: string; text: string; icon: React.ElementType }> = {
             'ORIGINAL': { bg: 'bg-blue-50 dark:bg-blue-900/20', text: 'text-blue-700 dark:text-blue-400', icon: CheckCircle },
             'EDITADO': { bg: 'bg-orange-50 dark:bg-orange-900/20', text: 'text-orange-700 dark:text-orange-400', icon: Activity },
             'CONCLUÍDO': { bg: 'bg-green-50 dark:bg-green-900/20', text: 'text-green-700 dark:text-green-400', icon: CheckCircle },
@@ -106,8 +107,8 @@ export function ConsultationDetailsModal({ isOpen, onClose, data }: Consultation
                         {/* Section: Sintomas */}
                         <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-5 border border-slate-100 dark:border-slate-700">
                             <div className="flex items-center gap-2 mb-4">
-                                <div className="h-8 w-8 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                                    <Stethoscope className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                                <div className="h-8 w-8 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
+                                    <Stethoscope className="h-4 w-4 text-teal-600 dark:text-teal-400" />
                                 </div>
                                 <h3 className="font-semibold text-slate-800 dark:text-slate-100">Sintomas e Relato</h3>
                             </div>
@@ -172,7 +173,8 @@ export function ConsultationDetailsModal({ isOpen, onClose, data }: Consultation
                                     <ReactMarkdown
                                         remarkPlugins={[remarkGfm]}
                                         components={{
-                                            a: ({ node, children, href, ...props }) => (
+                                             
+                                            a: ({ children, href, ...props }) => (
                                                 <a
                                                     href={href}
                                                     target="_blank"
@@ -184,28 +186,36 @@ export function ConsultationDetailsModal({ isOpen, onClose, data }: Consultation
                                                     <ExternalLink className="h-3 w-3 inline-block flex-shrink-0" />
                                                 </a>
                                             ),
-                                            p: ({ node, ...props }) => (
+                                             
+                                            p: ({ ...props }) => (
                                                 <p {...props} className="my-4 leading-relaxed text-slate-800 dark:text-slate-200" />
                                             ),
-                                            strong: ({ node, ...props }) => (
+                                             
+                                            strong: ({ ...props }) => (
                                                 <strong {...props} className="font-bold text-slate-950 dark:text-white" />
                                             ),
-                                            h1: ({ node, ...props }) => (
+                                             
+                                            h1: ({ ...props }) => (
                                                 <h1 {...props} className="text-xl font-bold text-slate-950 dark:text-white mt-6 mb-4 pb-2 border-b border-slate-200 dark:border-slate-700" />
                                             ),
-                                            h2: ({ node, ...props }) => (
+                                             
+                                            h2: ({ ...props }) => (
                                                 <h2 {...props} className="text-lg font-bold text-slate-900 dark:text-white mt-6 mb-3" />
                                             ),
-                                            h3: ({ node, ...props }) => (
+                                             
+                                            h3: ({ ...props }) => (
                                                 <h3 {...props} className="text-base font-bold text-slate-800 dark:text-slate-100 mt-5 mb-2 uppercase tracking-wide" />
                                             ),
-                                            ul: ({ node, ...props }) => (
+                                             
+                                            ul: ({ ...props }) => (
                                                 <ul {...props} className="my-3 pl-5 space-y-2 list-disc marker:text-slate-500" />
                                             ),
-                                            ol: ({ node, ...props }) => (
+                                             
+                                            ol: ({ ...props }) => (
                                                 <ol {...props} className="my-3 pl-5 space-y-2 list-decimal marker:text-slate-500" />
                                             ),
-                                            li: ({ node, ...props }) => (
+                                             
+                                            li: ({ ...props }) => (
                                                 <li {...props} className="text-slate-800 dark:text-slate-200 leading-relaxed" />
                                             ),
                                         }}

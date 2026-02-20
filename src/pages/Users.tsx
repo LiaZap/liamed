@@ -76,7 +76,7 @@ export default function UsersPage() {
         setIsEditModalOpen(true)
     }
 
-    const handleSaveUser = async (userData: any) => {
+    const handleSaveUser = async (userData: Record<string, unknown>) => {
         try {
             if (selectedUser) {
                 await api.put(`/users/${selectedUser.id}`, userData)

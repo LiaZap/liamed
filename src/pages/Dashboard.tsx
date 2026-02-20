@@ -23,7 +23,8 @@ import { AnimatedCounter } from "@/components/ui/animated-counter"
 export default function Dashboard() {
     const { user } = useAuth()
     const [loading, setLoading] = useState(true)
-    const [stats, setStats] = useState<any>({ consults: 0, diagnoses: 0, revenue: 0, avgTime: 0, recentConsults: [], evolution: [], todayConsults: 0 })
+    interface DashboardStats { consults: number; diagnoses: number; revenue: number; avgTime: number; recentConsults: { patientName: string; status?: string; doctorName?: string; type?: string; date: string; time: string }[]; evolution: Record<string, unknown>[]; todayConsults: number; totalPatients?: number; teamPerformance?: { name: string; specialty?: string; consults: number; rating: number }[]; newPatientsEvolution?: Record<string, unknown>[]; occupancyRate?: number; satisfactionIndex?: number; }
+    const [stats, setStats] = useState<DashboardStats>({ consults: 0, diagnoses: 0, revenue: 0, avgTime: 0, recentConsults: [], evolution: [], todayConsults: 0 })
     const [period, setPeriod] = useState('7')
     const { isDark } = useTheme()
     const { t } = useTranslation();
@@ -133,10 +134,10 @@ export default function Dashboard() {
         doc.setFont('helvetica', 'bold')
         doc.text('Evolução de Consultas', 14, financeY + 35)
 
-        const evoRows = (stats.evolution || []).map((e: any) => [
-            e.name,
-            e.consultas || 0,
-            e.consultas > 0 ? '●' : '○'
+        const evoRows = (stats.evolution || []).map((e: Record<string, unknown>) => [
+            e.name as string,
+            (e.consultas as number) || 0,
+            (e.consultas as number) > 0 ? '●' : '○'
         ])
 
         autoTable(doc, {
@@ -163,7 +164,7 @@ export default function Dashboard() {
         })
 
         // ===== TEAM PERFORMANCE =====
-        const teamY = (doc as any).lastAutoTable.finalY + 15
+        const teamY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 15
 
         if (stats.teamPerformance && stats.teamPerformance.length > 0) {
             doc.setTextColor(30, 41, 59)
@@ -171,10 +172,10 @@ export default function Dashboard() {
             doc.setFont('helvetica', 'bold')
             doc.text('Desempenho da Equipe Médica', 14, teamY)
 
-            const teamRows = stats.teamPerformance.map((d: any) => [
-                d.name,
-                d.specialty || 'Clínico Geral',
-                d.consults,
+            const teamRows = stats.teamPerformance.map((d: Record<string, unknown>) => [
+                d.name as string,
+                (d.specialty as string) || 'Clínico Geral',
+                d.consults as number,
                 `★ ${d.rating}`
             ])
 
@@ -288,7 +289,7 @@ export default function Dashboard() {
                         <Card className="shadow-sm hover:translate-y-[-2px] hover:shadow-md transition-all duration-300 dark:bg-[#222428] dark:border-slate-800 animate-fade-in-up animate-delay-100">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium text-muted-foreground">{t('dashboard.total_consults')}</CardTitle>
-                                <Calendar className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                                <Calendar className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                             </CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold text-slate-900 dark:text-slate-50">
@@ -436,7 +437,7 @@ export default function Dashboard() {
                                     </div>
                                 ))
                             ) : (
-                                (stats.recentConsults || []).map((consult: any, i: number) => (
+                                (stats.recentConsults || []).map((consult: { patientName: string; status?: string; doctorName?: string; type?: string; date: string; time: string }, i: number) => (
                                     <div key={i} className="border rounded-lg p-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border-slate-100 dark:border-slate-800">
                                         <div className="flex justify-between items-start mb-1">
                                             <h4 className="font-semibold text-slate-800 dark:text-slate-200 capitalize">{consult.patientName}</h4>
@@ -469,7 +470,7 @@ export default function Dashboard() {
                         <div className="flex items-center gap-1">
                             <span className="h-6 w-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-[10px] font-bold">MT</span>
                             <span className="h-6 w-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[10px] font-bold dark:bg-slate-800 dark:text-slate-300">TS</span>
-                            <span className="h-6 w-6 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-[10px] font-bold">IC</span>
+                            <span className="h-6 w-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-[10px] font-bold">IC</span>
                         </div>
                     </CardHeader>
                     <CardContent>
@@ -485,12 +486,12 @@ export default function Dashboard() {
                                     </div>
                                 ))
                             ) : (
-                                (stats.teamPerformance || []).map((doctor: any, i: number) => (
+                                (stats.teamPerformance || []).map((doctor: { name: string; specialty?: string; consults: number; rating: number }, i: number) => (
                                     <div key={i} className="flex items-center justify-between group">
                                         <div className="flex items-center gap-3">
                                             <div className={`h-10 w-10 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-sm ${i === 0 ? 'bg-green-600' :
                                                 i === 1 ? 'bg-teal-500' :
-                                                    i === 2 ? 'bg-purple-500' :
+                                                    i === 2 ? 'bg-indigo-500' :
                                                         i === 3 ? 'bg-cyan-500' : 'bg-lime-500'
                                                 }`}>
                                                 {doctor.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()}

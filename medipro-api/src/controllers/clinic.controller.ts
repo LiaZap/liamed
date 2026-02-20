@@ -5,6 +5,7 @@ import { logAction } from '../services/audit.service';
 const prisma = new PrismaClient();
 
 interface AuthRequest extends Request {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     user?: any;
 }
 
@@ -122,6 +123,7 @@ export const createClinic = async (req: AuthRequest, res: Response) => {
         });
 
         res.status(201).json(clinic);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
         if (error.code === 'P2002') {
             return res.status(400).json({ error: 'CNPJ já cadastrado.' });

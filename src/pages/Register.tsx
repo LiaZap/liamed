@@ -8,8 +8,17 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Loader2, ArrowRight, CheckCircle2, ShieldCheck, Star } from "lucide-react"
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from "@/components/ui/command"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Loader2, ArrowRight, CheckCircle2, ShieldCheck, Star, Check, ChevronsUpDown } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 // Lista de Depoimentos (15 variações)
 const TESTIMONIALS = [
@@ -172,6 +181,7 @@ export default function Register() {
     const [password, setPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
     const [specialty, setSpecialty] = useState("")
+    const [openSpecialty, setOpenSpecialty] = useState(false)
     const [birthDate, setBirthDate] = useState("")
     const [promoCode, setPromoCode] = useState("")
 
@@ -216,9 +226,10 @@ export default function Register() {
             })
             
             navigate('/dashboard')
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Register Error:", error)
-            const errorMessage = error.response?.data?.error || "Falha no cadastro."
+            const apiError = error as { response?: { data?: { error?: string } } }
+            const errorMessage = apiError.response?.data?.error || "Falha no cadastro."
             toast.error(errorMessage)
         } finally {
             setIsLoading(false)
@@ -367,16 +378,49 @@ export default function Register() {
 
                             <div className="grid gap-2">
                                 <Label>Especialidade</Label>
-                                <Select value={specialty} onValueChange={setSpecialty}>
-                                    <SelectTrigger className="h-11 bg-slate-50 border-slate-200 focus:ring-blue-600/20 dark:bg-[#1a1d21] dark:border-slate-800">
-                                        <SelectValue placeholder="Selecione sua especialidade" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {MEDICAL_SPECIALTIES.map((spec) => (
-                                            <SelectItem key={spec} value={spec}>{spec}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <Popover open={openSpecialty} onOpenChange={setOpenSpecialty}>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            role="combobox"
+                                            aria-expanded={openSpecialty}
+                                            className="w-full justify-between font-normal h-11 bg-slate-50 border-slate-200 focus:ring-blue-600/20 dark:bg-[#1a1d21] dark:border-slate-800"
+                                            disabled={isLoading}
+                                        >
+                                            {specialty || "Selecione sua especialidade"}
+                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-full p-0">
+                                        <Command>
+                                            <CommandInput placeholder="Buscar especialidade..." />
+                                            <CommandList>
+                                                <CommandEmpty>Nenhuma especialidade encontrada.</CommandEmpty>
+                                                <CommandGroup>
+                                                    {MEDICAL_SPECIALTIES.map((spec) => (
+                                                        <CommandItem
+                                                            key={spec}
+                                                            value={spec}
+                                                            onSelect={(currentValue: string) => {
+                                                                const originalSpec = MEDICAL_SPECIALTIES.find(s => s.toLowerCase() === currentValue) || currentValue;
+                                                                setSpecialty(originalSpec === specialty ? "" : originalSpec);
+                                                                setOpenSpecialty(false);
+                                                            }}
+                                                        >
+                                                            <Check
+                                                                className={cn(
+                                                                    "mr-2 h-4 w-4",
+                                                                    specialty === spec ? "opacity-100" : "opacity-0"
+                                                                )}
+                                                            />
+                                                            {spec}
+                                                        </CommandItem>
+                                                    ))}
+                                                </CommandGroup>
+                                            </CommandList>
+                                        </Command>
+                                    </PopoverContent>
+                                </Popover>
                             </div>
 
                             <div className="grid gap-2">

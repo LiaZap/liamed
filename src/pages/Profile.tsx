@@ -13,7 +13,9 @@ import {
     Eye,
     EyeOff,
     Trash2,
-    CreditCard
+    CreditCard,
+    Check,
+    ChevronsUpDown
 } from "lucide-react"
 import {
     AlertDialog,
@@ -25,18 +27,22 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
+
 import { MEDICAL_SPECIALTIES } from "@/constants/specialties"
 import api from "@/services/api"
 import { useAuth } from "@/contexts/AuthContext"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from "@/components/ui/command"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { cn } from "@/lib/utils"
 
 import { type NavItem } from "@/components/layout/Sidebar"
 
@@ -44,10 +50,24 @@ interface ProfileProps {
     onNavigate?: (path: NavItem) => void
 }
 
+interface UserProfile {
+    id: string;
+    name?: string;
+    email?: string;
+    role?: string;
+    specialty?: string;
+    createdAt?: string;
+    lastLogin?: string;
+    phone?: string;
+    address?: string;
+    biography?: string;
+    [key: string]: unknown;
+}
+
 export default function Profile({ onNavigate }: ProfileProps) {
     const { t } = useTranslation()
     const { user: authUser, logout } = useAuth()
-    const [user, setUser] = useState<any>(null)
+    const [user, setUser] = useState<UserProfile | null>(null)
     const [loading, setLoading] = useState(true)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false)
@@ -58,6 +78,7 @@ export default function Profile({ onNavigate }: ProfileProps) {
     const [editAddress, setEditAddress] = useState("")
     const [editBio, setEditBio] = useState("")
     const [editSpecialty, setEditSpecialty] = useState("")
+    const [openSpecialty, setOpenSpecialty] = useState(false)
     const [saving, setSaving] = useState(false)
 
     // Password Visibility States
@@ -134,7 +155,7 @@ export default function Profile({ onNavigate }: ProfileProps) {
     }
 
     // Fallback if fetch fails but we have authUser
-    const displayUser = user || authUser || {}
+    const displayUser = (user || authUser || {}) as Partial<UserProfile>
 
     return (
         <div className="space-y-6">
@@ -306,18 +327,48 @@ export default function Profile({ onNavigate }: ProfileProps) {
                         {(displayUser.role === 'MEDICO' || displayUser.specialty) && (
                             <div className="space-y-2">
                                 <Label className="dark:text-slate-300">Especialidade</Label>
-                                <Select value={editSpecialty} onValueChange={setEditSpecialty}>
-                                    <SelectTrigger className="dark:bg-slate-800 dark:border-slate-700">
-                                        <SelectValue placeholder="Selecione sua especialidade" />
-                                    </SelectTrigger>
-                                    <SelectContent className="max-h-[200px]">
-                                        {MEDICAL_SPECIALTIES.map((spec) => (
-                                            <SelectItem key={spec} value={spec}>
-                                                {spec}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <Popover open={openSpecialty} onOpenChange={setOpenSpecialty}>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            role="combobox"
+                                            aria-expanded={openSpecialty}
+                                            className="w-full justify-between font-normal dark:bg-slate-800 dark:border-slate-700"
+                                        >
+                                            {editSpecialty || "Selecione sua especialidade"}
+                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-full p-0">
+                                        <Command>
+                                            <CommandInput placeholder="Buscar especialidade..." />
+                                            <CommandList>
+                                                <CommandEmpty>Nenhuma especialidade encontrada.</CommandEmpty>
+                                                <CommandGroup>
+                                                    {MEDICAL_SPECIALTIES.map((spec) => (
+                                                        <CommandItem
+                                                            key={spec}
+                                                            value={spec}
+                                                            onSelect={(currentValue: string) => {
+                                                                const originalSpec = MEDICAL_SPECIALTIES.find(s => s.toLowerCase() === currentValue) || currentValue;
+                                                                setEditSpecialty(originalSpec === editSpecialty ? "" : originalSpec);
+                                                                setOpenSpecialty(false);
+                                                            }}
+                                                        >
+                                                            <Check
+                                                                className={cn(
+                                                                    "mr-2 h-4 w-4",
+                                                                    editSpecialty === spec ? "opacity-100" : "opacity-0"
+                                                                )}
+                                                            />
+                                                            {spec}
+                                                        </CommandItem>
+                                                    ))}
+                                                </CommandGroup>
+                                            </CommandList>
+                                        </Command>
+                                    </PopoverContent>
+                                </Popover>
                             </div>
                         )}
                     </div>

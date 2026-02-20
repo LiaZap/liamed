@@ -35,9 +35,10 @@ export default function Login() {
             toast.success(t('auth.login_success'))
             // Optionally navigate after successful login
             navigate('/dashboard');
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Login Error:", error)
-            const errorMessage = error.response?.data?.error || t('auth.login_error')
+            const apiError = error as { response?: { data?: { error?: string } } }
+            const errorMessage = apiError.response?.data?.error || t('auth.login_error')
             toast.error(errorMessage)
         } finally {
             setIsLoading(false)

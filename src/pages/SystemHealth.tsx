@@ -35,7 +35,14 @@ interface HealthStats {
             logs: number;
         };
     };
-    recentActivity: any[];
+    recentActivity: SystemLog[];
+}
+
+interface SystemLog {
+    action: string;
+    createdAt: string;
+    user?: { name: string };
+    resource: string;
 }
 
 export default function SystemHealth() {

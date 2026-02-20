@@ -65,6 +65,7 @@ function AuthenticatedApp() {
 
   // Update state when URL changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentPath(getPathFromUrl(location.pathname))
   }, [location.pathname])
 

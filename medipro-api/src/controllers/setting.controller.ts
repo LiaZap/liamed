@@ -5,6 +5,7 @@ import { Request, Response } from 'express';
 // Helper interface since we don't have AuthRequest imported here usually. 
 // We assume req.user might be present if middleware ran.
 interface AuthRequest extends Request {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     user?: any;
 }
 

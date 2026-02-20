@@ -89,7 +89,13 @@ export default function SupportAdmin() {
   const [targetSpecialty, setTargetSpecialty] = useState("TODAS");
   
   // Sent Broadcasts List State
-  const [broadcasts, setBroadcasts] = useState<any[]>([]);
+  interface Broadcast {
+      title: string;
+      message: string;
+      createdAt: string;
+      _count: { id: number };
+  }
+  const [broadcasts, setBroadcasts] = useState<Broadcast[]>([]);
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
@@ -159,7 +165,7 @@ export default function SupportAdmin() {
   };
 
   // Delete broadcast
-  const deleteBroadcast = async (broadcast: any) => {
+  const deleteBroadcast = async (broadcast: Broadcast) => {
       if (!confirm("Tem certeza que deseja apagar este comunicado para TODOS os usuários?")) return;
 
       try {
@@ -171,7 +177,7 @@ export default function SupportAdmin() {
           });
           toast.success("Comunicado apagado com sucesso");
           loadBroadcasts();
-      } catch (error) {
+      } catch {
           toast.error("Erro ao apagar comunicado");
       }
   };
@@ -181,6 +187,7 @@ export default function SupportAdmin() {
     loadTickets();
     const interval = setInterval(loadTickets, 30000); // 30s poll
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter]);
 
   // Load broadcasts on mount if admin/gestor
@@ -188,6 +195,7 @@ export default function SupportAdmin() {
      if (user?.role === 'ADMIN' || user?.role === 'GESTOR') {
          loadBroadcasts();
      }
+     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Scroll to bottom when messages change
@@ -201,7 +209,7 @@ export default function SupportAdmin() {
 
   const loadTickets = async () => {
     try {
-      const params: any = {};
+      const params: Record<string, string> = {};
       if (statusFilter !== "ALL") params.status = statusFilter;
       
       const response = await api.get("/support/tickets", { params });
@@ -221,7 +229,7 @@ export default function SupportAdmin() {
       setTickets(prev => prev.map(t => 
         t.id === ticketId ? { ...t, unreadCount: 0 } : t
       ));
-    } catch (error) {
+    } catch {
       toast.error("Erro ao carregar conversa");
     }
   };
@@ -242,7 +250,7 @@ export default function SupportAdmin() {
       if (selectedTicket.status === "OPEN") {
         setSelectedTicket(prev => prev ? { ...prev, status: "IN_PROGRESS" } : null);
       }
-    } catch (error) {
+    } catch {
       toast.error("Erro ao enviar mensagem");
     } finally {
       setSending(false);
@@ -257,7 +265,7 @@ export default function SupportAdmin() {
       setSelectedTicket(prev => prev ? { ...prev, status: newStatus } : null);
       loadTickets();
       toast.success(`Status atualizado para ${statusLabels[newStatus]}`);
-    } catch (error) {
+    } catch {
       toast.error("Erro ao atualizar status");
     }
   };

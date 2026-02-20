@@ -23,6 +23,7 @@ async function test() {
         });
         console.log(`✅ Consults Response: ${consultsRes.data.length} items found.`);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
         console.error('❌ Test failed:', error.response ? error.response.data : error.message);
     }

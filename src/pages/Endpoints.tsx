@@ -34,12 +34,22 @@ import {
 import api from "@/services/api"
 import { EditEndpointModal } from "@/components/endpoints/EditEndpointModal"
 
+interface Endpoint {
+    id: string;
+    name: string;
+    url: string;
+    method: string;
+    status: string;
+    authType: string;
+    createdAt: string;
+}
+
 export default function Endpoints() {
-    const [endpoints, setEndpoints] = useState<any[]>([])
+    const [endpoints, setEndpoints] = useState<Endpoint[]>([])
     const [loading, setLoading] = useState(true)
     const [deleteId, setDeleteId] = useState<string | null>(null)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-    const [selectedEndpoint, setSelectedEndpoint] = useState<any>(null)
+    const [selectedEndpoint, setSelectedEndpoint] = useState<Endpoint | null>(null)
 
     const fetchEndpoints = async () => {
         setLoading(true)
@@ -58,7 +68,7 @@ export default function Endpoints() {
         fetchEndpoints()
     }, [])
 
-    const handleEditClick = (endpoint: any) => {
+    const handleEditClick = (endpoint: Endpoint) => {
         setSelectedEndpoint(endpoint)
         setIsEditModalOpen(true)
     }
@@ -68,7 +78,7 @@ export default function Endpoints() {
         setIsEditModalOpen(true)
     }
 
-    const handleSaveEndpoint = async (data: any) => {
+    const handleSaveEndpoint = async (data: Record<string, unknown>) => {
         try {
             if (selectedEndpoint) {
                 await api.put(`/endpoints/${selectedEndpoint.id}`, data)
@@ -99,7 +109,7 @@ export default function Endpoints() {
         }
     }
 
-    const handleTestConnection = async (data: any) => {
+    const handleTestConnection = async (data: Record<string, unknown>) => {
         try {
             toast.info("Testando conexão...")
             const response = await api.post('/endpoints/test', data)
@@ -112,7 +122,7 @@ export default function Endpoints() {
                     description: response.data.message
                 })
             }
-        } catch (error) {
+        } catch {
             toast.error("Erro ao testar conexão")
         }
     }

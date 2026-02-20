@@ -43,7 +43,7 @@ export default function Settings() {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
     // Helper to group settings
-    const groupSettings = (settings: any[]) => {
+    const groupSettings = (settings: Array<{ category: string, value: string, type: string } & ConfigItem>) => {
         const grouped: Record<string, ConfigItem[]> = {
             general: [],
             security: [],
@@ -61,7 +61,7 @@ export default function Settings() {
 
             // Map backend type to frontend type if needed, or keep as is if consistent
             // Note: Value comes as string from DB, we might need to parse it for boolean/number display logic
-            let parsedValue: any = s.value;
+            let parsedValue: string | number | boolean = s.value as string | number | boolean;
             if (s.type === 'BOOLEAN') parsedValue = s.value === 'true';
             if (s.type === 'NUMBER') parsedValue = Number(s.value);
 
@@ -93,6 +93,7 @@ export default function Settings() {
 
     useEffect(() => {
         fetchSettings();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const handleEdit = (item: ConfigItem) => {

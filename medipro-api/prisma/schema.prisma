@@ -21,6 +21,7 @@ model Clinic {
   consults   Consult[]
   diagnoses  Diagnosis[]
   users      User[]
+  vacancies  Vacancy[]
 
   @@map("clinics")
 }
@@ -55,6 +56,7 @@ model User {
   supportMessages     SupportMessage[]
   clinic              Clinic?              @relation(fields: [clinicId], references: [id])
   endpoint            Endpoint?            @relation(fields: [endpointId], references: [id])
+  vacancies           Vacancy[]
 
   @@index([clinicId])
   @@map("users")
@@ -482,4 +484,27 @@ model PromoCode {
 enum PromoType {
   TRIAL_EXTENSION
   DISCOUNT
+}
+
+model Vacancy {
+  id              String   @id @default(uuid())
+  title           String
+  description     String
+  sector          String
+  specialty       String?
+  imageUrl        String?
+  contactEmail    String?
+  contactWhatsapp String?
+  status          Status   @default(ATIVO)
+  clinicId        String?
+  creatorId       String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  clinic  Clinic? @relation(fields: [clinicId], references: [id])
+  creator User    @relation(fields: [creatorId], references: [id])
+
+  @@index([clinicId])
+  @@index([status])
+  @@map("vacancies")
 }

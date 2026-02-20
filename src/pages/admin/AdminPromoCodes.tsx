@@ -9,10 +9,17 @@ import { Badge } from '@/components/ui/badge';
 import { Trash2, Copy, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 // import { format } from 'date-fns'; // format unused
+interface PromoCode {
+    id: string;
+    code: string;
+    value: number;
+    currentUses: number;
+    maxUses: number | null;
+}
 
 export default function AdminPromoCodes() {
     // const { t } = useTranslation(); // t unused
-    const [promos, setPromos] = useState<any[]>([]);
+    const [promos, setPromos] = useState<PromoCode[]>([]);
     const [loading, setLoading] = useState(true);
     const [newCode, setNewCode] = useState('');
     const [days, setDays] = useState('30');
@@ -28,7 +35,7 @@ export default function AdminPromoCodes() {
             setLoading(true);
             const response = await api.get('/promos');
             setPromos(response.data);
-        } catch (error) {
+        } catch {
             toast.error('Erro ao carregar códigos promocionais');
         } finally {
             setLoading(false);
@@ -52,8 +59,9 @@ export default function AdminPromoCodes() {
             setNewCode('');
             setMaxUses('');
             fetchPromos();
-        } catch (error: any) {
-            toast.error(error.response?.data?.error || 'Erro ao criar código');
+        } catch (error: unknown) {
+            const apiError = error as { response?: { data?: { error?: string } } }
+            toast.error(apiError.response?.data?.error || 'Erro ao criar código');
         } finally {
             setCreating(false);
         }
@@ -66,7 +74,7 @@ export default function AdminPromoCodes() {
             await api.delete(`/promos/${id}`);
             toast.success('Código removido');
             setPromos(promos.filter(p => p.id !== id));
-        } catch (error) {
+        } catch {
             toast.error('Erro ao remover código');
         }
     };

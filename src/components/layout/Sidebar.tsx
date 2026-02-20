@@ -61,7 +61,8 @@ export function Sidebar({
   const { t } = useTranslation();
 
   const menuItems: {
-    icon: any;
+     
+    icon: React.ElementType;
     label: string;
     key: NavItem;
     href: string;

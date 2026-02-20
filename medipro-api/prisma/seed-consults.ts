@@ -58,7 +58,9 @@ async function main() {
         await prisma.consult.create({
             data: {
                 ...data,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 type: data.type as any,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 status: data.status as any,
                 doctorId: doctor.id,
                 doctorName: doctor.name

@@ -33,6 +33,7 @@ export function EditConfigModal({ isOpen, onClose, config, onSave }: EditConfigM
 
     useEffect(() => {
         if (config) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setValue(config.value)
         }
     }, [config, isOpen])

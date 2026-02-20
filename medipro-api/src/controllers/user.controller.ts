@@ -54,6 +54,7 @@ export const createUser = async (req: AuthRequest, res: Response) => {
     });
 
     res.status(201).json(user);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     res.status(500).json({ error: "Erro ao criar usuário." });
   }
@@ -103,6 +104,7 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
         });
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data: any = {
       name,
       email,
@@ -184,7 +186,7 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
             
             // Calculate dates
             const startDate = new Date();
-            let endDate = new Date();
+            const endDate = new Date();
             
             if (newStatus === 'ACTIVE') {
                endDate.setFullYear(endDate.getFullYear() + 1);
@@ -196,6 +198,7 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
                 data: {
                     userId: id,
                     planId: planRecord.id,
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     status: newStatus as any,
                     currentPeriodStart: startDate,
                     currentPeriodEnd: endDate,
@@ -322,6 +325,7 @@ export const getUserSubscriptions = async (req: AuthRequest, res: Response) => {
 };
 
 interface AuthRequest extends Request {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   user?: any;
 }
 
@@ -381,6 +385,7 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
     }
 
     // Return flattened user object with plan info
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { subscriptions, ...userData } = user;
     
     res.json({
@@ -459,6 +464,7 @@ export const listUsers = async (req: AuthRequest, res: Response) => {
             planStatus = sub.status;
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { subscriptions, ...userData } = user;
         const activeSub = user.subscriptions && user.subscriptions.length > 0 ? user.subscriptions[0] : null;
 
@@ -471,6 +477,7 @@ export const listUsers = async (req: AuthRequest, res: Response) => {
     });
 
     res.json(usersWithPlan);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     res.status(500).json({ error: "Erro ao listar usuários." });
   }

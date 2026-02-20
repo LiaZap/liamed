@@ -59,7 +59,24 @@ export default function Consultations() {
     const { t } = useTranslation();
     const { user } = useAuth();
     const isAdmin = user?.role === 'ADMIN' || user?.role === 'GESTOR';
-    const [consultations, setConsultations] = useState<any[]>([])
+    interface ConsultationData {
+        id: string;
+        patient: { name: string; color?: string; initial?: string; email?: string; phone?: string; };
+        doctor: string;
+        isoDate?: string;
+        date: string;
+        time: string;
+        type: string;
+        status: string;
+        patientName?: string;
+        doctorName?: string;
+        diagnosis?: {
+            userPrompt: string;
+            complementaryData?: string;
+            aiResponse?: string;
+        };
+    }
+    const [consultations, setConsultations] = useState<ConsultationData[]>([])
     const [stats, setStats] = useState({ total: 0, scheduled: 0, completed: 0, cancelled: 0 })
     const [loading, setLoading] = useState(true)
     const [searchTerm, setSearchTerm] = useState('')
@@ -68,7 +85,7 @@ export default function Consultations() {
     const [typeFilter, setTypeFilter] = useState('all')
 
     // Details Modal State
-    const [selectedConsult, setSelectedConsult] = useState<any>(null)
+    const [selectedConsult, setSelectedConsult] = useState<ConsultationData | null>(null)
     const [isDetailsOpen, setIsDetailsOpen] = useState(false)
     const [detailsLoading, setDetailsLoading] = useState(false)
 
@@ -108,6 +125,7 @@ export default function Consultations() {
         }, 300)
 
         return () => clearTimeout(timeout)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchTerm, statusFilter, typeFilter])
 
     const handleExport = (type: 'csv' | 'pdf') => {
@@ -197,9 +215,10 @@ export default function Consultations() {
             toast.success("Consulta excluída com sucesso!")
             setDeleteConfirmId(null)
             fetchConsultations()
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Failed to delete consultation", error)
-            toast.error(error.response?.data?.error || "Erro ao excluir consulta")
+            const apiError = error as { response?: { data?: { error?: string } } }
+            toast.error(apiError.response?.data?.error || "Erro ao excluir consulta")
         }
     }
 

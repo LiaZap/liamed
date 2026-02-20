@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import { logAction } from '../services/audit.service';
 
 interface AuthRequest extends Request {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     user?: any;
 }
 

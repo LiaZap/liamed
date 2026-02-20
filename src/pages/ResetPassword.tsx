@@ -40,9 +40,10 @@ export default function ResetPassword() {
             await api.post('/auth/reset-password', { token, newPassword: password })
             toast.success(t('auth.password_reset_success'))
             setTimeout(() => navigate('/login'), 2000)
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Reset Password Error:", error)
-            const msg = error.response?.data?.error || t('common.error')
+            const apiError = error as { response?: { data?: { error?: string } } }
+            const msg = apiError.response?.data?.error || t('common.error')
             toast.error(msg)
         } finally {
             setIsLoading(false)

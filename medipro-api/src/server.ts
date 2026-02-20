@@ -42,6 +42,7 @@ import supportRoutes from './routes/support.routes';
 import notificationRoutes from './routes/notification.routes';
 import promoRoutes from './routes/promo.routes';
 import uploadRoutes from './routes/upload.routes';
+import vacancyRoutes from './routes/vacancy.routes';
 import swaggerUi from 'swagger-ui-express';
 import { specs } from './config/swagger';
 import path from 'path';
@@ -63,7 +64,7 @@ app.use(helmet({
 const isProduction = process.env.NODE_ENV === 'production';
 const allowedOrigins = isProduction 
     ? [process.env.FRONTEND_URL].filter(Boolean) as string[]
-    : [process.env.FRONTEND_URL || 'http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:5173'];
+    : [process.env.FRONTEND_URL || 'http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:5174', 'http://127.0.0.1:5174'];
 app.use(cors({
     origin: allowedOrigins,
     credentials: true
@@ -103,6 +104,7 @@ app.use('/api/support', supportRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/promos', promoRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/vacancies', vacancyRoutes);
 
 // Documentation - Protected in production
 if (process.env.NODE_ENV !== 'production') {
@@ -144,6 +146,7 @@ if (process.env.NODE_ENV !== 'production') {
                     diagnoses: diagnosesCount
                 }
             });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             res.status(500).json({
                 status: 'error',
@@ -161,6 +164,7 @@ app.use((req, res) => {
 });
 
 // Error handler
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
     console.error(err.stack);
     const isProduction = process.env.NODE_ENV === 'production';

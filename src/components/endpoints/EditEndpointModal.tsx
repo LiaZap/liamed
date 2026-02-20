@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect } from "react"
 import {
     Dialog,
@@ -15,9 +16,15 @@ import { Switch } from "@/components/ui/switch"
 interface EditEndpointModalProps {
     isOpen: boolean
     onClose: () => void
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     endpoint?: any
+     
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSave: (data: any) => void
+     
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onTest?: (data: any) => void
+ 
 }
 
 export function EditEndpointModal({ isOpen, onClose, endpoint, onSave, onTest }: EditEndpointModalProps) {

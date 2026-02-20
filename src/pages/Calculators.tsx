@@ -17,7 +17,7 @@ export default function Calculators() {
     const [searchTerm, setSearchTerm] = useState("")
     const [calculators, setCalculators] = useState<CalculatorFormula[]>([])
     const [selectedCalc, setSelectedCalc] = useState<CalculatorFormula | null>(null)
-    const [inputs, setInputs] = useState<any>({})
+    const [inputs, setInputs] = useState<Record<string, string>>({})
     const [result, setResult] = useState<number | null>(null)
     const [gasometryResult, setGasometryResult] = useState<GasometryResult | null>(null)
     const [isLoading, setIsLoading] = useState(false)
@@ -206,7 +206,7 @@ export default function Calculators() {
                                                         <SelectValue placeholder="Selecione..." />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        {(v.options as any[]).map((opt: any) => (
+                                                        {(v.options as {value: string | number; label: string}[]).map((opt: {value: string | number; label: string}) => (
                                                             <SelectItem key={opt.value} value={opt.value.toString()}>{opt.label}</SelectItem>
                                                         ))}
                                                     </SelectContent>

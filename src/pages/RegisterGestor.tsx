@@ -56,9 +56,10 @@ export default function RegisterGestor() {
             })
             
             navigate('/dashboard')
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Register Error:", error)
-            const errorMessage = error.response?.data?.error || "Falha no cadastro."
+            const apiError = error as { response?: { data?: { error?: string } } }
+            const errorMessage = apiError.response?.data?.error || "Falha no cadastro."
             toast.error(errorMessage)
         } finally {
             setIsLoading(false)

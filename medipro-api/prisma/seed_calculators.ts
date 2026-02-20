@@ -2,12 +2,14 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function createFormula(data: any) {
     const exists = await prisma.calculatorFormula.findFirst({
         where: { name: data.name }
     });
 
     if (!exists) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         await prisma.calculatorFormula.create({ data });
         console.log(`✅ Created: ${data.name}`);

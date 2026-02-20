@@ -6,7 +6,7 @@ export interface CalculatorVariable {
     label: string;
     type: 'NUMBER' | 'SELECT' | 'BOOLEAN';
     unit?: string;
-    options?: any;
+    options?: Array<{ label: string; value: string | number }>;
     min?: number;
     max?: number;
     step?: number;

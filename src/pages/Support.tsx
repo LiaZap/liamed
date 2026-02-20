@@ -71,9 +71,6 @@ import SupportAdmin from "./admin/SupportAdmin";
 export default function Support() {
   const { user } = useAuth();
 
-  if (user?.role === "ADMIN") {
-    return <SupportAdmin />;
-  }
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [selectedTicket, setSelectedTicket] = useState<TicketDetails | null>(null);
   const [newMessage, setNewMessage] = useState("");
@@ -97,6 +94,7 @@ export default function Support() {
       }, 3000);
     }
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTicket?.id]);
 
   useEffect(() => {
@@ -111,7 +109,7 @@ export default function Support() {
     try {
       const response = await api.get("/support/tickets");
       setTickets(response.data);
-    } catch (error) {
+    } catch {
       if (!silent) toast.error("Erro ao carregar tickets");
     } finally {
       if (!silent) setLoading(false);
@@ -126,7 +124,7 @@ export default function Support() {
       setSelectedTicket(response.data);
       // Refresh ticket list to update unread count silently
       loadTickets(true);
-    } catch (error) {
+    } catch {
       if (!silent) toast.error("Erro ao carregar mensagens");
     }
   };
@@ -155,7 +153,7 @@ export default function Support() {
       setShowNewTicket(false);
       loadTickets();
       loadTicketDetails(response.data.id);
-    } catch (error) {
+    } catch {
       toast.error("Erro ao criar ticket");
     } finally {
       setSending(false);
@@ -173,7 +171,7 @@ export default function Support() {
       
       setNewMessage("");
       loadTicketDetails(selectedTicket.id);
-    } catch (error) {
+    } catch {
       toast.error("Erro ao enviar mensagem");
     } finally {
       setSending(false);
@@ -402,6 +400,10 @@ export default function Support() {
       )}
     </div>
   );
+
+  if (user?.role === "ADMIN") {
+    return <SupportAdmin />;
+  }
 
   return (
     <div className="container max-w-3xl mx-auto py-6 px-4">

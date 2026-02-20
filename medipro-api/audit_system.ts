@@ -1,10 +1,13 @@
 
 // Remove redeclaration of fetch if it exists in global scope, or use dynamic import/require
 // For TS-node with DOM lib, fetch is global type but might need implementation
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let fetch: any;
 try {
     fetch = globalThis.fetch;
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     if (!fetch) fetch = require('node-fetch');
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 } catch (e) {
     console.warn("Could not load fetch source");
 }
@@ -13,7 +16,7 @@ const API_URL = 'http://localhost:3000';
 
 async function verifyFlows() {
     console.log("🚀 Starting Pre-Production Audit...");
-    let errors: string[] = [];
+    const errors: string[] = [];
 
     // 1. Register Gestor (and create Clinic)
     const gestorEmail = `gestor_${Date.now()}@test.com`;
@@ -44,6 +47,7 @@ async function verifyFlows() {
             console.error("❌ Failed:", data);
         }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
         errors.push(`Gestor Registration Exception: ${e.message}`);
         console.error("❌ Exception:", e);
@@ -71,6 +75,7 @@ async function verifyFlows() {
              errors.push(`Invalid Code Test Failed: Expected 400, got ${res.status}`);
              console.error("❌ Failed:", data);
         }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
         errors.push(`Invalid Code Test Exception: ${e.message}`);
     }
@@ -87,6 +92,7 @@ async function verifyFlows() {
 }
 
 // Since we are in an environment where we can run TS-Node, let's use Prisma to verify data integrity too.
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 

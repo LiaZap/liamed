@@ -27,6 +27,7 @@ async function getPrices() {
             } else {
                 console.log(`No price found for ${name} (${prodId})`);
             }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             console.error(`Error fetching ${name}: ${error.message}`);
         }

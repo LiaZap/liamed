@@ -1,3 +1,5 @@
+/* eslint-disable react-refresh/only-export-components */
+ 
 import { useAuth } from "@/contexts/AuthContext"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { paymentController } from '../controllers/payment.controller';
 import { authenticateToken } from '../middleware/auth.middleware';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import express from 'express';
 
 const router = Router();

@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 interface AuthRequest extends Request {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     user?: any;
 }
 
@@ -17,6 +18,7 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
         const verified = jwt.verify(token, process.env.JWT_SECRET as string);
         req.user = verified;
         next();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
         res.status(403).json({ error: 'Token inválido ou expirado.' });
     }
