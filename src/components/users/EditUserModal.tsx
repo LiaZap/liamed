@@ -127,8 +127,6 @@ export function EditUserModal({
     }
 
     if (onSave) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              // @ts-ignore
       onSave({
         name,
         email,
@@ -161,7 +159,6 @@ export function EditUserModal({
 
   return (
     <>
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
         <DialogContent className="max-w-[700px] w-full p-0 gap-0 bg-white">
           <DialogHeader className="p-6 border-b">
@@ -275,7 +272,6 @@ export function EditUserModal({
                             <Label>Plano</Label>
                             <Select value={plan} onValueChange={setPlan}>
                                 <SelectTrigger>
-                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                     <SelectValue placeholder="Selecione o plano" />
                                 </SelectTrigger>
                                 <SelectContent>
