@@ -19,7 +19,7 @@ async function createFormula(data: any) {
 }
 
 async function main() {
-    console.log('Seeding Calculators...');
+    console.log('Seeding Calculators (Safe Mode)...');
 
     // 1. BMI
     await createFormula({
@@ -40,17 +40,17 @@ async function main() {
         name: 'Depuração de Creatinina (Cockcroft-Gault)',
         description: 'Estimativa da taxa de filtração glomerular renal.',
         category: 'Nefrologia',
-        expression: '((140 - age) * weight) / (72 * creatinine) * sex',
+        expression: '((140 - age) * weight * gender) / (72 * creatinine)',
         variables: {
             create: [
                 { name: 'age', label: 'Idade', unit: 'anos', type: 'NUMBER' },
                 { name: 'weight', label: 'Peso', unit: 'kg', type: 'NUMBER' },
                 { name: 'creatinine', label: 'Creatinina Sérica', unit: 'mg/dL', type: 'NUMBER' },
                 {
-                    name: 'sex',
+                    name: 'gender',
                     label: 'Sexo',
-                    type: 'SELECT', // VariableType enum
-                    options: [ // JSON
+                    type: 'SELECT',
+                    options: [
                         { label: "Masculino", value: 1 },
                         { label: "Feminino", value: 0.85 }
                     ]
@@ -146,11 +146,11 @@ async function main() {
         name: 'QT Corrigido (Bazett)',
         description: 'Correção do intervalo QT pela frequência cardíaca.',
         category: 'Cardiologia',
-        expression: 'qt / Math.sqrt(rr)',
+        expression: 'qt / sqrt(rr)',
         variables: {
             create: [
-                { name: 'qt', label: 'Intervalo QT', unit: 'segundos (ex: 0.40)', type: 'NUMBER' },
-                { name: 'rr', label: 'Intervalo RR', unit: 'segundos (ex: 0.80)', type: 'NUMBER' }
+                { name: 'qt', label: 'Intervalo QT (s)', unit: 'segundos', type: 'NUMBER' },
+                { name: 'rr', label: 'Intervalo RR (s)', unit: 'segundos', type: 'NUMBER' }
             ]
         }
     });
