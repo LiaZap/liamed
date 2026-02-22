@@ -10,17 +10,13 @@ async function main() {
     await prisma.notification.deleteMany();
     await prisma.diagnosis.deleteMany();
     await prisma.consult.deleteMany();
-    // Limpar logs de auditoria antes dos usuários (FK constraint)
     try {
         await prisma.$executeRaw`DELETE FROM audit_logs`; 
     } catch (e) {
         console.log('Tabela audit_logs pode não existir ou erro ao limpar:', e);
     }
-    // Limpar subscriptions antes de usuários (FK constraint)
     await prisma.subscription.deleteMany();
-    // Limpar histórico de calculadoras
     await prisma.calculationHistory.deleteMany();
-    // Limpar variáveis de calculadoras antes das fórmulas
     await prisma.calculatorVariable.deleteMany();
     await prisma.calculatorFormula.deleteMany();
     await prisma.user.deleteMany();
@@ -43,7 +39,7 @@ async function main() {
         }
     });
 
-    // 3. Criar usuário ADMIN com Plano Premium Vitalício
+    // 3. Criar usuário ADMIN
     console.log('👤 Criando usuário administrador...');
     const hashedPasswordAdmin = await bcrypt.hash('Admin@123', 10);
 
@@ -58,9 +54,8 @@ async function main() {
         }
     });
 
-    // Criar planos se não existirem (garantia)
+    // Criar planos
     let premiumPlan = await prisma.plan.findFirst({ where: { name: 'Premium' } });
-    
     if (!premiumPlan) {
         premiumPlan = await prisma.plan.create({
             data: {
@@ -74,15 +69,13 @@ async function main() {
         });
     }
 
-    // Dar assinatura Premium para o Admin
-    console.log('🌟 Atribuindo plano Premium vitalício para Admin...');
     await prisma.subscription.create({
         data: {
             userId: admin.id,
             planId: premiumPlan.id,
             status: 'ACTIVE',
             currentPeriodStart: new Date(),
-            currentPeriodEnd: new Date('2099-12-31T23:59:59'), // Vitalício de facto
+            currentPeriodEnd: new Date('2099-12-31T23:59:59'),
             stripeSubscriptionId: 'admin_lifetime_access'
         }
     });
@@ -150,50 +143,6 @@ async function main() {
         }
     });
 
-    await prisma.consult.create({
-        data: {
-            patientName: 'Pedro Almeida',
-            doctorId: medico1.id,
-            doctorName: medico1.name,
-            date: new Date('2025-12-21T09:00:00'),
-            type: 'CONSULTA',
-            status: 'AGENDADA'
-        }
-    });
-
-    await prisma.consult.create({
-        data: {
-            patientName: 'Ana Oliveira',
-            doctorId: medico1.id,
-            doctorName: medico1.name,
-            date: new Date('2025-12-21T10:30:00'),
-            type: 'RETORNO',
-            status: 'AGENDADA'
-        }
-    });
-
-    await prisma.consult.create({
-        data: {
-            patientName: 'Carlos Souza',
-            doctorId: medico3.id,
-            doctorName: medico3.name,
-            date: new Date('2025-12-19T14:15:00'),
-            type: 'EMERGENCIA',
-            status: 'CONCLUIDA'
-        }
-    });
-
-    await prisma.consult.create({
-        data: {
-            patientName: 'Lucia Ferreira',
-            doctorId: medico1.id,
-            doctorName: medico1.name,
-            date: new Date('2025-12-22T11:00:00'),
-            type: 'CONSULTA',
-            status: 'AGENDADA'
-        }
-    });
-
     // 5. Criar diagnósticos de exemplo
     console.log('🩺 Criando diagnósticos de exemplo...');
     await prisma.diagnosis.create({
@@ -202,31 +151,7 @@ async function main() {
             doctorId: medico1.id,
             patientName: 'João Silva',
             userPrompt: 'Paciente relata dores no peito e extrema dor de cabeça, histórico de pressão alta',
-            aiResponse: `**Modelo de Evolução Médica (SOAP)**
-
-**Identificação do paciente**
-- Nome: João Silva
-- Sexo: Masculino
-
-**Subjetivo (S):**
-Paciente relata dores no peito e cefaleia intensa. Refere histórico de hipertensão arterial.
-
-**Objetivo (O):**
-- Pressão arterial: 160/100 mmHg
-- Frequência cardíaca: 92 bpm
-- Temperatura: 36.8°C
-
-**Avaliação (A):**
-Diagnóstico diferencial:
-1. Cefaleia tensional secundária à HAS não controlada
-2. Possível angina estável
-3. Crise hipertensiva
-
-**Plano (P):**
-1. Ajuste da medicação anti-hipertensiva
-2. Solicitação de ECG
-3. Avaliação cardiológica
-4. Orientações sobre hábitos de vida`,
+            aiResponse: `**Modelo de Evolução Médica (SOAP)**\n\n**Subjetivo (S):**\nPaciente relata dores no peito e cefaleia intensa.\n\n**Objetivo (O):**\n- PA: 160/100 mmHg\n\n**Avaliação (A):**\nCrise hipertensiva.\n\n**Plano (P):**\nAjuste da medicação.`,
             model: 'gpt-4',
             status: 'ORIGINAL'
         }
@@ -238,32 +163,7 @@ Diagnóstico diferencial:
         data: {
             name: 'Médico Padrão',
             category: 'DIAGNOSTICO',
-            content: `### Contexto
-Você está em um hospital de clínicas, você interage diretamente com médicos legais e registrados que entendem os termos médicos.
-
-### Instruções
-Analise os sintomas fornecidos e gere um diagnóstico diferencial completo.
-Use terminologia médica apropriada.
-Seja preciso e baseado em evidências.`,
-            isActive: true
-        }
-    });
-
-    await prisma.prompt.create({
-        data: {
-            name: 'SOAP',
-            category: 'TRATAMENTO',
-            content: `# Prompt para Geração de Evolução Médica no Formato SOAP
-
-## Instrução Principal
-Você é um médico experiente responsável por redigir evoluções médicas no formato SOAP.
-
-## Formato de Resposta
-Use sempre a estrutura:
-- **Subjetivo (S):** Queixas do paciente
-- **Objetivo (O):** Dados vitais e exame físico
-- **Avaliação (A):** Diagnóstico diferencial
-- **Plano (P):** Condutas e orientações`,
+            content: `Analise os sintomas fornecidos e gere um diagnóstico diferencial completo.`,
             isActive: true
         }
     });
@@ -273,13 +173,10 @@ Use sempre a estrutura:
     const settings = [
         { key: 'sistema_nome', value: 'MEDIPRO', type: 'STRING', category: 'GERAL', required: true, description: 'Nome do sistema' },
         { key: 'sistema_versao', value: '1.0.0', type: 'STRING', category: 'SISTEMA', required: true, description: 'Versão atual do sistema' },
-        { key: 'site_do_sistema', value: 'https://medipro.conceittosistemas.com.br', type: 'STRING', category: 'GERAL', required: true, description: 'URL do sistema' },
-        { key: 'maintenance_mode', value: 'false', type: 'BOOLEAN', category: 'SISTEMA', required: false, description: 'Modo de manutenção' },
-        { key: 'notifications_enabled', value: 'true', type: 'BOOLEAN', category: 'NOTIFICACOES', required: false, description: 'Notificações ativas' },
+        { key: 'site_do_sistema', value: 'https://medipro.conceittosistemas.com.br', type: 'STRING', category: 'GERAL', required: true, description: 'URL do sistema' }
     ];
 
     for (const setting of settings) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await prisma.setting.create({ data: setting as any });
     }
 
@@ -296,186 +193,222 @@ Use sempre a estrutura:
         }
     });
 
-    await prisma.notification.create({
-        data: {
-            userId: medico1.id,
-            type: 'INFO',
-            title: 'Nova Consulta Agendada',
-            message: 'Consulta com Maria Santos agendada para 20/12/2025 às 14:00.',
-            read: false
-        }
-    });
-
     // 9. Criar Calculadoras Médicas
-    console.log('🧮 Criando calculadoras médicas...');
+    console.log('🧮 Criando calculadoras médicas (Full Suite)...');
 
-    // IMC
-    await prisma.calculatorFormula.create({
-        data: {
+    const calculators = [
+        {
             name: 'Índice de Massa Corporal (IMC)',
             description: 'Avaliação do estado nutricional baseado em peso e altura.',
             category: 'Geral',
             expression: 'weight / (height * height)',
-            reference: 'OMS',
             variables: {
                 create: [
-                    { name: 'weight', label: 'Peso', unit: 'kg', type: 'NUMBER', min: 0, max: 500, step: 0.1 },
-                    { name: 'height', label: 'Altura', unit: 'm', type: 'NUMBER', min: 0, max: 3, step: 0.01 }
+                    { name: 'weight', label: 'Peso', unit: 'kg', type: 'NUMBER' },
+                    { name: 'height', label: 'Altura', unit: 'm', type: 'NUMBER' }
                 ]
             }
-        }
-    });
-
-    // Cockcroft-Gault (Clearance de Creatinina)
-    await prisma.calculatorFormula.create({
-        data: {
+        },
+        {
             name: 'Depuração de Creatinina (Cockcroft-Gault)',
-            description: 'Estimativa da taxa de filtração glomerular renal baseada na creatinina sérica.',
+            description: 'Estimativa da taxa de filtração glomerular renal.',
             category: 'Nefrologia',
             expression: '((140 - age) * weight * gender) / (72 * creatinine)',
-            reference: 'Cockcroft DW, Gault MH. Prediction of creatinine clearance from serum creatinine. Nephron. 1976;16(1):31-41.',
             variables: {
                 create: [
-                    { name: 'age', label: 'Idade', type: 'NUMBER', unit: 'anos', min: 18, max: 120 },
-                    { name: 'weight', label: 'Peso', type: 'NUMBER', unit: 'kg', min: 30, max: 300 },
-                    { name: 'creatinine', label: 'Creatinina Sérica', type: 'NUMBER', unit: 'mg/dL', min: 0.1, max: 20, step: 0.1 },
-                    {
-                        name: 'gender',
-                        label: 'Sexo',
-                        type: 'SELECT',
-                        unit: '',
-                        options: [
-                            { label: 'Masculino', value: 1 },
-                            { label: 'Feminino', value: 0.85 }
-                        ]
-                    }
+                    { name: 'age', label: 'Idade', unit: 'anos', type: 'NUMBER' },
+                    { name: 'weight', label: 'Peso', unit: 'kg', type: 'NUMBER' },
+                    { name: 'creatinine', label: 'Creatinina Sérica', unit: 'mg/dL', type: 'NUMBER' },
+                    { name: 'gender', label: 'Sexo', type: 'SELECT', options: [{ label: "Masculino", value: 1 }, { label: "Feminino", value: 0.85 }] }
                 ]
             }
-        }
-    });
-
-    // Score CHA2DS2-VASc
-    await prisma.calculatorFormula.create({
-        data: {
+        },
+        {
+            name: 'Déficit de Bicarbonato',
+            description: 'Estimativa da quantidade de bicarbonato necessária para correção de acidose.',
+            category: 'Emergência',
+            expression: '0.4 * weight * (target_hco3 - hco3)',
+            variables: {
+                create: [
+                    { name: 'weight', label: 'Peso', unit: 'kg', type: 'NUMBER' },
+                    { name: 'hco3', label: 'Bicarbonato Atual', unit: 'mEq/L', type: 'NUMBER' },
+                    { name: 'target_hco3', label: 'Bicarbonato Alvo', unit: 'mEq/L', type: 'NUMBER' }
+                ]
+            }
+        },
+        {
+            name: 'Análise de Gasometria (Winters)',
+            description: 'Cálculo do pCO2 esperado em pacientes com acidose metabólica.',
+            category: 'Medicina Interna',
+            expression: '(1.5 * hco3) + 8',
+            variables: { create: [{ name: 'hco3', label: 'HCO3 (Bicarbonato)', unit: 'mEq/L', type: 'NUMBER' }] }
+        },
+        {
+            name: 'Dose Pediátrica (Regra de Young)',
+            description: 'Estimativa de dose para crianças de 2 a 12 anos baseada na dose do adulto.',
+            category: 'Pediatria',
+            expression: '(age / (age + 12)) * adult_dose',
+            variables: {
+                create: [
+                    { name: 'age', label: 'Idade da Criança', unit: 'anos', type: 'NUMBER' },
+                    { name: 'adult_dose', label: 'Dose Adulto', unit: 'mg', type: 'NUMBER' }
+                ]
+            }
+        },
+        {
+            name: 'Osmolaridade Sérica',
+            description: 'Cálculo da concentração de partículas osmoticamente ativas no soro.',
+            category: 'Emergência',
+            expression: '(2 * na) + (glucose / 18) + (urea / 6)',
+            variables: {
+                create: [
+                    { name: 'na', label: 'Sódio (Na+)', unit: 'mEq/L', type: 'NUMBER' },
+                    { name: 'glucose', label: 'Glicemia', unit: 'mg/dL', type: 'NUMBER' },
+                    { name: 'urea', label: 'Ureia', unit: 'mg/dL', type: 'NUMBER' }
+                ]
+            }
+        },
+        {
+            name: 'NEWS2 (National Early Warning Score)',
+            description: 'Sistema de pontuação para detecção precoce de deterioração clínica.',
+            category: 'Emergência',
+            expression: 'fr + sat + o2 + pa + fc + consc + temp',
+            variables: {
+                create: [
+                    { name: 'fr', label: 'Freq. Respiratória', type: 'SELECT', options: [{label: '12-20 (0)', value: 0}, {label: '9-11 (1)', value: 1}, {label: '21-24 (2)', value: 2}, {label: '<8 ou >25 (3)', value: 3}] },
+                    { name: 'sat', label: 'Saturação O2', type: 'SELECT', options: [{label: '>=96 (0)', value: 0}, {label: '94-95 (1)', value: 1}, {label: '92-93 (2)', value: 2}, {label: '<=91 (3)', value: 3}] },
+                    { name: 'o2', label: 'Suporte de O2', type: 'SELECT', options: [{label: 'Não (0)', value: 0}, {label: 'Sim (2)', value: 2}] },
+                    { name: 'pa', label: 'PA Sistólica', type: 'SELECT', options: [{label: '111-219 (0)', value: 0}, {label: '101-110 (1)', value: 1}, {label: '91-100 (2)', value: 2}, {label: '<=90 ou >=220 (3)', value: 3}] },
+                    { name: 'fc', label: 'Freq. Cardíaca', type: 'SELECT', options: [{label: '51-90 (0)', value: 0}, {label: '41-50 ou 91-110 (1)', value: 1}, {label: '111-130 (2)', value: 2}, {label: '<=40 ou >=131 (3)', value: 3}] },
+                    { name: 'consc', label: 'Nível Consciência', type: 'SELECT', options: [{label: 'Alerta (0)', value: 0}, {label: 'Novo Confuso/V/P/U (3)', value: 3}] },
+                    { name: 'temp', label: 'Temperatura', type: 'SELECT', options: [{label: '36.1-38.0 (0)', value: 0}, {label: '35.1-36.0 ou 38.1-39.0 (1)', value: 1}, {label: '>=39.1 (2)', value: 2}, {label: '<=35.0 (3)', value: 3}] }
+                ]
+            }
+        },
+        {
+            name: 'CURB-65 (Pneumonia)',
+            description: 'Escore de gravidade para Pneumonia Adquirida na Comunidade.',
+            category: 'Pneumologia',
+            expression: 'c + u + r + b + a',
+            variables: {
+                create: [
+                    { name: 'c', label: 'Confusão Mental', type: 'BOOLEAN', options: [{label: 'Sim', value: 1}, {label: 'Não', value: 0}] },
+                    { name: 'u', label: 'Ureia > 19 mg/dL', type: 'BOOLEAN', options: [{label: 'Sim', value: 1}, {label: 'Não', value: 0}] },
+                    { name: 'r', label: 'FR >= 30 ipm', type: 'BOOLEAN', options: [{label: 'Sim', value: 1}, {label: 'Não', value: 0}] },
+                    { name: 'b', label: 'PA < 90/60 mmHg', type: 'BOOLEAN', options: [{label: 'Sim', value: 1}, {label: 'Não', value: 0}] },
+                    { name: 'a', label: 'Idade >= 65 anos', type: 'BOOLEAN', options: [{label: 'Sim', value: 1}, {label: 'Não', value: 0}] }
+                ]
+            }
+        },
+        {
+            name: 'Wells Score (TVP)',
+            description: 'Estratificação de risco para Trombose Venosa Profunda.',
+            category: 'Vascular',
+            expression: 'ca + par + bed + tend + leg + calf + godet + vein + alt',
+            variables: {
+                create: [
+                    { name: 'ca', label: 'Câncer Ativo', type: 'BOOLEAN' },
+                    { name: 'par', label: 'Paralisia/Paresia', type: 'BOOLEAN' },
+                    { name: 'bed', label: 'Acamado > 3 dias', type: 'BOOLEAN' },
+                    { name: 'tend', label: 'Dor trajeto venoso', type: 'BOOLEAN' },
+                    { name: 'leg', label: 'Membro todo inchado', type: 'BOOLEAN' },
+                    { name: 'calf', label: 'Panturrilha > 3cm', type: 'BOOLEAN' },
+                    { name: 'godet', label: 'Edema de Cacifo', type: 'BOOLEAN' },
+                    { name: 'vein', label: 'Veias Colaterais', type: 'BOOLEAN' },
+                    { name: 'alt', label: 'Diagnóstico Alternativo', type: 'SELECT', options: [{label: 'Menos provável que TVP (0)', value: 0}, {label: 'Tão provável quanto TVP (-2)', value: -2}] }
+                ]
+            }
+        },
+        {
+            name: 'MELD Score',
+            description: 'Preditor de sobrevida em doença hepática terminal.',
+            category: 'Hepatologia',
+            expression: '10 * (0.957 * Math.log(Math.max(1, crea)) + 0.378 * Math.log(Math.max(1, bili)) + 1.12 * Math.log(Math.max(1, inr)) + 0.643)',
+            variables: {
+                create: [
+                    { name: 'crea', label: 'Creatinina', unit: 'mg/dL', type: 'NUMBER' },
+                    { name: 'bili', label: 'Bilirrubina Total', unit: 'mg/dL', type: 'NUMBER' },
+                    { name: 'inr', label: 'INR', type: 'NUMBER' }
+                ]
+            }
+        },
+        {
+            name: 'HAS-BLED',
+            description: 'Risco de sangramento maior em pacientes com Fibrilação Atrial.',
+            category: 'Cardiologia',
+            expression: 'h + a + s + b + l + e + d',
+            variables: {
+                create: [
+                    { name: 'h', label: 'Hipertensão (>160)', type: 'BOOLEAN' },
+                    { name: 'a', label: 'Função Renal/Hepática Alterada', type: 'SELECT', options: [{label: 'Não (0)', value: 0}, {label: 'Uma (1)', value: 1}, {label: 'Ambas (2)', value: 2}] },
+                    { name: 's', label: 'Histórico de AVC', type: 'BOOLEAN' },
+                    { name: 'b', label: 'Histórico de Sangramento', type: 'BOOLEAN' },
+                    { name: 'l', label: 'INR Lábil', type: 'BOOLEAN' },
+                    { name: 'e', label: 'Idoso (> 65 anos)', type: 'BOOLEAN' },
+                    { name: 'd', label: 'Drogas/Álcool', type: 'SELECT', options: [{label: 'Não (0)', value: 0}, {label: 'Uma (1)', value: 1}, {label: 'Ambas (2)', value: 2}] }
+                ]
+            }
+        },
+        {
+            name: 'Correção de Sódio (Hiperglicemia)',
+            description: 'Cálculo do sódio corrigido em casos de hiperglicemia acentuada.',
+            category: 'Emergência',
+            expression: 'na + (1.6 * (glucose - 100) / 100)',
+            variables: {
+                create: [
+                    { name: 'na', label: 'Sódio Medido', unit: 'mEq/L', type: 'NUMBER' },
+                    { name: 'glucose', label: 'Glicemia', unit: 'mg/dL', type: 'NUMBER' }
+                ]
+            }
+        },
+        {
+            name: 'Cálcio Corrigido (Albumina)',
+            description: 'Ajuste do cálcio sérico total em pacientes com hipoalbuminemia.',
+            category: 'Medicina Interna',
+            expression: 'ca + 0.8 * (4 - alb)',
+            variables: {
+                create: [
+                    { name: 'ca', label: 'Cálcio Total Medido', unit: 'mg/dL', type: 'NUMBER' },
+                    { name: 'alb', label: 'Albumina Sérica', unit: 'g/dL', type: 'NUMBER' }
+                ]
+            }
+        },
+        {
+            name: 'MDRD (TFG)',
+            description: 'Estimativa da Taxa de Filtração Glomerular pela fórmula MDRD.',
+            category: 'Nefrologia',
+            expression: '175 * Math.pow(crea, -1.154) * Math.pow(age, -0.203) * gender * race',
+            variables: {
+                create: [
+                    { name: 'crea', label: 'Creatinina', unit: 'mg/dL', type: 'NUMBER' },
+                    { name: 'age', label: 'Idade', unit: 'anos', type: 'NUMBER' },
+                    { name: 'gender', label: 'Sexo', type: 'SELECT', options: [{label: 'Feminino (0.742)', value: 0.742}, {label: 'Masculino (1.0)', value: 1.0}] },
+                    { name: 'race', label: 'Raça', type: 'SELECT', options: [{label: 'Negra (1.212)', value: 1.212}, {label: 'Outras (1.0)', value: 1.0}] }
+                ]
+            }
+        },
+        {
             name: 'Score CHA₂DS₂-VASc (Risco AVC)',
             description: 'Estratificação de risco para AVC em Fibrilação Atrial.',
             category: 'Cardiologia',
             expression: 'age_score + sex_score + chf + hypertension + stroke + vascular + diabetes',
-            reference: 'Lip GY, et al. Refining clinical risk stratification for predicting stroke and thromboembolism in atrial fibrillation. Chest. 2010.',
             variables: {
                 create: [
-                    {
-                        name: 'age_score', label: 'Idade', type: 'SELECT',
-                        options: [{ label: "< 65 anos", value: 0 }, { label: "65-74 anos", value: 1 }, { label: "≥ 75 anos", value: 2 }]
-                    },
-                    {
-                        name: 'sex_score', label: 'Sexo', type: 'SELECT',
-                        options: [{ label: "Masculino", value: 0 }, { label: "Feminino", value: 1 }]
-                    },
-                    { name: 'chf', label: 'Insuficiência Cardíaca', type: 'BOOLEAN', options: [{ label: "Sim", value: 1 }, { label: "Não", value: 0 }] },
-                    { name: 'hypertension', label: 'Hipertensão', type: 'BOOLEAN', options: [{ label: "Sim", value: 1 }, { label: "Não", value: 0 }] },
-                    { name: 'stroke', label: 'AVC/AIT Prévio', type: 'BOOLEAN', options: [{ label: "Sim", value: 2 }, { label: "Não", value: 0 }] },
-                    { name: 'vascular', label: 'Doença Vascular', type: 'BOOLEAN', options: [{ label: "Sim", value: 1 }, { label: "Não", value: 0 }] },
-                    { name: 'diabetes', label: 'Diabetes', type: 'BOOLEAN', options: [{ label: "Sim", value: 1 }, { label: "Não", value: 0 }] }
+                    { name: 'age_score', label: 'Idade', type: 'SELECT', options: [{ label: "< 65 anos", value: 0 }, { label: "65-74 anos", value: 1 }, { label: "≥ 75 anos", value: 2 }] },
+                    { name: 'sex_score', label: 'Sexo', type: 'SELECT', options: [{ label: "Masculino", value: 0 }, { label: "Feminino", value: 1 }] },
+                    { name: 'chf', label: 'Insuficiência Cardíaca', type: 'BOOLEAN' },
+                    { name: 'hypertension', label: 'Hipertensão', type: 'BOOLEAN' },
+                    { name: 'stroke', label: 'AVC/AIT Prévio', type: 'BOOLEAN' },
+                    { name: 'vascular', label: 'Doença Vascular', type: 'BOOLEAN' },
+                    { name: 'diabetes', label: 'Diabetes', type: 'BOOLEAN' }
                 ]
             }
         }
-    });
+    ];
 
-    // LDL Friedewald
-    await prisma.calculatorFormula.create({
-        data: {
-            name: 'LDL Colesterol (Friedewald)',
-            description: 'Cálculo do LDL quando triglicerídeos < 400 mg/dL.',
-            category: 'Cardiologia',
-            expression: 'ct - hdl - (trig / 5)',
-            variables: {
-                create: [
-                    { name: 'ct', label: 'Colesterol Total', unit: 'mg/dL', type: 'NUMBER' },
-                    { name: 'hdl', label: 'HDL Colesterol', unit: 'mg/dL', type: 'NUMBER' },
-                    { name: 'trig', label: 'Triglicerídeos', unit: 'mg/dL', type: 'NUMBER' }
-                ]
-            }
-        }
-    });
-
-    // Glasgow Coma Scale
-    await prisma.calculatorFormula.create({
-        data: {
-            name: 'Escala de Coma de Glasgow',
-            description: 'Avaliação do nível de consciência após trauma.',
-            category: 'Emergência',
-            expression: 'eye + verbal + motor',
-            reference: 'Teasdale G, Jennett B. Assessment of coma and impaired consciousness. A practical scale. Lancet. 1974.',
-            variables: {
-                create: [
-                    {
-                        name: 'eye', label: 'Abertura Ocular', type: 'SELECT',
-                        options: [
-                            { label: "Espontânea (4)", value: 4 },
-                            { label: "Ao comando verbal (3)", value: 3 },
-                            { label: "À dor (2)", value: 2 },
-                            { label: "Ausente (1)", value: 1 }
-                        ]
-                    },
-                    {
-                        name: 'verbal', label: 'Resposta Verbal', type: 'SELECT',
-                        options: [
-                            { label: "Orientado (5)", value: 5 },
-                            { label: "Confuso (4)", value: 4 },
-                            { label: "Palavras inapropriadas (3)", value: 3 },
-                            { label: "Sons incompreensíveis (2)", value: 2 },
-                            { label: "Ausente (1)", value: 1 }
-                        ]
-                    },
-                    {
-                        name: 'motor', label: 'Resposta Motora', type: 'SELECT',
-                        options: [
-                            { label: "Obedece comandos (6)", value: 6 },
-                            { label: "Localiza dor (5)", value: 5 },
-                            { label: "Movimento de retirada (4)", value: 4 },
-                            { label: "Flexão anormal/Decorticação (3)", value: 3 },
-                            { label: "Extensão anormal/Decerebração (2)", value: 2 },
-                            { label: "Ausente (1)", value: 1 }
-                        ]
-                    }
-                ]
-            }
-        }
-    });
-
-    // QT Corrected (Bazett)
-    await prisma.calculatorFormula.create({
-        data: {
-            name: 'QT Corrigido (Bazett)',
-            description: 'Correção do intervalo QT pela frequência cardíaca.',
-            category: 'Cardiologia',
-            expression: 'qt / sqrt(rr)',
-            variables: {
-                create: [
-                    { name: 'qt', label: 'Intervalo QT (s)', unit: 'segundos', type: 'NUMBER', min: 0, max: 2 },
-                    { name: 'rr', label: 'Intervalo RR (s)', unit: 'segundos', type: 'NUMBER', min: 0, max: 2 }
-                ]
-            }
-        }
-    });
-
-    // Anion Gap
-    await prisma.calculatorFormula.create({
-        data: {
-            name: 'Anion Gap (Hiato Aniônico)',
-            description: 'Utilizado no diagnóstico diferencial de acidose metabólica.',
-            category: 'Medicina Interna',
-            expression: 'na - (cl + hco3)',
-            variables: {
-                create: [
-                    { name: 'na', label: 'Sódio (Na+)', unit: 'mEq/L', type: 'NUMBER' },
-                    { name: 'cl', label: 'Cloro (Cl-)', unit: 'mEq/L', type: 'NUMBER' },
-                    { name: 'hco3', label: 'Bicarbonato (HCO3-)', unit: 'mEq/L', type: 'NUMBER' }
-                ]
-            }
-        }
-    });
+    for (const calc of calculators) {
+        await prisma.calculatorFormula.create({ data: calc as any });
+    }
 
     console.log('✅ Seed concluído com sucesso!');
     console.log('\n📧 Credenciais criadas:');
