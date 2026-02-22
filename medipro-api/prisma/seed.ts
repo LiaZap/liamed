@@ -139,9 +139,6 @@ async function main() {
         }
     });
 
-
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const consult2 = await prisma.consult.create({
         data: {
             patientName: 'Maria Santos',
@@ -153,8 +150,7 @@ async function main() {
         }
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const consult3 = await prisma.consult.create({
+    await prisma.consult.create({
         data: {
             patientName: 'Pedro Almeida',
             doctorId: medico1.id,
@@ -165,8 +161,7 @@ async function main() {
         }
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const consult4 = await prisma.consult.create({
+    await prisma.consult.create({
         data: {
             patientName: 'Ana Oliveira',
             doctorId: medico1.id,
@@ -177,8 +172,7 @@ async function main() {
         }
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const consult5 = await prisma.consult.create({
+    await prisma.consult.create({
         data: {
             patientName: 'Carlos Souza',
             doctorId: medico3.id,
@@ -189,8 +183,7 @@ async function main() {
         }
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const consult6 = await prisma.consult.create({
+    await prisma.consult.create({
         data: {
             patientName: 'Lucia Ferreira',
             doctorId: medico1.id,
@@ -317,18 +310,17 @@ Use sempre a estrutura:
     console.log('🧮 Criando calculadoras médicas...');
 
     // IMC
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const imc = await prisma.calculatorFormula.create({
+    await prisma.calculatorFormula.create({
         data: {
-            name: 'IMC (Índice de Massa Corporal)',
-            description: 'Cálculo utilizado para avaliar se a pessoa está dentro do seu peso ideal.',
+            name: 'Índice de Massa Corporal (IMC)',
+            description: 'Avaliação do estado nutricional baseado em peso e altura.',
             category: 'Geral',
             expression: 'weight / (height * height)',
             reference: 'OMS',
             variables: {
                 create: [
-                    { name: 'weight', label: 'Peso', type: 'NUMBER', unit: 'kg', min: 0, max: 500, step: 0.1 },
-                    { name: 'height', label: 'Altura', type: 'NUMBER', unit: 'm', min: 0, max: 3, step: 0.01 }
+                    { name: 'weight', label: 'Peso', unit: 'kg', type: 'NUMBER', min: 0, max: 500, step: 0.1 },
+                    { name: 'height', label: 'Altura', unit: 'm', type: 'NUMBER', min: 0, max: 3, step: 0.01 }
                 ]
             }
         }
@@ -337,13 +329,9 @@ Use sempre a estrutura:
     // Cockcroft-Gault (Clearance de Creatinina)
     await prisma.calculatorFormula.create({
         data: {
-            name: 'Clearance de Creatinina (Cockcroft-Gault)',
-            description: 'Estimativa da taxa de filtração glomerular baseada na creatinina sérica.',
+            name: 'Depuração de Creatinina (Cockcroft-Gault)',
+            description: 'Estimativa da taxa de filtração glomerular renal baseada na creatinina sérica.',
             category: 'Nefrologia',
-            // Fórmula base para homens. O ajuste para mulheres (* 0.85) deve ser tratado na lógica da expressão ou backend se complexo, 
-            // mas aqui usaremos uma expressão conditional ternária do math.js se suportado, ou simplificado.
-            // Math.js suporta condicionais: condition ? true_val : false_val
-            // Sexo: 1 = Homem, 0.85 = Mulher (usaremos como multiplicador direto no select)
             expression: '((140 - age) * weight * gender) / (72 * creatinine)',
             reference: 'Cockcroft DW, Gault MH. Prediction of creatinine clearance from serum creatinine. Nephron. 1976;16(1):31-41.',
             variables: {
@@ -361,6 +349,129 @@ Use sempre a estrutura:
                             { label: 'Feminino', value: 0.85 }
                         ]
                     }
+                ]
+            }
+        }
+    });
+
+    // Score CHA2DS2-VASc
+    await prisma.calculatorFormula.create({
+        data: {
+            name: 'Score CHA₂DS₂-VASc (Risco AVC)',
+            description: 'Estratificação de risco para AVC em Fibrilação Atrial.',
+            category: 'Cardiologia',
+            expression: 'age_score + sex_score + chf + hypertension + stroke + vascular + diabetes',
+            reference: 'Lip GY, et al. Refining clinical risk stratification for predicting stroke and thromboembolism in atrial fibrillation. Chest. 2010.',
+            variables: {
+                create: [
+                    {
+                        name: 'age_score', label: 'Idade', type: 'SELECT',
+                        options: [{ label: "< 65 anos", value: 0 }, { label: "65-74 anos", value: 1 }, { label: "≥ 75 anos", value: 2 }]
+                    },
+                    {
+                        name: 'sex_score', label: 'Sexo', type: 'SELECT',
+                        options: [{ label: "Masculino", value: 0 }, { label: "Feminino", value: 1 }]
+                    },
+                    { name: 'chf', label: 'Insuficiência Cardíaca', type: 'BOOLEAN', options: [{ label: "Sim", value: 1 }, { label: "Não", value: 0 }] },
+                    { name: 'hypertension', label: 'Hipertensão', type: 'BOOLEAN', options: [{ label: "Sim", value: 1 }, { label: "Não", value: 0 }] },
+                    { name: 'stroke', label: 'AVC/AIT Prévio', type: 'BOOLEAN', options: [{ label: "Sim", value: 2 }, { label: "Não", value: 0 }] },
+                    { name: 'vascular', label: 'Doença Vascular', type: 'BOOLEAN', options: [{ label: "Sim", value: 1 }, { label: "Não", value: 0 }] },
+                    { name: 'diabetes', label: 'Diabetes', type: 'BOOLEAN', options: [{ label: "Sim", value: 1 }, { label: "Não", value: 0 }] }
+                ]
+            }
+        }
+    });
+
+    // LDL Friedewald
+    await prisma.calculatorFormula.create({
+        data: {
+            name: 'LDL Colesterol (Friedewald)',
+            description: 'Cálculo do LDL quando triglicerídeos < 400 mg/dL.',
+            category: 'Cardiologia',
+            expression: 'ct - hdl - (trig / 5)',
+            variables: {
+                create: [
+                    { name: 'ct', label: 'Colesterol Total', unit: 'mg/dL', type: 'NUMBER' },
+                    { name: 'hdl', label: 'HDL Colesterol', unit: 'mg/dL', type: 'NUMBER' },
+                    { name: 'trig', label: 'Triglicerídeos', unit: 'mg/dL', type: 'NUMBER' }
+                ]
+            }
+        }
+    });
+
+    // Glasgow Coma Scale
+    await prisma.calculatorFormula.create({
+        data: {
+            name: 'Escala de Coma de Glasgow',
+            description: 'Avaliação do nível de consciência após trauma.',
+            category: 'Emergência',
+            expression: 'eye + verbal + motor',
+            reference: 'Teasdale G, Jennett B. Assessment of coma and impaired consciousness. A practical scale. Lancet. 1974.',
+            variables: {
+                create: [
+                    {
+                        name: 'eye', label: 'Abertura Ocular', type: 'SELECT',
+                        options: [
+                            { label: "Espontânea (4)", value: 4 },
+                            { label: "Ao comando verbal (3)", value: 3 },
+                            { label: "À dor (2)", value: 2 },
+                            { label: "Ausente (1)", value: 1 }
+                        ]
+                    },
+                    {
+                        name: 'verbal', label: 'Resposta Verbal', type: 'SELECT',
+                        options: [
+                            { label: "Orientado (5)", value: 5 },
+                            { label: "Confuso (4)", value: 4 },
+                            { label: "Palavras inapropriadas (3)", value: 3 },
+                            { label: "Sons incompreensíveis (2)", value: 2 },
+                            { label: "Ausente (1)", value: 1 }
+                        ]
+                    },
+                    {
+                        name: 'motor', label: 'Resposta Motora', type: 'SELECT',
+                        options: [
+                            { label: "Obedece comandos (6)", value: 6 },
+                            { label: "Localiza dor (5)", value: 5 },
+                            { label: "Movimento de retirada (4)", value: 4 },
+                            { label: "Flexão anormal/Decorticação (3)", value: 3 },
+                            { label: "Extensão anormal/Decerebração (2)", value: 2 },
+                            { label: "Ausente (1)", value: 1 }
+                        ]
+                    }
+                ]
+            }
+        }
+    });
+
+    // QT Corrected (Bazett)
+    await prisma.calculatorFormula.create({
+        data: {
+            name: 'QT Corrigido (Bazett)',
+            description: 'Correção do intervalo QT pela frequência cardíaca.',
+            category: 'Cardiologia',
+            expression: 'qt / sqrt(rr)',
+            variables: {
+                create: [
+                    { name: 'qt', label: 'Intervalo QT (s)', unit: 'segundos', type: 'NUMBER', min: 0, max: 2 },
+                    { name: 'rr', label: 'Intervalo RR (s)', unit: 'segundos', type: 'NUMBER', min: 0, max: 2 }
+                ]
+            }
+        }
+    });
+
+    // Anion Gap
+    await prisma.calculatorFormula.create({
+        data: {
+            name: 'Anion Gap (Hiato Aniônico)',
+            description: 'Utilizado no diagnóstico diferencial de acidose metabólica.',
+            category: 'Medicina Interna',
+            expression: 'na - (cl + hco3)',
+            variables: {
+                create: [
+                    { name: 'na', label: 'Sódio (Na+)', unit: 'mEq/L', type: 'NUMBER' },
+                    { name: 'cl', label: 'Cloro (Cl-)', unit: 'mEq/L', type: 'NUMBER' },
+                    { name: 'hco3', label: 'Bicarbonato (HCO3-)', unit: 'mEq/L', type: 'NUMBER' }
                 ]
             }
         }
