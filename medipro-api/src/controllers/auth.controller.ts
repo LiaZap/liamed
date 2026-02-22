@@ -159,9 +159,9 @@ export const register = async (req: Request, res: Response) => {
         }
 
         // Fetch defaults for AI Endpoint and Prompt
-        const defaultEndpoint = await prisma.aiEndpoint.findFirst({
+        const defaultEndpoint = await prisma.endpoint.findFirst({
             where: { name: { contains: 'GPT-4' } }
-        }) || await prisma.aiEndpoint.findFirst();
+        }) || await prisma.endpoint.findFirst();
 
         const defaultPrompt = await prisma.prompt.findFirst({
             where: { isActive: true }
