@@ -37,14 +37,18 @@ export const calculatorController = {
                 return res.status(404).json({ error: 'Formula not found' });
             }
 
-            // Validate inputs
+            // Validate inputs (normalize comma to period for decimal separator)
             const safeInputs: Record<string, number> = {};
             for (const variable of formula.variables) {
-                const val = inputs[variable.name];
-                if (val === undefined || val === null || isNaN(Number(val))) {
+                const rawVal = inputs[variable.name];
+                if (rawVal === undefined || rawVal === null) {
                     return res.status(400).json({ error: `Missing or invalid input for variable: ${variable.label}` });
                 }
-                safeInputs[variable.name] = Number(val);
+                const normalizedVal = Number(String(rawVal).replace(',', '.'));
+                if (isNaN(normalizedVal)) {
+                    return res.status(400).json({ error: `Missing or invalid input for variable: ${variable.label}` });
+                }
+                safeInputs[variable.name] = normalizedVal;
             }
 
             // Evaluate Expression safely-ish
@@ -478,17 +482,20 @@ export const calculatorController = {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const userId = (req as any).user?.id;
 
+            // Normalize comma to period for decimal separator
+            const normalize = (v: unknown) => Number(String(v).replace(',', '.'));
+
             // Validate inputs
-            if ([ph, pco2, hco3, na, cl, albumin].some(v => v === undefined || isNaN(Number(v)))) {
+            if ([ph, pco2, hco3, na, cl, albumin].some(v => v === undefined || isNaN(normalize(v)))) {
                 return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
             }
 
-            const phVal = Number(ph);
-            const pco2Val = Number(pco2);
-            const hco3Val = Number(hco3);
-            const naVal = Number(na);
-            const clVal = Number(cl);
-            const albuminVal = Number(albumin);
+            const phVal = normalize(ph);
+            const pco2Val = normalize(pco2);
+            const hco3Val = normalize(hco3);
+            const naVal = normalize(na);
+            const clVal = normalize(cl);
+            const albuminVal = normalize(albumin);
 
             // Reference values
             const REF = {

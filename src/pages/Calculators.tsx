@@ -12,6 +12,8 @@ import { calculatorService, type CalculatorFormula, type GasometryResult } from 
 import { toast } from "sonner"
 import { PlanGate } from "@/components/PlanGate"
 
+const normalizeNumeric = (val: string) => Number(String(val).replace(',', '.'))
+
 export default function Calculators() {
     const { t } = useTranslation()
     const [searchTerm, setSearchTerm] = useState("")
@@ -54,17 +56,21 @@ export default function Calculators() {
             
             if (isGasometryCalc) {
                 const gasResult = await calculatorService.analyzeGasometry({
-                    ph: Number(inputs.ph),
-                    pco2: Number(inputs.pco2),
-                    hco3: Number(inputs.hco3),
-                    na: Number(inputs.na),
-                    cl: Number(inputs.cl),
-                    albumin: Number(inputs.albumin)
+                    ph: normalizeNumeric(inputs.ph),
+                    pco2: normalizeNumeric(inputs.pco2),
+                    hco3: normalizeNumeric(inputs.hco3),
+                    na: normalizeNumeric(inputs.na),
+                    cl: normalizeNumeric(inputs.cl),
+                    albumin: normalizeNumeric(inputs.albumin)
                 })
                 setGasometryResult(gasResult)
                 setResult(null)
             } else {
-                const res = await calculatorService.calculate(selectedCalc.id, inputs)
+                const normalizedInputs: Record<string, string> = {}
+                for (const [key, val] of Object.entries(inputs)) {
+                    normalizedInputs[key] = String(val).replace(',', '.')
+                }
+                const res = await calculatorService.calculate(selectedCalc.id, normalizedInputs)
                 setResult(res.result)
                 setGasometryResult(null)
             }
@@ -213,8 +219,8 @@ export default function Calculators() {
                                                 </Select>
                                             ) : (
                                                 <Input
-                                                    type="number"
-                                                    step="any"
+                                                    type="text"
+                                                    inputMode="decimal"
                                                     placeholder={v.name === 'ph' ? '7.40' : v.name === 'albumin' ? '4.0' : '0'}
                                                     className="dark:bg-slate-800 dark:border-slate-700"
                                                     value={inputs[v.name] || ''}

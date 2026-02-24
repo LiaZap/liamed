@@ -263,8 +263,8 @@ export default function Diagnosis() {
     // Auto calculate IMC
     useEffect(() => {
         if (height && weight) {
-            const h = parseFloat(height)
-            const w = parseFloat(weight)
+            const h = parseFloat(height.replace(',', '.'))
+            const w = parseFloat(weight.replace(',', '.'))
             if (h > 0 && w > 0) {
                 setImc((w / (h * h)).toFixed(2))
             }
