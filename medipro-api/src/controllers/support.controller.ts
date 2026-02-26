@@ -1,8 +1,7 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import { logAction } from '../services/audit.service';
 
-const prisma = new PrismaClient();
 
 // Get tickets (user sees their own, admin sees all)
 export const getTickets = async (req: Request, res: Response) => {

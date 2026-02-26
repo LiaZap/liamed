@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import fs from 'fs';
 // pdf-parse v1.1.1 simple function API
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -8,7 +8,6 @@ const pdfParse = require('pdf-parse');
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const mammoth = require('mammoth');
 
-const prisma = new PrismaClient();
 
 import { logAction } from '../services/audit.service';
 
@@ -206,19 +205,30 @@ export const createDiagnosis = async (req: Request, res: Response) => {
             console.log(`[Diagnosis] Step 1: Analyzing ${imageDataForVision.length} image(s) with OpenAI Vision...`);
             try {
                 const visionResult = await analyzeImagesWithVision(imageDataForVision, patientName, userPrompt);
-                // Update examsData with the transcription for each image
+                // Update examsData with the transcription - assign once to first visual exam only
+                // to avoid duplicating the combined analysis across multiple exam entries
+                let assigned = false;
                 for (const exam of examsData) {
-                    if (exam.mimetype?.startsWith('image/')) {
+                    const isVisualExam = exam.mimetype?.startsWith('image/') ||
+                        (exam.mimetype === 'application/pdf' && exam.textContent?.includes('análise via IA Vision'));
+                    if (isVisualExam && !assigned) {
                         exam.textContent = visionResult;
+                        assigned = true;
+                    } else if (isVisualExam) {
+                        // Remove placeholder from extra visual exams to avoid duplication
+                        exam.textContent = `[Análise incluída no exame principal acima]`;
                     }
                 }
                 console.log(`[Diagnosis] Vision analysis complete (${visionResult.length} chars)`);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (visionErr: any) {
                 console.error(`[Diagnosis] Vision analysis failed:`, visionErr);
-                // Mark images with error but continue - the diagnosis can still work with symptoms
+                // Mark visual exams with error but continue - the diagnosis can still work with symptoms
                 for (const exam of examsData) {
-                    if (exam.mimetype?.startsWith('image/') && exam.textContent?.includes('análise via IA Vision')) {
-                        exam.textContent = `[Erro na análise Vision: ${visionErr.message || 'erro desconhecido'}. Imagem: ${exam.originalName}]`;
+                    const isVisualExam = exam.mimetype?.startsWith('image/') ||
+                        (exam.mimetype === 'application/pdf' && exam.textContent?.includes('análise via IA Vision'));
+                    if (isVisualExam) {
+                        exam.textContent = `[Erro na análise Vision: ${visionErr.message || 'erro desconhecido'}. Arquivo: ${exam.originalName}]`;
                     }
                 }
             }

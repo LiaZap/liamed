@@ -1,8 +1,7 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import { logAction } from '../services/audit.service';
 
-const prisma = new PrismaClient();
 
 interface AuthRequest extends Request {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

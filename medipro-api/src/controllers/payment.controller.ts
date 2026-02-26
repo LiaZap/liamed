@@ -1,8 +1,7 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import Stripe from 'stripe';
 
-const prisma = new PrismaClient();
 
 // Initialize Stripe with secret key from env
 // Removed strict apiVersion to avoid mismatch with installed types

@@ -24,6 +24,7 @@ const authLimiter = rateLimit({
     message: 'Too many login attempts, please try again later'
 });
 
+import { authenticateToken, isAdmin } from './middleware/auth.middleware';
 import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
 import statsRoutes from './routes/stats.routes';
@@ -111,8 +112,8 @@ if (process.env.NODE_ENV !== 'production') {
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 }
 
-// Serve uploads
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+// Serve uploads - protected with authentication
+app.use('/uploads', authenticateToken, express.static(path.join(process.cwd(), 'uploads')));
 
 // Rota de health check
 app.get('/health', (req, res) => {
@@ -124,7 +125,6 @@ app.get('/health', (req, res) => {
 });
 
 // Rota de teste do banco - Development only
-import { authenticateToken, isAdmin } from './middleware/auth.middleware';
 if (process.env.NODE_ENV !== 'production') {
     app.get('/test-db', authenticateToken, isAdmin, async (req, res) => {
         try {

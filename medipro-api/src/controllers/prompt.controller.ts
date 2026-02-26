@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import { logAction } from '../services/audit.service';
 
 interface AuthRequest extends Request {
@@ -7,7 +7,6 @@ interface AuthRequest extends Request {
     user?: any;
 }
 
-const prisma = new PrismaClient();
 
 // List all prompts
 export const listPrompts = async (req: Request, res: Response) => {

@@ -10,7 +10,7 @@ router.get('/', authenticateToken, listDiagnoses);
 
 // POST /api/diagnosis
 // Uses 'exams' as the key for file uploads (simulating array of files)
-router.post('/', authenticateToken, upload.array('exams'), createDiagnosis);
+router.post('/', authenticateToken, upload.array('exams', 10), createDiagnosis);
 
 // DELETE /api/diagnosis/:id
 router.delete('/:id', authenticateToken, deleteDiagnosis);

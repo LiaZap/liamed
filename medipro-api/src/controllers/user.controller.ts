@@ -1,8 +1,7 @@
 import { Request, Response } from "express";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from '../lib/prisma';
 import bcrypt from "bcryptjs";
 
-const prisma = new PrismaClient();
 
 // ... imports
 import { logAction } from "../services/audit.service";
@@ -53,7 +52,9 @@ export const createUser = async (req: AuthRequest, res: Response) => {
       req,
     });
 
-    res.status(201).json(user);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _pw, ...safeUser } = user;
+    res.status(201).json(safeUser);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     res.status(500).json({ error: "Erro ao criar usuário." });
@@ -222,7 +223,9 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
       req,
     });
 
-    res.json(user);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _pw2, ...safeUser2 } = user;
+    res.json(safeUser2);
   } catch (error) {
     console.error("Update User Error: ", error);
     res.status(500).json({ error: "Erro ao atualizar usuário." });

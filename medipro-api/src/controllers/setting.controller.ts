@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import { logAction } from '../services/audit.service';
 import { Request, Response } from 'express';
 
@@ -9,7 +9,6 @@ interface AuthRequest extends Request {
     user?: any;
 }
 
-const prisma = new PrismaClient();
 
 // Get all settings
 export const getSettings = async (req: Request, res: Response) => {
