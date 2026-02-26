@@ -63,10 +63,18 @@ export default function Diagnosis() {
     const [files, setFiles] = useState<File[]>([])
     const [isRecording, setIsRecording] = useState(false)
     
-    // Transcription time tracking
-    const [recordingSeconds, setRecordingSeconds] = useState(0)
+    // Transcription time tracking - persisted in localStorage to survive page refresh
+    const [recordingSeconds, setRecordingSeconds] = useState(() => {
+        const saved = localStorage.getItem('liamed-transcription-seconds')
+        return saved ? parseInt(saved, 10) : 0
+    })
     const recordingTimerRef = useRef<NodeJS.Timeout | null>(null)
     const transcriptionLimit = TRANSCRIPTION_LIMITS[plan] // em minutos
+
+    // Persist recording seconds to localStorage
+    useEffect(() => {
+        localStorage.setItem('liamed-transcription-seconds', String(recordingSeconds))
+    }, [recordingSeconds])
 
     const [history, setHistory] = useState<DiagnosisItem[]>([])
     const [historyLoading, setHistoryLoading] = useState(true)

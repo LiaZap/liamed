@@ -140,21 +140,26 @@ export const demoController = {
     },
 
     // Clear demo data (optional - for reset)
+    // SAFETY: Only deletes records with model='simulation-fallback' to protect real data
     clearDemoData: async (req: Request, res: Response) => {
         try {
-            // Delete consultations from last 30 days that look like demo data
+            // Only delete demo/simulated data - never real patient data
             const thirtyDaysAgo = new Date();
             thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-            const deletedConsults = await prisma.consult.deleteMany({
+            // Only delete diagnoses that were simulated (not real AI responses)
+            const deletedDiagnoses = await prisma.diagnosis.deleteMany({
                 where: {
-                    createdAt: { gte: thirtyDaysAgo }
+                    createdAt: { gte: thirtyDaysAgo },
+                    model: { in: ['simulation-fallback', 'simulation'] }
                 }
             });
 
-            const deletedDiagnoses = await prisma.diagnosis.deleteMany({
+            // Only delete consults linked to demo patients (names starting with "[DEMO]")
+            const deletedConsults = await prisma.consult.deleteMany({
                 where: {
-                    createdAt: { gte: thirtyDaysAgo }
+                    createdAt: { gte: thirtyDaysAgo },
+                    patientName: { startsWith: '[DEMO]' }
                 }
             });
 

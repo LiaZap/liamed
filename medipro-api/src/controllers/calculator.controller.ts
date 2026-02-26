@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
+import { evaluate as mathEvaluate } from 'mathjs';
 
 
 export const calculatorController = {
@@ -50,17 +51,22 @@ export const calculatorController = {
                 safeInputs[variable.name] = normalizedVal;
             }
 
-            // Evaluate Expression safely-ish
+            // Evaluate Expression safely using mathjs (no code injection risk)
             // expression example: "weight / (height * height)"
-            const keys = Object.keys(safeInputs);
-            const values = Object.values(safeInputs);
-
-            // Create a function that takes the variable names as arguments and returns the result
-            const evaluate = new Function(...keys, `return ${formula.expression};`);
+            // mathjs supports: sqrt, pow, log, +, -, *, /, (), etc.
+            // Convert Math.xxx to mathjs equivalents
+            let safeExpression = formula.expression
+                .replace(/Math\.sqrt/g, 'sqrt')
+                .replace(/Math\.pow/g, 'pow')
+                .replace(/Math\.log/g, 'log')
+                .replace(/Math\.abs/g, 'abs')
+                .replace(/Math\.round/g, 'round')
+                .replace(/Math\.floor/g, 'floor')
+                .replace(/Math\.ceil/g, 'ceil');
 
             let result: number;
             try {
-                result = evaluate(...values);
+                result = mathEvaluate(safeExpression, safeInputs);
             } catch (evalError) {
                 console.error('Expr eval error', evalError);
                 return res.status(400).json({ error: 'Error calculating formula' });

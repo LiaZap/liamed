@@ -87,6 +87,22 @@ export const testConnection = async (req: AuthRequest, res: Response) => {
             return res.status(400).json({ success: false, message: 'URL inválida.' });
         }
 
+        // SSRF Protection: Block internal/private network URLs
+        const blockedPatterns = [
+            /^https?:\/\/localhost/i,
+            /^https?:\/\/127\./,
+            /^https?:\/\/0\./,
+            /^https?:\/\/10\./,
+            /^https?:\/\/172\.(1[6-9]|2[0-9]|3[0-1])\./,
+            /^https?:\/\/192\.168\./,
+            /^https?:\/\/169\.254\./,
+            /^https?:\/\/\[::1\]/,
+            /^https?:\/\/metadata\./i,
+        ];
+        if (blockedPatterns.some(pattern => pattern.test(url))) {
+            return res.status(400).json({ success: false, message: 'URLs de rede interna não são permitidas.' });
+        }
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const headers: any = {
             'Content-Type': 'application/json',
