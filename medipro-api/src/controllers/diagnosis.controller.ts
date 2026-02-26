@@ -4,6 +4,9 @@ import fs from 'fs';
 // pdf-parse v1.1.1 simple function API
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const pdfParse = require('pdf-parse');
+// mammoth for DOCX text extraction
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const mammoth = require('mammoth');
 
 const prisma = new PrismaClient();
 
@@ -128,7 +131,6 @@ export const createDiagnosis = async (req: Request, res: Response) => {
                     try {
                         console.log(`[Diagnosis] Attempting to read PDF: ${file.path}`);
 
-                        // Check if file exists
                         if (!fs.existsSync(file.path)) {
                             console.error(`[Diagnosis] PDF file not found at: ${file.path}`);
                             fileData.textContent = '[Arquivo PDF não encontrado no servidor]';
@@ -136,15 +138,22 @@ export const createDiagnosis = async (req: Request, res: Response) => {
                             const pdfBuffer = fs.readFileSync(file.path);
                             console.log(`[Diagnosis] PDF buffer size: ${pdfBuffer.length} bytes`);
 
-                            // pdf-parse v1.1.1 simple function
                             const pdfData = await pdfParse(pdfBuffer);
                             const extractedText = pdfData.text?.trim() || '';
 
                             console.log(`[Diagnosis] Extracted ${pdfData.numpages} pages, ${extractedText.length} chars from ${file.originalname}`);
 
-                            // Check if PDF has actual text content (not just scanned images)
                             if (extractedText.length < 50) {
-                                fileData.textContent = `[PDF pode ser escaneado - texto extraído insuficiente (${extractedText.length} caracteres). Nome: ${file.originalname}]`;
+                                // PDF is likely a scanned image - send first page as image to Vision
+                                console.log(`[Diagnosis] PDF appears scanned (${extractedText.length} chars) - will send as image to Vision`);
+                                // Encode full PDF as base64 for Vision (gpt-4o can read PDF pages as images)
+                                const base64Pdf = pdfBuffer.toString('base64');
+                                imageDataForVision.push({
+                                    base64: base64Pdf,
+                                    mimetype: 'application/pdf',
+                                    originalName: file.originalname
+                                });
+                                fileData.textContent = `[PDF escaneado enviado para análise via IA Vision: ${file.originalname}]`;
                             } else {
                                 fileData.textContent = extractedText;
                             }
@@ -154,6 +163,33 @@ export const createDiagnosis = async (req: Request, res: Response) => {
                         console.error(`[Diagnosis] PDF extraction error for ${file.originalname}:`, pdfErr);
                         console.error(`[Diagnosis] Full error:`, JSON.stringify(pdfErr, null, 2));
                         fileData.textContent = `[Erro ao extrair texto do PDF: ${pdfErr.message || 'erro desconhecido'}]`;
+                    }
+                }
+                // Extract text from DOC/DOCX files
+                else if (file.mimetype === 'application/msword' || file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+                    try {
+                        console.log(`[Diagnosis] Attempting to read DOC/DOCX: ${file.path}`);
+
+                        if (!fs.existsSync(file.path)) {
+                            console.error(`[Diagnosis] DOC file not found at: ${file.path}`);
+                            fileData.textContent = '[Arquivo DOC não encontrado no servidor]';
+                        } else {
+                            const docBuffer = fs.readFileSync(file.path);
+                            const result = await mammoth.extractRawText({ buffer: docBuffer });
+                            const extractedText = result.value?.trim() || '';
+
+                            console.log(`[Diagnosis] Extracted ${extractedText.length} chars from DOCX: ${file.originalname}`);
+
+                            if (extractedText.length < 10) {
+                                fileData.textContent = `[Documento sem conteúdo de texto extraível. Nome: ${file.originalname}]`;
+                            } else {
+                                fileData.textContent = extractedText;
+                            }
+                        }
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    } catch (docErr: any) {
+                        console.error(`[Diagnosis] DOC extraction error for ${file.originalname}:`, docErr);
+                        fileData.textContent = `[Erro ao extrair texto do DOC: ${docErr.message || 'erro desconhecido'}]`;
                     }
                 }
 
@@ -410,7 +446,11 @@ IMPORTANTE: Você é um assistente de apoio ao diagnóstico. A decisão final é
         }
     ];
 
-    for (const img of images) {
+    // Separate images from PDFs for different handling
+    const imageFiles = images.filter(img => img.mimetype.startsWith('image/'));
+    const pdfFiles = images.filter(img => img.mimetype === 'application/pdf');
+
+    for (const img of imageFiles) {
         userContent.push({
             type: "image_url",
             image_url: {
@@ -419,6 +459,19 @@ IMPORTANTE: Você é um assistente de apoio ao diagnóstico. A decisão final é
             }
         });
     }
+
+    // For scanned PDFs, use file content type (supported by gpt-4o)
+    for (const pdf of pdfFiles) {
+        userContent.push({
+            type: "file",
+            file: {
+                filename: pdf.originalName,
+                file_data: `data:application/pdf;base64,${pdf.base64}`
+            }
+        });
+    }
+
+    console.log(`[Diagnosis] Vision request: ${imageFiles.length} image(s), ${pdfFiles.length} scanned PDF(s)`);
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
