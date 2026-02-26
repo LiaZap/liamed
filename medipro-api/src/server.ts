@@ -112,8 +112,10 @@ if (process.env.NODE_ENV !== 'production') {
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 }
 
-// Serve uploads - protected with authentication
-app.use('/uploads', authenticateToken, express.static(path.join(process.cwd(), 'uploads')));
+// Serve uploads - files are protected by unique random filenames (timestamp + random 9-digit number)
+// and CORS restricts access to the frontend domain only. Using auth here would break
+// <img src="..."> tags since browsers don't send Authorization headers for static assets.
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // Rota de health check
 app.get('/health', (req, res) => {
