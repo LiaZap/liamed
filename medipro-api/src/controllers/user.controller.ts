@@ -61,6 +61,12 @@ export const createUser = async (req: AuthRequest, res: Response) => {
   }
 };
 
+export const updateProfile = async (req: AuthRequest, res: Response) => {
+  // Self-update: set params.id to the authenticated user's own ID
+  req.params.id = req.user.id;
+  return updateUser(req, res);
+};
+
 export const updateUser = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
