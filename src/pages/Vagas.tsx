@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react"
 import { useAuth } from "@/contexts/AuthContext"
-import { Briefcase, Bell, Mail, MessageCircle, Save, Loader2, Plus, Building2, Calendar, Filter, Trash2 } from "lucide-react"
+import { Briefcase, Bell, Mail, MessageCircle, Save, Loader2, Plus, Building2, Calendar, Filter, Trash2, Pencil } from "lucide-react"
 import { PlanGate } from "@/components/PlanGate"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
@@ -44,6 +44,7 @@ export default function Vagas() {
     const [isLoading, setIsLoading] = useState(true)
     const [vacancies, setVacancies] = useState<Vacancy[]>([])
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+    const [editingVacancy, setEditingVacancy] = useState<Vacancy | null>(null)
 
     // Filter state
     const [selectedSector, setSelectedSector] = useState<string>("todos")
@@ -314,16 +315,26 @@ export default function Vagas() {
                                             )}
                                         </div>
 
-                                        {/* Delete Button */}
+                                        {/* Edit & Delete Buttons */}
                                         {(user?.role === 'ADMIN' || user?.id === vacancy.creatorId) && (
-                                            <Button
-                                                variant="destructive"
-                                                size="icon"
-                                                className="absolute top-4 right-4 h-8 w-8 rounded-full shadow-md bg-red-500 hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                onClick={(e) => handleDelete(e, vacancy.id)}
-                                            >
-                                                <Trash2 className="h-4 w-4 text-white" />
-                                            </Button>
+                                            <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <Button
+                                                    variant="secondary"
+                                                    size="icon"
+                                                    className="h-8 w-8 rounded-full shadow-md bg-white/90 hover:bg-white dark:bg-slate-800/90 dark:hover:bg-slate-700"
+                                                    onClick={(e) => { e.stopPropagation(); setEditingVacancy(vacancy); }}
+                                                >
+                                                    <Pencil className="h-4 w-4 text-slate-700 dark:text-slate-200" />
+                                                </Button>
+                                                <Button
+                                                    variant="destructive"
+                                                    size="icon"
+                                                    className="h-8 w-8 rounded-full shadow-md bg-red-500 hover:bg-red-600"
+                                                    onClick={(e) => handleDelete(e, vacancy.id)}
+                                                >
+                                                    <Trash2 className="h-4 w-4 text-white" />
+                                                </Button>
+                                            </div>
                                         )}
                                     </div>
 
@@ -460,10 +471,18 @@ export default function Vagas() {
         </div>
 
         {/* Modal for Creating Vacancies */}
-        <CreateVacancyModal 
-            isOpen={isCreateModalOpen} 
-            onClose={() => setIsCreateModalOpen(false)} 
+        <CreateVacancyModal
+            isOpen={isCreateModalOpen}
+            onClose={() => setIsCreateModalOpen(false)}
             onSuccess={loadData}
+        />
+
+        {/* Modal for Editing Vacancies */}
+        <CreateVacancyModal
+            isOpen={!!editingVacancy}
+            onClose={() => setEditingVacancy(null)}
+            onSuccess={loadData}
+            vacancy={editingVacancy}
         />
 
         </PlanGate>

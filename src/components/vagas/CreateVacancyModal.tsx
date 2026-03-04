@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
     Dialog,
     DialogContent,
@@ -25,18 +25,32 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover";
 import { MEDICAL_SPECIALTIES } from "@/constants/specialties";
-import { Loader2, Upload, ImageIcon, X, Check, ChevronsUpDown } from "lucide-react";
+import { Loader2, Upload, ImageIcon, X, Check, ChevronsUpDown, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import api from "@/services/api";
 import { toast } from "sonner";
+
+interface VacancyData {
+    id: string;
+    title: string;
+    description: string;
+    sector: string;
+    specialty?: string;
+    imageUrl?: string;
+    contactEmail?: string;
+    contactWhatsapp?: string;
+}
 
 interface CreateVacancyModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess: () => void;
+    vacancy?: VacancyData | null;
 }
 
-export function CreateVacancyModal({ isOpen, onClose, onSuccess }: CreateVacancyModalProps) {
+export function CreateVacancyModal({ isOpen, onClose, onSuccess, vacancy }: CreateVacancyModalProps) {
+    const isEditMode = !!vacancy;
+
     const [title, setTitle] = useState('');
     const [sector, setSector] = useState('');
     const [specialty, setSpecialty] = useState('');
@@ -47,14 +61,42 @@ export function CreateVacancyModal({ isOpen, onClose, onSuccess }: CreateVacancy
     const [image, setImage] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-    
+
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Populate form when editing
+    useEffect(() => {
+        if (vacancy && isOpen) {
+            setTitle(vacancy.title || '');
+            setSector(vacancy.sector || '');
+            setSpecialty(vacancy.specialty || '');
+            setDescription(vacancy.description || '');
+            setContactEmail(vacancy.contactEmail || '');
+            setContactWhatsapp(vacancy.contactWhatsapp || '');
+            setImage(null);
+            if (vacancy.imageUrl) {
+                setImagePreview(`${import.meta.env.VITE_API_URL}${vacancy.imageUrl}`);
+            } else {
+                setImagePreview(null);
+            }
+        } else if (!isOpen) {
+            // Reset on close
+            setTitle('');
+            setSector('');
+            setSpecialty('');
+            setDescription('');
+            setContactEmail('');
+            setContactWhatsapp('');
+            setImage(null);
+            setImagePreview(null);
+        }
+    }, [vacancy, isOpen]);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             if (file.size > 5 * 1024 * 1024) {
-                toast.error("Imagem muito grande", { description: "O tamanho máximo permitido é 5MB." });
+                toast.error("Imagem muito grande", { description: "O tamanho maximo permitido e 5MB." });
                 return;
             }
             setImage(file);
@@ -74,9 +116,9 @@ export function CreateVacancyModal({ isOpen, onClose, onSuccess }: CreateVacancy
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (!title.trim() || !sector.trim() || !description.trim()) {
-            toast.error("Preencha todos os campos obrigatórios");
+            toast.error("Preencha todos os campos obrigatorios");
             return;
         }
 
@@ -93,28 +135,23 @@ export function CreateVacancyModal({ isOpen, onClose, onSuccess }: CreateVacancy
                 formData.append('image', image);
             }
 
-            await api.post('/vacancies', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
+            if (isEditMode) {
+                await api.put(`/vacancies/${vacancy.id}`, formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+                toast.success("Vaga atualizada com sucesso!");
+            } else {
+                await api.post('/vacancies', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+                toast.success("Vaga publicada com sucesso!");
+            }
 
-            toast.success("Vaga publicada com sucesso!");
-            
-            // Reset form
-            setTitle('');
-            setSector('');
-            setSpecialty('');
-            setDescription('');
-            setContactEmail('');
-            setContactWhatsapp('');
-            handleRemoveImage();
-            
             onSuccess();
             onClose();
         } catch (error) {
-            console.error('Error creating vacancy:', error);
-            toast.error("Erro ao publicar vaga");
+            console.error(`Error ${isEditMode ? 'updating' : 'creating'} vacancy:`, error);
+            toast.error(isEditMode ? "Erro ao atualizar vaga" : "Erro ao publicar vaga");
         } finally {
             setIsLoading(false);
         }
@@ -125,15 +162,19 @@ export function CreateVacancyModal({ isOpen, onClose, onSuccess }: CreateVacancy
             <DialogContent className="sm:max-w-[500px] dark:bg-slate-900 border-slate-200 dark:border-slate-800">
                 <form onSubmit={handleSubmit}>
                     <DialogHeader>
-                        <DialogTitle className="text-xl">Nova Vaga / Comunicado</DialogTitle>
+                        <DialogTitle className="text-xl">
+                            {isEditMode ? 'Editar Vaga' : 'Nova Vaga / Comunicado'}
+                        </DialogTitle>
                         <DialogDescription>
-                            Preencha os dados abaixo para divulgar a oportunidade aos médicos.
+                            {isEditMode
+                                ? 'Atualize os dados da vaga abaixo.'
+                                : 'Preencha os dados abaixo para divulgar a oportunidade aos medicos.'}
                         </DialogDescription>
                     </DialogHeader>
-                    
+
                     <div className="space-y-4 py-4">
                         <div className="grid gap-2">
-                            <Label htmlFor="title" className="after:content-['*'] after:ml-0.5 after:text-red-500">Título</Label>
+                            <Label htmlFor="title" className="after:content-['*'] after:ml-0.5 after:text-red-500">Titulo</Label>
                             <Input
                                 id="title"
                                 placeholder="Ex: Plantonista UTI Noturno"
@@ -143,7 +184,7 @@ export function CreateVacancyModal({ isOpen, onClose, onSuccess }: CreateVacancy
                                 required
                             />
                         </div>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="grid gap-2">
                                 <Label htmlFor="sector" className="after:content-['*'] after:ml-0.5 after:text-red-500">Setor / Local</Label>
@@ -184,7 +225,6 @@ export function CreateVacancyModal({ isOpen, onClose, onSuccess }: CreateVacancy
                                                             key={spec}
                                                             value={spec}
                                                             onSelect={(currentValue: string) => {
-                                                                // CommandItem value is always lowercase, so we find the original case
                                                                 const originalSpec = MEDICAL_SPECIALTIES.find(s => s.toLowerCase() === currentValue) || currentValue;
                                                                 setSpecialty(originalSpec === specialty ? "" : originalSpec);
                                                                 setOpenSpecialty(false);
@@ -208,10 +248,10 @@ export function CreateVacancyModal({ isOpen, onClose, onSuccess }: CreateVacancy
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="description" className="after:content-['*'] after:ml-0.5 after:text-red-500">Descrição e Requisitos</Label>
+                            <Label htmlFor="description" className="after:content-['*'] after:ml-0.5 after:text-red-500">Descricao e Requisitos</Label>
                             <Textarea
                                 id="description"
-                                placeholder="Detalhes sobre a vaga, pré-requisitos, horários, etc..."
+                                placeholder="Detalhes sobre a vaga, pre-requisitos, horarios, etc..."
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                                 disabled={isLoading}
@@ -248,7 +288,7 @@ export function CreateVacancyModal({ isOpen, onClose, onSuccess }: CreateVacancy
                             <Label>Imagem (Opcional)</Label>
                             <div className="flex flex-col items-center justify-center gap-4">
                                 {!imagePreview ? (
-                                    <div 
+                                    <div
                                         className="w-full h-32 border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors border-slate-300 dark:border-slate-700"
                                         onClick={() => fileInputRef.current?.click()}
                                     >
@@ -259,14 +299,14 @@ export function CreateVacancyModal({ isOpen, onClose, onSuccess }: CreateVacancy
                                             Clique para fazer upload
                                         </p>
                                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                            PNG, JPG até 5MB
+                                            PNG, JPG ate 5MB
                                         </p>
                                     </div>
                                 ) : (
                                     <div className="relative w-full rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800">
-                                        <img 
-                                            src={imagePreview} 
-                                            alt="Preview" 
+                                        <img
+                                            src={imagePreview}
+                                            alt="Preview"
                                             className="w-full h-40 object-cover"
                                         />
                                         <Button
@@ -290,7 +330,7 @@ export function CreateVacancyModal({ isOpen, onClose, onSuccess }: CreateVacancy
                             </div>
                         </div>
                     </div>
-                    
+
                     <DialogFooter>
                         <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
                             Cancelar
@@ -298,10 +338,12 @@ export function CreateVacancyModal({ isOpen, onClose, onSuccess }: CreateVacancy
                         <Button type="submit" disabled={isLoading} className="gap-2">
                             {isLoading ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : isEditMode ? (
+                                <Pencil className="h-4 w-4" />
                             ) : (
                                 <Upload className="h-4 w-4" />
                             )}
-                            Publicar Vaga
+                            {isEditMode ? 'Salvar Alteracoes' : 'Publicar Vaga'}
                         </Button>
                     </DialogFooter>
                 </form>

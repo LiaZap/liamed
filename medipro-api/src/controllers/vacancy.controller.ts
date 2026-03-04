@@ -93,6 +93,53 @@ export const getVacancies = async (req: AuthRequest, res: Response) => {
     }
 }
 
+export const updateVacancy = async (req: AuthRequest, res: Response) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user.id;
+        const { title, description, sector, specialty, contactEmail, contactWhatsapp } = req.body;
+
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            return res.status(404).json({ error: 'Usuário não encontrado' });
+        }
+
+        const vacancy = await prisma.vacancy.findUnique({ where: { id } });
+        if (!vacancy) {
+            return res.status(404).json({ error: 'Vaga não encontrada' });
+        }
+
+        // Permissão: ADMIN pode tudo. Criador pode editar a própria vaga
+        if (user.role !== 'ADMIN' && vacancy.creatorId !== userId) {
+            return res.status(403).json({ error: 'Sem permissão para editar esta vaga.' });
+        }
+
+        // Handle image
+        let imageUrl = vacancy.imageUrl; // keep existing by default
+        if (req.file) {
+            imageUrl = `/uploads/${req.file.filename}`;
+        }
+
+        const updated = await prisma.vacancy.update({
+            where: { id },
+            data: {
+                title,
+                description,
+                sector,
+                specialty: specialty || null,
+                contactEmail: contactEmail || null,
+                contactWhatsapp: contactWhatsapp || null,
+                imageUrl,
+            }
+        });
+
+        res.json(updated);
+    } catch (error) {
+        console.error('Error updating vacancy:', error);
+        res.status(500).json({ error: 'Erro ao atualizar vaga' });
+    }
+}
+
 export const deleteVacancy = async (req: AuthRequest, res: Response) => {
     try {
         const { id } = req.params;
