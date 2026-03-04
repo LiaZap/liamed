@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
+import { sendVacancyNotificationEmail } from '../services/email.service';
 
 
 interface AuthRequest extends Request {
@@ -40,6 +41,72 @@ export const createVacancy = async (req: AuthRequest, res: Response) => {
         });
 
         res.status(201).json(newVacancy);
+
+        // --- Notify matching professionals (non-blocking) ---
+        try {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const userFilter: any = {
+                status: 'ATIVO',
+                id: { not: userId }, // Don't notify the creator
+                OR: [
+                    { notifyVagasEmail: true },
+                    { notifyVagasWhatsApp: true },
+                ],
+            };
+
+            // Filter by specialty if vacancy has one
+            if (specialty) {
+                userFilter.specialty = specialty;
+            }
+
+            const usersToNotify = await prisma.user.findMany({
+                where: userFilter,
+                select: { id: true, name: true, email: true, notifyVagasEmail: true },
+            });
+
+            if (usersToNotify.length > 0) {
+                // Get clinic name for email
+                let clinicName: string | null = null;
+                if (newVacancy.clinicId) {
+                    const clinic = await prisma.clinic.findUnique({
+                        where: { id: newVacancy.clinicId },
+                        select: { name: true },
+                    });
+                    clinicName = clinic?.name || null;
+                }
+
+                // Create in-app notifications
+                const notifications = usersToNotify.map(u => ({
+                    userId: u.id,
+                    title: `Nova Vaga: ${title}`,
+                    message: `Uma nova vaga de ${specialty || sector} foi publicada. Confira!`,
+                    link: '/vagas',
+                    type: 'INFO' as const,
+                    read: false,
+                }));
+
+                await prisma.notification.createMany({ data: notifications });
+                console.log(`[VACANCY] ${notifications.length} in-app notifications created`);
+
+                // Send emails (non-blocking, fire-and-forget)
+                const emailUsers = usersToNotify.filter(u => u.notifyVagasEmail);
+                for (const u of emailUsers) {
+                    sendVacancyNotificationEmail(u.email, u.name, {
+                        title,
+                        description,
+                        sector,
+                        specialty,
+                        contactEmail,
+                        contactWhatsapp,
+                        clinicName,
+                    });
+                }
+                console.log(`[VACANCY] ${emailUsers.length} email notifications queued`);
+            }
+        } catch (notifyError) {
+            // Never block vacancy creation if notifications fail
+            console.error('[VACANCY] Notification error (non-blocking):', notifyError);
+        }
 
     } catch (error) {
         console.error('Error creating vacancy:', error);
