@@ -374,11 +374,11 @@ export const calculatorController = {
                     category: 'Neonatologia',
                     expression: 'cor + fc + reflexo + tonus + respiracao',
                     variables: [
-                        { name: 'cor', label: 'Cor da Pele', unit: '', type: 'SELECT', options: JSON.stringify([{ value: 0, label: 'Azul/Pálido' }, { value: 1, label: 'Cianose periférica' }, { value: 2, label: 'Rosado' }]) },
-                        { name: 'fc', label: 'Frequência Cardíaca', unit: '', type: 'SELECT', options: JSON.stringify([{ value: 0, label: 'Ausente' }, { value: 1, label: '< 100 bpm' }, { value: 2, label: '>= 100 bpm' }]) },
-                        { name: 'reflexo', label: 'Irritabilidade Reflexa', unit: '', type: 'SELECT', options: JSON.stringify([{ value: 0, label: 'Ausente' }, { value: 1, label: 'Careta' }, { value: 2, label: 'Choro/Tosse' }]) },
-                        { name: 'tonus', label: 'Tônus Muscular', unit: '', type: 'SELECT', options: JSON.stringify([{ value: 0, label: 'Flácido' }, { value: 1, label: 'Alguma flexão' }, { value: 2, label: 'Movimento ativo' }]) },
-                        { name: 'respiracao', label: 'Respiração', unit: '', type: 'SELECT', options: JSON.stringify([{ value: 0, label: 'Ausente' }, { value: 1, label: 'Lenta/Irregular' }, { value: 2, label: 'Choro forte' }]) }
+                        { name: 'cor', label: 'Cor da Pele', unit: '', type: 'SELECT', options: [{ value: 0, label: 'Azul/Pálido' }, { value: 1, label: 'Cianose periférica' }, { value: 2, label: 'Rosado' }] },
+                        { name: 'fc', label: 'Frequência Cardíaca', unit: '', type: 'SELECT', options: [{ value: 0, label: 'Ausente' }, { value: 1, label: '< 100 bpm' }, { value: 2, label: '>= 100 bpm' }] },
+                        { name: 'reflexo', label: 'Irritabilidade Reflexa', unit: '', type: 'SELECT', options: [{ value: 0, label: 'Ausente' }, { value: 1, label: 'Careta' }, { value: 2, label: 'Choro/Tosse' }] },
+                        { name: 'tonus', label: 'Tônus Muscular', unit: '', type: 'SELECT', options: [{ value: 0, label: 'Flácido' }, { value: 1, label: 'Alguma flexão' }, { value: 2, label: 'Movimento ativo' }] },
+                        { name: 'respiracao', label: 'Respiração', unit: '', type: 'SELECT', options: [{ value: 0, label: 'Ausente' }, { value: 1, label: 'Lenta/Irregular' }, { value: 2, label: 'Choro forte' }] }
                     ]
                 },
                 {
@@ -389,7 +389,7 @@ export const calculatorController = {
                     variables: [
                         { name: 'ig', label: 'Idade Gestacional', unit: 'semanas', type: 'NUMBER' },
                         { name: 'peso_rn', label: 'Peso ao Nascer', unit: 'gramas', type: 'NUMBER' },
-                        { name: 'sexo', label: 'Sexo', unit: '', type: 'SELECT', options: JSON.stringify([{ value: 'M', label: 'Masculino' }, { value: 'F', label: 'Feminino' }]) }
+                        { name: 'sexo', label: 'Sexo', unit: '', type: 'SELECT', options: [{ value: 'M', label: 'Masculino' }, { value: 'F', label: 'Feminino' }] }
                     ]
                 },
                 {

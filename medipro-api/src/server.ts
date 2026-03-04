@@ -130,14 +130,11 @@ app.get('/health', (req, res) => {
 if (process.env.NODE_ENV !== 'production') {
     app.get('/test-db', authenticateToken, isAdmin, async (req, res) => {
         try {
-            const { PrismaClient } = await import('@prisma/client');
-            const prisma = new PrismaClient();
+            const { prisma } = await import('./lib/prisma');
 
             const usersCount = await prisma.user.count();
             const consultsCount = await prisma.consult.count();
             const diagnosesCount = await prisma.diagnosis.count();
-
-            await prisma.$disconnect();
 
             res.json({
                 status: 'ok',

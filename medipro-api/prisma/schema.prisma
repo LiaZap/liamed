@@ -502,9 +502,10 @@ model Vacancy {
   updatedAt       DateTime @updatedAt
 
   clinic  Clinic? @relation(fields: [clinicId], references: [id])
-  creator User    @relation(fields: [creatorId], references: [id])
+  creator User    @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
   @@index([clinicId])
+  @@index([creatorId])
   @@index([status])
   @@map("vacancies")
 }

@@ -359,6 +359,10 @@ export const resetPassword = async (req: Request, res: Response) => {
     try {
         const { token, newPassword } = req.body;
 
+        if (!token || !newPassword) {
+            return res.status(400).json({ error: 'Token e nova senha são obrigatórios.' });
+        }
+
         const resetToken = await prisma.passwordResetToken.findUnique({
             where: { token }
         });

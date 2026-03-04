@@ -22,7 +22,7 @@ export function SubscriptionExpiredModal({ isOpen }: SubscriptionExpiredModalPro
 
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-md" onPointerDownOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
+      <DialogContent className="sm:max-w-md [&>button]:hidden" onPointerDownOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <div className="mx-auto bg-red-100 p-3 rounded-full mb-4">
             <Lock className="h-6 w-6 text-red-600" />
