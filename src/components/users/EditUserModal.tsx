@@ -126,6 +126,11 @@ export function EditUserModal({
       return;
     }
 
+    if (password && password.length < 8) {
+      toast.error("Senha deve ter no mínimo 8 caracteres.");
+      return;
+    }
+
     if (onSave) {
       onSave({
         name,

@@ -39,7 +39,7 @@
         "back_to_login": "Voltar para Login",
         "forgot_password_sent": "Link enviado com sucesso!",
         "passwords_must_match": "As senhas não coincidem.",
-        "password_min_length": "A senha deve ter pelo menos 6 caracteres.",
+        "password_min_length": "A senha deve ter pelo menos 8 caracteres.",
         "password_reset_success": "Senha redefinida com sucesso!",
         "invalid_token": "O link de recuperação é inválido ou expirou.",
         "reset_password": "Redefinir Senha",

@@ -375,7 +375,7 @@ export const resetPassword = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'Token inválido ou expirado.' });
         }
 
-        if (newPassword.length < 6) return res.status(400).json({ error: 'Senha muito curta.' });
+        if (newPassword.length < 8) return res.status(400).json({ error: 'Senha deve ter no mínimo 8 caracteres.' });
 
         if (resetToken.expiresAt < new Date()) {
             await prisma.passwordResetToken.delete({ where: { token } });
