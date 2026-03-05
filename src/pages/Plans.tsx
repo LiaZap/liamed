@@ -426,7 +426,7 @@ export default function Plans() {
                   <span className="text-muted-foreground mr-1">
                     {" "}
                     /{" "}
-                    {t("plans.year_short")}
+                    {t("plans.month_short")}
                   </span>
                 </CardDescription>
               </CardHeader>
