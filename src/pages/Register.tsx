@@ -382,15 +382,17 @@ export default function Register() {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="inviteCode">Código da Clínica (Opcional)</Label>
-                                <Input 
-                                    id="inviteCode" 
-                                    placeholder="Ex: CLINICA-123" 
-                                    className="h-11 bg-slate-50 border-slate-200 focus:border-blue-600 focus:ring-blue-600/20 transition-all dark:bg-[#1a1d21] dark:border-slate-800"
+                                <Label htmlFor="inviteCode">Código de Convite da Clínica (Opcional)</Label>
+                                <Input
+                                    id="inviteCode"
+                                    placeholder="Ex: CLI-1234"
+                                    className="h-11 bg-slate-50 border-slate-200 focus:border-blue-600 focus:ring-blue-600/20 transition-all dark:bg-[#1a1d21] dark:border-slate-800 uppercase font-mono"
                                     value={clinicCode}
-                                    onChange={e => setClinicCode(e.target.value)}
+                                    onChange={e => setClinicCode(e.target.value.toUpperCase())}
                                 />
-                                <p className="text-[11px] text-muted-foreground">Se você foi convidado por uma clínica, digite o código aqui.</p>
+                                <p className="text-[11px] text-muted-foreground">
+                                    Peça o código ao gestor da clínica (formato: XXX-0000). Se não tem, deixe em branco.
+                                </p>
                             </div>
 
                             <div className="grid gap-2">
@@ -418,9 +420,8 @@ export default function Register() {
                                                         <CommandItem
                                                             key={spec}
                                                             value={spec}
-                                                            onSelect={(currentValue: string) => {
-                                                                const originalSpec = MEDICAL_SPECIALTIES.find(s => s.toLowerCase() === currentValue) || currentValue;
-                                                                setSpecialty(originalSpec === specialty ? "" : originalSpec);
+                                                            onSelect={() => {
+                                                                setSpecialty(spec === specialty ? "" : spec);
                                                                 setOpenSpecialty(false);
                                                             }}
                                                         >

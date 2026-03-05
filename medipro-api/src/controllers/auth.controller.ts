@@ -124,7 +124,12 @@ export const register = async (req: Request, res: Response) => {
                 clinicId = clinic.id;
                 console.log(`[AUTH] User joining clinic: ${clinic.name} (${clinic.id})`);
             } else {
-                return res.status(400).json({ error: 'Código de convite da clínica inválido.' });
+                // Check if user typed a clinic name instead of the invite code
+                const looksLikeName = !inviteCode.includes('-') && inviteCode.length > 6;
+                const errorMsg = looksLikeName
+                    ? 'Código de convite inválido. Você digitou o nome da clínica? Peça o código ao gestor (formato: XXX-0000). Se não tem código, deixe o campo em branco.'
+                    : 'Código de convite da clínica inválido. Verifique com o gestor da clínica.';
+                return res.status(400).json({ error: errorMsg });
             }
         }
 
