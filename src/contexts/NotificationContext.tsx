@@ -1,10 +1,9 @@
- 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { useAuth } from './AuthContext';
 import api from '@/services/api';
-// import { v4 as uuidv4 } from 'uuid'; // Unused
 
-// Helper for ID generator if uuid is missing, though recommended to install
+// Helper for ID generator
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
 export type NotificationType = 'info' | 'success' | 'warning' | 'error';
@@ -15,7 +14,7 @@ export interface Notification {
     title: string;
     message: string;
     read: boolean;
-    createdAt: string; // ISO string for storage safety
+    createdAt: string;
     link?: string;
     imageUrl?: string;
 }
@@ -32,11 +31,13 @@ interface NotificationContexttype {
 
 const NotificationContext = createContext<NotificationContexttype | undefined>(undefined);
 
+const POLL_INTERVAL = 30000; // 30s (was 10s)
+
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const { user } = useAuth();
+    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-    // Generate user-specific storage key
     const storageKey = user?.id ? `medipro-notifications-${user.id}` : 'medipro-notifications-guest';
 
     // Load from local storage on mount or user change
@@ -74,7 +75,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     };
 
     // Poll for notifications and unread support tickets
-    const refreshNotifications = async () => {
+    const refreshNotifications = useCallback(async () => {
         if (!user) return;
 
         try {
@@ -86,8 +87,6 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
             const tickets = ticketsResponse.data;
             const apiNotifications = notificationsResponse.data;
 
-            // Convert API notifications
-             
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const formattedApiNotifications: Notification[] = apiNotifications.map((n: any) => ({
                 id: n.id,
@@ -100,25 +99,22 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
                 imageUrl: n.imageUrl
             }));
 
-            // Generate ticket notifications
-             
             const ticketNotifications: Notification[] = [];
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             tickets.forEach((ticket: any) => {
                 if (ticket.unreadCount > 0) {
-                   ticketNotifications.push({
-                        id: `ticket-${ticket.id}`, // Virtual ID
+                    ticketNotifications.push({
+                        id: `ticket-${ticket.id}`,
                         type: 'info',
                         title: 'Nova mensagem no suporte',
                         message: `Você tem ${ticket.unreadCount} nova(s) resposta(s) no ticket: ${ticket.subject}`,
                         read: false,
                         createdAt: ticket.updatedAt || new Date().toISOString(),
                         link: '/suporte'
-                   });
+                    });
                 }
             });
 
-            // Combine and sort by date desc
             const allNotifications = [...formattedApiNotifications, ...ticketNotifications].sort(
                 (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
             );
@@ -128,23 +124,48 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         } catch (error) {
             console.error("Failed to refresh notifications", error);
         }
-    };
-
-    useEffect(() => {
-        refreshNotifications(); // Check immediately
-        const interval = setInterval(refreshNotifications, 10000); // Check every 10s
- 
-
-        return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user]);
 
+    // Smart polling: pauses when tab is hidden
+    useEffect(() => {
+        if (!user) return;
+
+        refreshNotifications();
+
+        const startPolling = () => {
+            if (!intervalRef.current) {
+                intervalRef.current = setInterval(refreshNotifications, POLL_INTERVAL);
+            }
+        };
+        const stopPolling = () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+            }
+        };
+
+        const handleVisibility = () => {
+            if (document.visibilityState === 'visible') {
+                refreshNotifications();
+                startPolling();
+            } else {
+                stopPolling();
+            }
+        };
+
+        startPolling();
+        document.addEventListener('visibilitychange', handleVisibility);
+
+        return () => {
+            stopPolling();
+            document.removeEventListener('visibilitychange', handleVisibility);
+        };
+    }, [user, refreshNotifications]);
+
     const markAsRead = async (id: string) => {
-        // If it's a virtual ticket notification, we don't mark as read via API here
-        // (It gets cleared when user visits support page and unread count goes to 0)
         if (id.startsWith('ticket-')) {
-             setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
-             return;
+            setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+            return;
         }
 
         try {
@@ -156,27 +177,23 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     };
 
     const markAllAsRead = async () => {
-        // Optimistic update
         setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-        
-        // Only mark real notifications as read on backend
-        // Virtual ones are handled by UI interactions mostly
         notifications.filter(n => !n.id.startsWith('ticket-')).forEach(n => {
-             api.patch(`/notifications/${n.id}/read`).catch(console.error);
+            api.patch(`/notifications/${n.id}/read`).catch(console.error);
         });
     };
 
     const deleteNotification = async (id: string) => {
-         if (id.startsWith('ticket-')) {
-             setNotifications(prev => prev.filter(n => n.id !== id));
-             return;
+        if (id.startsWith('ticket-')) {
+            setNotifications(prev => prev.filter(n => n.id !== id));
+            return;
         }
 
         try {
             await api.delete(`/notifications/${id}`);
             setNotifications(prev => prev.filter(n => n.id !== id));
         } catch (error) {
-             console.error("Failed to delete notification", error);
+            console.error("Failed to delete notification", error);
         }
     };
 
@@ -196,7 +213,6 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         }}>
             {children}
         </NotificationContext.Provider>
-     
     );
 }
 

@@ -85,15 +85,40 @@ export default function Support() {
     loadTickets();
   }, []);
 
-  // Polling for real-time updates
+  // Polling for real-time updates (pauses when tab is hidden)
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (selectedTicket) {
-      interval = setInterval(() => {
-        loadTicketDetails(selectedTicket.id, true);
-      }, 3000);
-    }
-    return () => clearInterval(interval);
+    if (!selectedTicket) return;
+
+    let interval: NodeJS.Timeout | null = null;
+    const ticketId = selectedTicket.id;
+
+    const startPolling = () => {
+      if (!interval) {
+        interval = setInterval(() => {
+          loadTicketDetails(ticketId, true);
+        }, 10000); // 10s (was 3s)
+      }
+    };
+    const stopPolling = () => {
+      if (interval) { clearInterval(interval); interval = null; }
+    };
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        loadTicketDetails(ticketId, true);
+        startPolling();
+      } else {
+        stopPolling();
+      }
+    };
+
+    startPolling();
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      stopPolling();
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTicket?.id]);
 
