@@ -34,13 +34,7 @@ const TRANSCRIPTION_LIMITS: Record<string, number | null> = {
     PREMIUM: null  // Ilimitado
 }
 
-// Limite de diagnósticos IA por semana por plano
-const DIAGNOSIS_WEEKLY_LIMITS: Record<string, number | null> = {
-    FREE: 1,       // 1 por semana
-    ESSENTIAL: null,
-    PRO: null,
-    PREMIUM: null
-}
+// Limite de diagnósticos IA por semana: FREE = 1 (controlado no backend)
 
 interface DiagnosisItem {
     id: string;
