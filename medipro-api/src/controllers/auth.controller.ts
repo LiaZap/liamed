@@ -60,7 +60,7 @@ export const login = async (req: Request, res: Response) => {
         });
 
         // Determine plan info
-        let plan = 'ESSENTIAL';
+        let plan = 'FREE';
         let planStatus = 'ACTIVE';
         if (user.subscriptions && user.subscriptions.length > 0) {
             const sub = user.subscriptions[0];
@@ -319,7 +319,7 @@ export const register = async (req: Request, res: Response) => {
                 email: user.email,
                 role: user.role,
                 specialty: user.specialty,
-                plan: trialDays > 0 ? 'PRO' : 'ESSENTIAL', // Assuming Essential is default/fallback
+                plan: trialDays > 0 ? 'PRO' : 'FREE',
                 planStatus: planStatus
             },
             message: trialDays > 0 

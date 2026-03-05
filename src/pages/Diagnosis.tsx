@@ -27,10 +27,19 @@ import api from "@/services/api"
 import { playSound } from "@/utils/sounds"
 
 // Limite de transcrição por plano (em minutos)
-const TRANSCRIPTION_LIMITS = {
+const TRANSCRIPTION_LIMITS: Record<string, number | null> = {
+    FREE: 0,       // Sem transcrição
     ESSENTIAL: 20, // 20 minutos
     PRO: null,     // Ilimitado
     PREMIUM: null  // Ilimitado
+}
+
+// Limite de diagnósticos IA por semana por plano
+const DIAGNOSIS_WEEKLY_LIMITS: Record<string, number | null> = {
+    FREE: 1,       // 1 por semana
+    ESSENTIAL: null,
+    PRO: null,
+    PREMIUM: null
 }
 
 interface DiagnosisItem {
@@ -356,9 +365,22 @@ export default function Diagnosis() {
                 })
             }, 1500)
 
-        } catch (error) {
+        } catch (error: unknown) {
             console.error(error);
-            toast.error(t('diagnosis.toasts.send_error'))
+            const apiError = error as { response?: { status?: number; data?: { error?: string } } };
+            const msg = apiError.response?.data?.error || t('diagnosis.toasts.send_error');
+
+            if (apiError.response?.status === 403) {
+                toast.error(msg, {
+                    duration: 8000,
+                    action: {
+                        label: 'Ver Planos',
+                        onClick: () => window.location.href = '/planos'
+                    }
+                });
+            } else {
+                toast.error(msg);
+            }
             setResponseState('empty')
         }
     }

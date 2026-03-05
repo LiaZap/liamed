@@ -28,6 +28,27 @@ import { toast } from "sonner";
 // Planos LIAMED
 const PLANS = [
   {
+    id: "free",
+    name: "Free",
+    price: 0,
+    peculiarity: "Explorar Vagas",
+    description:
+      "Acesso às vagas médicas + 1 uso de IA diagnóstico por semana",
+    features: [
+      "Vagas Médicas de Trabalho",
+      "1 Diagnóstico IA por semana",
+      "Notificações de Vagas",
+    ],
+    notIncluded: [
+      "Transcrições de Consultas",
+      "Análise de Gasometria",
+      "Calculadoras Médicas",
+      "Protocolos Médicos",
+    ],
+    transcriptionLimit: 0,
+    current: false,
+  },
+  {
     id: "essential",
     name: "Essential",
     price: 59.9,
@@ -169,12 +190,17 @@ export default function Plans() {
   // Determine user's current plan (normalize to lowercase for comparison)
   const currentUserPlan = user?.plan?.toLowerCase() || null;
   const currentPlanStatus = user?.planStatus?.toUpperCase() || 'ACTIVE';
-  const hasPlan = currentUserPlan && currentUserPlan !== 'essential' && ['ACTIVE', 'TRIALING'].includes(currentPlanStatus);
+  const hasPlan = currentUserPlan && currentUserPlan !== 'essential' && currentUserPlan !== 'free' && ['ACTIVE', 'TRIALING'].includes(currentPlanStatus);
 
   // Get current plan details for display
   const currentPlanDetails = PLANS.find(p => p.id === currentUserPlan);
 
   const handleSubscribe = async (planName: string) => {
+    // Free plan doesn't need Stripe checkout
+    if (planName.toUpperCase() === 'FREE') {
+      toast.info("Você já está no plano Free. Para acessar mais recursos, escolha um plano pago.");
+      return;
+    }
     try {
       setIsLoading(true);
       const response = await api.post("/payments/create-checkout-session", {
@@ -370,7 +396,7 @@ export default function Plans() {
 
 
       {/* Plans Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {PLANS.map((plan) => {
           const isCurrentPlan = plan.id === currentUserPlan;
           const planIndex = PLANS.findIndex(p => p.id === plan.id);
@@ -419,15 +445,23 @@ export default function Plans() {
                   </p>
                 )}
                 <CardDescription>
-                  <span className="text-3xl font-bold text-slate-900 dark:text-slate-50">
-                    R${" "}
-                    {plan.price.toFixed(2).replace(".", ",")}
-                  </span>
-                  <span className="text-muted-foreground mr-1">
-                    {" "}
-                    /{" "}
-                    {t("plans.month_short")}
-                  </span>
+                  {plan.price === 0 ? (
+                    <span className="text-3xl font-bold text-green-600 dark:text-green-400">
+                      Grátis
+                    </span>
+                  ) : (
+                    <>
+                      <span className="text-3xl font-bold text-slate-900 dark:text-slate-50">
+                        R${" "}
+                        {plan.price.toFixed(2).replace(".", ",")}
+                      </span>
+                      <span className="text-muted-foreground mr-1">
+                        {" "}
+                        /{" "}
+                        {t("plans.month_short")}
+                      </span>
+                    </>
+                  )}
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex-1">

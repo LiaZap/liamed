@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Lock, ArrowUpCircle } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 
-export type PlanType = 'ESSENTIAL' | 'PRO' | 'PREMIUM'
+export type PlanType = 'FREE' | 'ESSENTIAL' | 'PRO' | 'PREMIUM'
 
 interface PlanGateProps {
     requiredPlan: PlanType
@@ -15,12 +15,14 @@ interface PlanGateProps {
 }
 
 const PLAN_HIERARCHY: Record<PlanType, number> = {
+    FREE: 0,
     ESSENTIAL: 1,
     PRO: 2,
     PREMIUM: 3
 }
 
 const PLAN_NAMES: Record<PlanType, string> = {
+    FREE: 'Free',
     ESSENTIAL: 'Essential',
     PRO: 'Pro',
     PREMIUM: 'Premium'
@@ -35,7 +37,7 @@ export function PlanGate({ requiredPlan, children, featureName }: PlanGateProps)
     const navigate = useNavigate()
     
     // Plano atual do usuário (default: ESSENTIAL se não definido)
-    const userPlan = (user?.plan as PlanType) || 'ESSENTIAL'
+    const userPlan = (user?.plan as PlanType) || 'FREE'
     const userPlanLevel = PLAN_HIERARCHY[userPlan] || 1
     const requiredPlanLevel = PLAN_HIERARCHY[requiredPlan]
     
@@ -104,7 +106,7 @@ export function PlanGate({ requiredPlan, children, featureName }: PlanGateProps)
  */
 export function usePlanAccess(requiredPlan: PlanType): boolean {
     const { user } = useAuth()
-    const userPlan = (user?.plan as PlanType) || 'ESSENTIAL'
+    const userPlan = (user?.plan as PlanType) || 'FREE'
     const userPlanLevel = PLAN_HIERARCHY[userPlan] || 1
     const requiredPlanLevel = PLAN_HIERARCHY[requiredPlan]
     
@@ -116,7 +118,7 @@ export function usePlanAccess(requiredPlan: PlanType): boolean {
  */
 export function useUserPlan() {
     const { user } = useAuth()
-    const userPlan = (user?.plan as PlanType) || 'ESSENTIAL'
+    const userPlan = (user?.plan as PlanType) || 'FREE'
     
     return {
         plan: userPlan,

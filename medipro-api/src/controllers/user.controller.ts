@@ -375,7 +375,7 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
     }
 
     // Determine plan
-    let plan = 'ESSENTIAL';
+    let plan = 'FREE';
     let planStatus = 'ACTIVE';
 
     if (user.subscriptions && user.subscriptions.length > 0) {
@@ -386,10 +386,8 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
         }
         planStatus = sub.status;
     } else {
-        // No subscription record at all -> Default to Essential Active (Free Tier)
-        // OR should we treat as 'NO_PLAN'?
-        // For now, let's assume if they have NO history, they are free tier.
-        plan = 'ESSENTIAL';
+        // No subscription -> Free tier
+        plan = 'FREE';
         planStatus = 'ACTIVE';
     }
 

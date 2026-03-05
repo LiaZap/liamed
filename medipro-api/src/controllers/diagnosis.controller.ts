@@ -71,10 +71,18 @@ export const createDiagnosis = async (req: Request, res: Response) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const doctorId = (req as any).user.id;
 
-        // Get user with endpoint config
+        // Get user with endpoint config and subscription
         const doctor = await prisma.user.findUnique({
             where: { id: doctorId },
-            include: { endpoint: true }
+            include: {
+                endpoint: true,
+                subscriptions: {
+                    where: { status: { in: ['ACTIVE', 'TRIALING'] } },
+                    orderBy: { createdAt: 'desc' },
+                    take: 1,
+                    include: { plan: true }
+                }
+            }
         });
 
         console.log(`[Diagnosis] User ID: ${doctorId}`);
@@ -83,6 +91,27 @@ export const createDiagnosis = async (req: Request, res: Response) => {
 
         if (!doctor) {
             return res.status(404).json({ error: 'Médico não encontrado.' });
+        }
+
+        // Check weekly limit for FREE users (1 diagnosis per week)
+        const userPlan = doctor.subscriptions?.[0]?.plan?.name?.toUpperCase() || 'FREE';
+        if (userPlan === 'FREE') {
+            const weekStart = new Date();
+            weekStart.setDate(weekStart.getDate() - weekStart.getDay()); // Sunday
+            weekStart.setHours(0, 0, 0, 0);
+
+            const weeklyCount = await prisma.diagnosis.count({
+                where: {
+                    doctorId,
+                    createdAt: { gte: weekStart }
+                }
+            });
+
+            if (weeklyCount >= 1) {
+                return res.status(403).json({
+                    error: 'Limite semanal atingido. No plano Free você pode usar o Diagnóstico IA 1 vez por semana. Faça upgrade para usar sem limites.'
+                });
+            }
         }
 
         // Handle uploaded files and extract PDF content
