@@ -100,8 +100,8 @@ export const register = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'Nome, email e senha são obrigatórios.' });
         }
 
-        if (password.length < 6) {
-            return res.status(400).json({ error: 'Senha deve ter no mínimo 6 caracteres.' });
+        if (password.length < 8) {
+            return res.status(400).json({ error: 'Senha deve ter no mínimo 8 caracteres.' });
         }
 
         // Check if user already exists

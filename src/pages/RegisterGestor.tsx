@@ -25,6 +25,22 @@ export default function RegisterGestor() {
     const [clinicCnpj, setClinicCnpj] = useState("")
     const [clinicPhone, setClinicPhone] = useState("")
 
+    // Password strength
+    const getPasswordStrength = (pwd: string) => {
+        const checks = {
+            length: pwd.length >= 8,
+            upper: /[A-Z]/.test(pwd),
+            lower: /[a-z]/.test(pwd),
+            number: /[0-9]/.test(pwd),
+            special: /[^A-Za-z0-9]/.test(pwd),
+        }
+        const score = Object.values(checks).filter(Boolean).length
+        return { checks, score }
+    }
+    const strength = getPasswordStrength(password)
+    const strengthLabel = ['', 'Muito fraca', 'Fraca', 'Razoável', 'Forte', 'Muito forte'][strength.score] || ''
+    const strengthColor = ['', 'bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-blue-500', 'bg-green-500'][strength.score] || ''
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         
@@ -32,7 +48,8 @@ export default function RegisterGestor() {
         if (!clinicName.trim()) return toast.error("Nome da clínica é obrigatório")
         if (!clinicCnpj.trim()) return toast.error("CNPJ da clínica é obrigatório")
         if (!clinicPhone.trim()) return toast.error("Telefone da clínica é obrigatório")
-        if (password.length < 6) return toast.error("Senha muito curta (mínimo 6 caracteres)")
+        if (password.length < 8) return toast.error("Senha deve ter no mínimo 8 caracteres")
+        if (strength.score < 3) return toast.error("Senha muito fraca. Inclua letras maiúsculas, minúsculas, números ou caracteres especiais.")
         if (password !== confirmPassword) return toast.error("Senhas não conferem")
         
         setIsLoading(true)
@@ -214,27 +231,63 @@ export default function RegisterGestor() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="grid gap-2">
                                     <Label htmlFor="password">Senha</Label>
-                                    <Input 
-                                        id="password" 
-                                        type="password" 
+                                    <Input
+                                        id="password"
+                                        type="password"
                                         className="h-11"
                                         value={password}
                                         onChange={e => setPassword(e.target.value)}
-                                        required 
+                                        required
                                     />
                                 </div>
                                 <div className="grid gap-2">
                                     <Label htmlFor="confirmPassword">Confirmar Senha</Label>
-                                    <Input 
-                                        id="confirmPassword" 
-                                        type="password" 
+                                    <Input
+                                        id="confirmPassword"
+                                        type="password"
                                         className="h-11"
                                         value={confirmPassword}
                                         onChange={e => setConfirmPassword(e.target.value)}
-                                        required 
+                                        required
                                     />
                                 </div>
                             </div>
+                            {password && (
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-2">
+                                        <div className="flex-1 flex gap-1">
+                                            {[1,2,3,4,5].map(i => (
+                                                <div key={i} className={`h-1.5 flex-1 rounded-full transition-all ${i <= strength.score ? strengthColor : 'bg-slate-200 dark:bg-slate-700'}`} />
+                                            ))}
+                                        </div>
+                                        <span className={`text-xs font-medium ${strength.score <= 2 ? 'text-red-500' : strength.score <= 3 ? 'text-yellow-600' : 'text-green-600'}`}>
+                                            {strengthLabel}
+                                        </span>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-x-4 gap-y-0.5 text-[11px]">
+                                        <span className={strength.checks.length ? 'text-green-600' : 'text-slate-400'}>
+                                            {strength.checks.length ? '✓' : '○'} Mínimo 8 caracteres
+                                        </span>
+                                        <span className={strength.checks.upper ? 'text-green-600' : 'text-slate-400'}>
+                                            {strength.checks.upper ? '✓' : '○'} Letra maiúscula
+                                        </span>
+                                        <span className={strength.checks.lower ? 'text-green-600' : 'text-slate-400'}>
+                                            {strength.checks.lower ? '✓' : '○'} Letra minúscula
+                                        </span>
+                                        <span className={strength.checks.number ? 'text-green-600' : 'text-slate-400'}>
+                                            {strength.checks.number ? '✓' : '○'} Número
+                                        </span>
+                                        <span className={strength.checks.special ? 'text-green-600' : 'text-slate-400'}>
+                                            {strength.checks.special ? '✓' : '○'} Caractere especial
+                                        </span>
+                                        {confirmPassword && (
+                                            <span className={password === confirmPassword ? 'text-green-600' : 'text-red-500'}>
+                                                {password === confirmPassword ? '✓' : '✗'} Senhas conferem
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         <Button 
