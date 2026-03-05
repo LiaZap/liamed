@@ -185,7 +185,11 @@ export const register = async (req: Request, res: Response) => {
                 status: 'ATIVO',
                 specialty: specialty || null,
                 phone: phone || null,
-                birthDate: birthDate ? new Date(birthDate) : null,
+                birthDate: birthDate ? (() => {
+                    const d = new Date(birthDate);
+                    const year = d.getFullYear();
+                    return (!isNaN(d.getTime()) && year >= 1900 && year <= new Date().getFullYear()) ? d : null;
+                })() : null,
                 clinicId: clinicId, // Link to clinic
                 endpointId: defaultEndpoint?.id || null, // Default AI Endpoint
                 customPrompt: defaultPrompt?.content || null // Default AI Prompt
