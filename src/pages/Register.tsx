@@ -214,8 +214,8 @@ export default function Register() {
                 birthDate: birthDate || null,
                 phone: null,
                 role: "MEDICO",
-                promoCode: promoCode || undefined,
-                inviteCode: clinicCode || undefined
+                promoCode: promoCode.trim() || undefined,
+                inviteCode: clinicCode.trim() || undefined
             })
             
             const { token, user, message } = response.data
@@ -333,7 +333,7 @@ export default function Register() {
                             Crie sua conta profissional
                         </h2>
                         <p className="mt-2 text-slate-600 dark:text-slate-400">
-                            Comece seu teste de 15 dias do plano PRO. <br className="hidden lg:block"/>Sem compromisso.
+                            Acesse a plataforma e potencialize seus atendimentos. <br className="hidden lg:block"/>Rápido e sem complicação.
                         </p>
                     </div>
 

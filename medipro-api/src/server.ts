@@ -19,9 +19,11 @@ const globalLimiter = rateLimit({
 });
 
 const authLimiter = rateLimit({
-    windowMs: 60 * 60 * 1000, // 1 hour
-    limit: 20, // Limit login attempts to 20 per hour
-    message: 'Too many login attempts, please try again later'
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    limit: 50, // Limit auth requests to 50 per 15min per IP
+    standardHeaders: 'draft-7',
+    legacyHeaders: false,
+    message: 'Muitas tentativas. Tente novamente em alguns minutos.'
 });
 
 import { authenticateToken, isAdmin } from './middleware/auth.middleware';

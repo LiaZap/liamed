@@ -114,17 +114,16 @@ export const register = async (req: Request, res: Response) => {
 
         // Verify invite code if provided
         let clinicId = null;
-        if (req.body.inviteCode) {
+        const inviteCode = req.body.inviteCode?.trim();
+        if (inviteCode) {
             const clinic = await prisma.clinic.findUnique({
-                where: { inviteCode: req.body.inviteCode }
+                where: { inviteCode }
             });
 
             if (clinic) {
                 clinicId = clinic.id;
                 console.log(`[AUTH] User joining clinic: ${clinic.name} (${clinic.id})`);
             } else {
-                // Should we block or just ignore? User friendly: warn them?
-                // For now, let's treat invalid code as an error to prevent mistakes
                 return res.status(400).json({ error: 'Código de convite da clínica inválido.' });
             }
         }
@@ -135,10 +134,15 @@ export const register = async (req: Request, res: Response) => {
                 return res.status(400).json({ error: 'Nome da clínica é obrigatório para cadastro de gestor.' });
             }
 
-            // Generate simple invite code: FIRST3 + RAND4 (e.g., CLI-5921)
-            const prefix = clinicName.substring(0, 3).toUpperCase().replace(/[^A-Z]/g, 'CLI');
-            const random = Math.floor(1000 + Math.random() * 9000); // 1000-9999
-            const generatedInviteCode = `${prefix}-${random}`;
+            // Generate invite code with retry to avoid collision
+            const prefix = clinicName.substring(0, 3).toUpperCase().replace(/[^A-Z]/g, 'X');
+            let generatedInviteCode = '';
+            for (let attempt = 0; attempt < 5; attempt++) {
+                const random = Math.floor(1000 + Math.random() * 9000);
+                generatedInviteCode = `${prefix}-${random}`;
+                const existing = await prisma.clinic.findUnique({ where: { inviteCode: generatedInviteCode } });
+                if (!existing) break;
+            }
 
             try {
                 const newClinic = await prisma.clinic.create({
