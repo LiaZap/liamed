@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
 import { sendVacancyNotificationEmail } from '../services/email.service';
+import { sendVacancyWhatsApp } from '../services/whatsapp.service';
 
 
 interface AuthRequest extends Request {
@@ -61,7 +62,7 @@ export const createVacancy = async (req: AuthRequest, res: Response) => {
 
             const usersToNotify = await prisma.user.findMany({
                 where: userFilter,
-                select: { id: true, name: true, email: true, notifyVagasEmail: true },
+                select: { id: true, name: true, email: true, phone: true, notifyVagasEmail: true, notifyVagasWhatsApp: true },
             });
 
             if (usersToNotify.length > 0) {
@@ -102,6 +103,26 @@ export const createVacancy = async (req: AuthRequest, res: Response) => {
                     });
                 }
                 console.log(`[VACANCY] ${emailUsers.length} email notifications queued`);
+
+                // Send WhatsApp notifications via UaZapi (non-blocking, fire-and-forget)
+                const whatsappUsers = usersToNotify.filter(u => u.notifyVagasWhatsApp && u.phone);
+                const fullImageUrl = imageUrl && process.env.BACKEND_URL
+                    ? `${process.env.BACKEND_URL}${imageUrl}`
+                    : null;
+
+                for (const u of whatsappUsers) {
+                    sendVacancyWhatsApp(u.phone!, {
+                        title,
+                        description,
+                        sector,
+                        specialty,
+                        contactEmail,
+                        contactWhatsapp,
+                        clinicName,
+                        imageUrl: fullImageUrl,
+                    });
+                }
+                console.log(`[VACANCY] ${whatsappUsers.length} WhatsApp notifications queued`);
             }
         } catch (notifyError) {
             // Never block vacancy creation if notifications fail
