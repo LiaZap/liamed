@@ -1,29 +1,31 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, lazy, Suspense } from "react"
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom"
 import DashboardLayout from "@/layouts/DashboardLayout"
-import Dashboard from "@/pages/Dashboard"
-import Diagnosis from "@/pages/Diagnosis"
-import UsersPage from "@/pages/Users"
-import Consultations from "@/pages/Consultations"
-import Endpoints from "@/pages/Endpoints"
-import Settings from "@/pages/Settings"
-import Prompts from "@/pages/Prompts"
-import Profile from "@/pages/Profile"
 import Login from "@/pages/Login"
-import Register from "@/pages/Register"
-import RegisterGestor from "@/pages/RegisterGestor"
-import ForgotPassword from "@/pages/ForgotPassword"
-import ResetPassword from "@/pages/ResetPassword"
-import Notifications from "@/pages/Notifications"
-import AuditLogs from "@/pages/AuditLogs"
-import Plans from "@/pages/Plans"
-import Calculators from "@/pages/Calculators"
-import SystemHealth from "@/pages/SystemHealth"
-import ClinicDashboard from "@/pages/ClinicDashboard"
-import Vagas from "@/pages/Vagas"
-import Protocols from "@/pages/Protocols"
-import Support from "@/pages/Support"
-import AdminPromoCodes from "@/pages/admin/AdminPromoCodes"
+
+// Lazy-loaded pages (code splitting)
+const Dashboard = lazy(() => import("@/pages/Dashboard"))
+const Diagnosis = lazy(() => import("@/pages/Diagnosis"))
+const UsersPage = lazy(() => import("@/pages/Users"))
+const Consultations = lazy(() => import("@/pages/Consultations"))
+const Endpoints = lazy(() => import("@/pages/Endpoints"))
+const Settings = lazy(() => import("@/pages/Settings"))
+const Prompts = lazy(() => import("@/pages/Prompts"))
+const Profile = lazy(() => import("@/pages/Profile"))
+const Register = lazy(() => import("@/pages/Register"))
+const RegisterGestor = lazy(() => import("@/pages/RegisterGestor"))
+const ForgotPassword = lazy(() => import("@/pages/ForgotPassword"))
+const ResetPassword = lazy(() => import("@/pages/ResetPassword"))
+const Notifications = lazy(() => import("@/pages/Notifications"))
+const AuditLogs = lazy(() => import("@/pages/AuditLogs"))
+const Plans = lazy(() => import("@/pages/Plans"))
+const Calculators = lazy(() => import("@/pages/Calculators"))
+const SystemHealth = lazy(() => import("@/pages/SystemHealth"))
+const ClinicDashboard = lazy(() => import("@/pages/ClinicDashboard"))
+const Vagas = lazy(() => import("@/pages/Vagas"))
+const Protocols = lazy(() => import("@/pages/Protocols"))
+const Support = lazy(() => import("@/pages/Support"))
+const AdminPromoCodes = lazy(() => import("@/pages/admin/AdminPromoCodes"))
 import { type NavItem } from "@/components/layout/Sidebar"
 import { Toaster } from "@/components/ui/sonner"
 import { ThemeProvider } from "@/contexts/ThemeContext"
@@ -81,33 +83,41 @@ function AuthenticatedApp() {
     return <Login />
   }
 
+  const fallback = (
+    <div className="flex items-center justify-center h-[300px]">
+      <Loader2 className="h-6 w-6 animate-spin text-primary" />
+    </div>
+  )
+
   return (
     <NotificationProvider>
       <DashboardLayout currentPath={currentPath} onNavigate={setCurrentPath}>
-        {currentPath === "Dashboard" && <Dashboard />}
-        {currentPath === "Clínica" && <ClinicDashboard />}
-        {currentPath === "Diagnóstico" && <Diagnosis />}
-        {currentPath === "Usuários" && <UsersPage />}
-        {currentPath === "Consultas" && <Consultations />}
-        {currentPath === "Endpoints" && <Endpoints />}
-        {currentPath === "Configurações" && <Settings />}
-        {currentPath === "Prompts" && <Prompts />}
-        {currentPath === "Calculadoras" && <Calculators />}
-        {currentPath === "Health" && <SystemHealth />}
-        {currentPath === "Perfil" && <Profile onNavigate={setCurrentPath} />}
-        {currentPath === "Notificações" && <Notifications />}
-        {currentPath === "Logs" && <AuditLogs />}
-        {currentPath === "Planos" && <Plans />}
-        {currentPath === "Vagas" && <Vagas />}
-        {currentPath === "Protocolos" && <Protocols />}
-        {currentPath === "Suporte" && <Support />}
-        {currentPath === "Códigos Promocionais" && <AdminPromoCodes />}
+        <Suspense fallback={fallback}>
+          {currentPath === "Dashboard" && <Dashboard />}
+          {currentPath === "Clínica" && <ClinicDashboard />}
+          {currentPath === "Diagnóstico" && <Diagnosis />}
+          {currentPath === "Usuários" && <UsersPage />}
+          {currentPath === "Consultas" && <Consultations />}
+          {currentPath === "Endpoints" && <Endpoints />}
+          {currentPath === "Configurações" && <Settings />}
+          {currentPath === "Prompts" && <Prompts />}
+          {currentPath === "Calculadoras" && <Calculators />}
+          {currentPath === "Health" && <SystemHealth />}
+          {currentPath === "Perfil" && <Profile onNavigate={setCurrentPath} />}
+          {currentPath === "Notificações" && <Notifications />}
+          {currentPath === "Logs" && <AuditLogs />}
+          {currentPath === "Planos" && <Plans />}
+          {currentPath === "Vagas" && <Vagas />}
+          {currentPath === "Protocolos" && <Protocols />}
+          {currentPath === "Suporte" && <Support />}
+          {currentPath === "Códigos Promocionais" && <AdminPromoCodes />}
 
-        {currentPath === "Others" && (
-          <div className="flex items-center justify-center h-[500px] text-muted-foreground">
-            <p>Página em construção</p>
-          </div>
-        )}
+          {currentPath === "Others" && (
+            <div className="flex items-center justify-center h-[500px] text-muted-foreground">
+              <p>Página em construção</p>
+            </div>
+          )}
+        </Suspense>
       </DashboardLayout>
     </NotificationProvider>
   )
@@ -118,14 +128,16 @@ function App() {
     <BrowserRouter>
       <ThemeProvider defaultTheme="light" storageKey="medipro-theme">
         <AuthProvider>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/register-clinic" element={<RegisterGestor />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/*" element={<AuthenticatedApp />} />
-          </Routes>
+          <Suspense fallback={<div className="h-screen w-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/register-clinic" element={<RegisterGestor />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/*" element={<AuthenticatedApp />} />
+            </Routes>
+          </Suspense>
           <Toaster />
         </AuthProvider>
       </ThemeProvider>

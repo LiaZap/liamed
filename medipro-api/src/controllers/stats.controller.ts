@@ -126,27 +126,35 @@ export const getStats = async (req: AuthRequest, res: Response) => {
 
         const daysParam = req.query.days ? parseInt(req.query.days as string) : 7;
 
+        // Single query instead of N separate count queries
+        const periodStart = new Date(today);
+        periodStart.setDate(today.getDate() - (daysParam - 1));
+        periodStart.setHours(0, 0, 0, 0);
+
+        const dailyCounts = await prisma.consult.groupBy({
+            by: ['date'],
+            where: {
+                ...whereClause,
+                date: { gte: periodStart }
+            },
+            _count: { id: true }
+        });
+
+        // Build a map of date -> count
+        const countMap = new Map<string, number>();
+        dailyCounts.forEach(row => {
+            const key = new Date(row.date).toISOString().split('T')[0];
+            countMap.set(key, (countMap.get(key) || 0) + row._count.id);
+        });
+
         for (let i = daysParam - 1; i >= 0; i--) {
             const d = new Date(today);
             d.setDate(today.getDate() - i);
-            d.setHours(0, 0, 0, 0);
-
-            const nextD = new Date(d);
-            nextD.setDate(d.getDate() + 1);
-
-            const count = await prisma.consult.count({
-                where: {
-                    ...whereClause,
-                    date: {
-                        gte: d,
-                        lt: nextD
-                    }
-                }
-            });
+            const key = d.toISOString().split('T')[0];
 
             evolution.push({
                 name: daysParam > 7 ? `${d.getDate()}/${d.getMonth() + 1}` : getDayName(d),
-                consultas: count
+                consultas: countMap.get(key) || 0
             });
         }
 
@@ -184,24 +192,26 @@ export const getStats = async (req: AuthRequest, res: Response) => {
             occupancyRate = 78; // Mock value for now
             satisfactionIndex = 4.8; // Mock value for now
 
-            // For GESTOR, only count consults within their clinic
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            teamPerformance = await Promise.all(teamDoctors.map(async (doc: any) => {
-                const consultCount = await prisma.consult.count({
-                    where: {
-                        doctorId: doc.id,
-                        ...(userRole === 'GESTOR' && userClinicId ? { clinicId: userClinicId } : {})
-                    }
-                });
+            // Single aggregation instead of N+1 queries
+            const consultCounts = await prisma.consult.groupBy({
+                by: ['doctorId'],
+                where: {
+                    doctorId: { in: teamDoctors.map(d => d.id) },
+                    ...(userRole === 'GESTOR' && userClinicId ? { clinicId: userClinicId } : {})
+                },
+                _count: { id: true }
+            });
 
-                return {
-                    id: doc.id,
-                    name: doc.name,
-                    specialty: "Clínico Geral", // Mock, needs field in DB or relation
-                    consults: consultCount,
-                    rating: (4 + (doc.name.length % 10) / 10).toFixed(1), // Deterministic rating based on name
-                    status: doc.status
-                };
+            const countByDoctor = new Map(consultCounts.map(c => [c.doctorId, c._count.id]));
+
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            teamPerformance = teamDoctors.map((doc: any) => ({
+                id: doc.id,
+                name: doc.name,
+                specialty: "Clínico Geral",
+                consults: countByDoctor.get(doc.id) || 0,
+                rating: (4 + (doc.name.length % 10) / 10).toFixed(1),
+                status: doc.status
             }));
         }
 

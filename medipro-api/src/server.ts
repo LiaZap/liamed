@@ -1,4 +1,5 @@
 import express from 'express';
+import compression from 'compression';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -54,6 +55,7 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 
 // Middlewares
+app.use(compression()); // Gzip responses
 app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
     contentSecurityPolicy: {

@@ -59,6 +59,9 @@ model User {
   vacancies           Vacancy[]
 
   @@index([clinicId])
+  @@index([role])
+  @@index([status])
+  @@index([specialty])
   @@map("users")
 }
 
@@ -80,6 +83,7 @@ model Consult {
   @@index([clinicId])
   @@index([date])
   @@index([status])
+  @@index([doctorId, date])
   @@map("consults")
 }
 
