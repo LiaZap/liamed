@@ -166,6 +166,7 @@ export default function Vagas() {
     };
 
     return (
+        <>
         <div className="flex flex-col min-h-[70vh] px-2 md:px-6 pb-12">
             
             {/* Header Area */}
@@ -467,7 +468,6 @@ export default function Vagas() {
                 </div>
 
             </div>
-        </div>
 
         {/* Modal for Creating Vacancies */}
         <CreateVacancyModal
@@ -484,7 +484,7 @@ export default function Vagas() {
             vacancy={editingVacancy}
         />
 
-        </div>
+        </>
     )
 }
 
