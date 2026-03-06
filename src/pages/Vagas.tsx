@@ -166,7 +166,6 @@ export default function Vagas() {
     };
 
     return (
-        <PlanGate requiredPlan="PREMIUM" featureName="Mural de Vagas Médicas">
         <div className="flex flex-col min-h-[70vh] px-2 md:px-6 pb-12">
             
             {/* Header Area */}
@@ -485,7 +484,6 @@ export default function Vagas() {
             vacancy={editingVacancy}
         />
 
-        </PlanGate>
     )
 }
 

@@ -91,10 +91,6 @@ export function PlanGate({ requiredPlan, children, featureName }: PlanGateProps)
                         Fazer Upgrade para {PLAN_NAMES[requiredPlan]}
                     </Button>
                     
-                    {/* Extra info */}
-                    <p className="text-xs text-muted-foreground">
-                        🎁 Experimente grátis por 15 dias
-                    </p>
                 </CardContent>
             </Card>
         </div>
