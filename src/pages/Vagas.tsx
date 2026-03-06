@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react"
 import { useAuth } from "@/contexts/AuthContext"
 import { Briefcase, Bell, Mail, MessageCircle, Save, Loader2, Plus, Building2, Calendar, Filter, Trash2, Pencil } from "lucide-react"
-import { PlanGate } from "@/components/PlanGate"
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
