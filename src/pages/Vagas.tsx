@@ -484,6 +484,7 @@ export default function Vagas() {
             vacancy={editingVacancy}
         />
 
+        </div>
     )
 }
 
