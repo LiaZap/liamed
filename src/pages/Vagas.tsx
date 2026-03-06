@@ -166,7 +166,6 @@ export default function Vagas() {
     };
 
     return (
-        <>
         <div className="flex flex-col min-h-[70vh] px-2 md:px-6 pb-12">
             
             {/* Header Area */}
@@ -469,22 +468,22 @@ export default function Vagas() {
 
             </div>
 
-        {/* Modal for Creating Vacancies */}
-        <CreateVacancyModal
-            isOpen={isCreateModalOpen}
-            onClose={() => setIsCreateModalOpen(false)}
-            onSuccess={loadData}
-        />
+            {/* Modal for Creating Vacancies */}
+            <CreateVacancyModal
+                isOpen={isCreateModalOpen}
+                onClose={() => setIsCreateModalOpen(false)}
+                onSuccess={loadData}
+            />
 
-        {/* Modal for Editing Vacancies */}
-        <CreateVacancyModal
-            isOpen={!!editingVacancy}
-            onClose={() => setEditingVacancy(null)}
-            onSuccess={loadData}
-            vacancy={editingVacancy}
-        />
+            {/* Modal for Editing Vacancies */}
+            <CreateVacancyModal
+                isOpen={!!editingVacancy}
+                onClose={() => setEditingVacancy(null)}
+                onSuccess={loadData}
+                vacancy={editingVacancy}
+            />
 
-        </>
+        </div>
     )
 }
 
